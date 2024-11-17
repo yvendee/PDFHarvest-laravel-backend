@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Upload</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f9f9f9;
+        }
+        .logout-button {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background-color: #dc3545; /* Red background */
+            color: white; /* White text */
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 16px;
+            text-decoration: none;
+        }
+        .logout-button:hover {
+            background-color: #c82333; /* Darker red background on hover */
+        }
+
+        .upload-stack-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px; /* Space between stacked containers */
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto; /* Center the container horizontally */
+        }
+
+        .upload-container {
+            background-color: #fff;
+            border: 2px dashed #d3d3d3;
+            border-radius: 10px;
+            width: 100%;
+            text-align: center;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        .upload-container.dragging {
+            border-color: #6c63ff;
+        }
+        .upload-icon {
+            font-size: 50px;
+            color: #6c63ff;
+            margin-bottom: 10px;
+        }
+        .upload-text {
+            font-size: 18px;
+            color: #6c63ff;
+            margin-bottom: 5px;
+        }
+        .upload-link {
+            color: #6c63ff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .upload-link:hover {
+            text-decoration: underline;
+        }
+        .upload-button {
+            display: block;
+            width: 100%;
+            max-width: 200px;
+            margin: 20px auto 0;
+            padding: 10px 0;
+            background-color: #6c63ff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            text-align: center;
+        }
+        .upload-button:hover {
+            background-color: #5751d9;
+        }
+        input[type="file"] {
+            display: none;
+        }
+        
+        .file-list {
+            font-size: 14px;
+            color: #333;
+            margin-top: 10px;
+        }
+
+        .file-name {
+            font-size: 14px;
+            color: #333;
+            margin-top: 10px;
+        }
+
+        /* Spinner styles */
+        .spinner {
+            border: 8px solid #f3f3f3; /* Light grey */
+            border-top: 8px solid #6c63ff; /* Blue */
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .hidden {
+            display: none;
+        }
+
+        .download-buttons {
+            position: absolute;
+            top: 10px;
+            right: 10px; /* Adjusted to stay in the top right corner */
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end; /* Aligned items to end */
+        }
+
+        .download-button {
+            margin-bottom: 10px;
+            background-color: #28a745; /* Green background */
+            color: white; /* White text */
+            border: none; /* No border */
+            border-radius: 5px; /* Rounded corners */
+            padding: 10px 20px; /* Padding for the button */
+            cursor: pointer; /* Pointer cursor on hover */
+            font-size: 16px; /* Increase font size */
+        }
+
+        .download-button:hover {
+            background-color: #218838; /* Darker green on hover */
+        }
+
+        #maidTypeDialog {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            max-width: 400px;
+            padding: 20px;
+            background: #fff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+            z-index: 1000; /* Ensure it is above overlay */
+        }
+
+        #overlay {
+            display: none; /* Initially hidden */
+            position: fixed; /* Cover the entire viewport */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+            z-index: 999; /* Above other content but below modal */
+            pointer-events: auto; /* Ensure overlay captures all clicks */
+        }
+        /* Specific button styles for Maid Type Dialog */
+        .maid-status-form button[type="submit"] {
+            background-color: #28a745; /* Green background for Submit */
+            color: white; /* White text */
+            border: none; /* No border */
+            border-radius: 5px; /* Rounded corners */
+            padding: 10px 20px; /* Padding for the button */
+            cursor: pointer; /* Pointer cursor on hover */
+            font-size: 16px; /* Font size */
+            margin-right: 10px; /* Space between buttons */
+        }
+
+        .maid-status-form button[type="submit"]:hover {
+            background-color: #218838; /* Darker green on hover */
+        }
+
+        .maid-status-form button#cancelMaidSelection {
+            background-color: #dc3545; /* Red background for Cancel */
+            color: white; /* White text */
+            border: none; /* No border */
+            border-radius: 5px; /* Rounded corners */
+            padding: 10px 20px; /* Padding for the button */
+            cursor: pointer; /* Pointer cursor on hover */
+            font-size: 16px; /* Font size */
+        }
+
+        .maid-status-form button#cancelMaidSelection:hover {
+            background-color: #c82333; /* Darker red on hover */
+        }
+        
+        /* Additional styles for status message */
+        .status-message {
+            margin-top: 10px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .status-message.success {
+            color: #28a745; /* Green for success */
+        }
+        .status-message.failure {
+            color: #dc3545; /* Red for failure */
+        }
+    </style>
+</head>
+<body>
+
+    <a href="/" class="logout-button">Back</a>
+    
+    <div class="download-buttons">
+        <button class="download-button" onclick="goToCustomPrompt()">Custom Prompt Edit</button>
+        <button class="download-button" onclick="goToDefaultOptions()">Default Options</button>
+    </div>
+    
+    <div class="upload-stack-container">
+        <div class="upload-container" id="uploadContainer">
+            <div class="upload-icon">📁</div>
+            <div class="upload-text">Drag & drop files or <a href="#" class="upload-link" id="browseLink">Browse</a></div>
+            <div class="upload-formats">Supported formats: PDF, DOC, DOCX</div>
+            <div class="file-list" id="fileList"></div>
+            <input type="file" id="fileInput" accept=".pdf, .doc, .docx" multiple>
+            <button class="upload-button" id="uploadButton">Upload Files</button>
+            <div class="spinner hidden" id="spinner"></div>
+        </div>
+    
+        <div class="upload-container" id="ocrUploadContainer">
+            <div class="upload-icon">📄</div>
+            <div class="upload-text">Upload Existing OCR.txt <a href="#" class="upload-link" id="ocrBrowseLink">Browse</a></div>
+            <div class="upload-formats">Supported formats: TXT</div>
+            <div class="file-name" id="ocrFileName"></div> <!-- New element to display filename -->
+            <input type="file" id="ocrFileInput" accept=".txt">
+            <button class="upload-button" id="ocrUploadButton">Upload OCR</button>
+            <div class="spinner hidden" id="ocrSpinner"></div>
+        </div>
+    </div>
+    
+    <!-- Maid Type Selection Dialog -->
+    <div id="maidTypeDialog">
+        <h2>Select Predefined Maid Type</h2>
+        <form id="maid-form" class="maid-status-form">
+            <input type="radio" id="none" name="maid_status" value="None" checked required>
+            <label for="none">None</label><br>
+            
+            <input type="radio" id="new_maid" name="maid_status" value="New Maid">
+            <label for="new_maid">New Maid</label><br>
+            
+            <input type="radio" id="transfer_maid" name="maid_status" value="Transfer Maid">
+            <label for="transfer_maid">Transfer Maid</label><br>
+            
+            <input type="radio" id="ex_sg_maid" name="maid_status" value="Ex-SG Maid">
+            <label for="ex_sg_maid">Ex-SG Maid</label><br>
+            <br>
+            
+            <button type="submit" id="confirmButton">Confirm</button>
+            <button type="button" id="cancelMaidSelection">Cancel</button>
+            <div id="statusMessage" class="status-message"></div>
+        </form>
+    </div>
+    
+    <!-- Background overlay -->
+    <div id="overlay"></div>
+    
+    <script>
+        const uploadContainer = document.getElementById('uploadContainer');
+        const fileInput = document.getElementById('fileInput');
+        const uploadButton = document.getElementById('uploadButton');
+        const fileList = document.getElementById('fileList');
+        const spinner = document.getElementById('spinner');
+        const ocrFileInput = document.getElementById('ocrFileInput');
+        const ocrUploadButton = document.getElementById('ocrUploadButton');
+        const ocrSpinner = document.getElementById('ocrSpinner');
+        const ocrBrowseLink = document.getElementById('ocrBrowseLink');
+        const ocrFileName = document.getElementById('ocrFileName');
+        const maidTypeDialog = document.getElementById('maidTypeDialog');
+        const overlay = document.getElementById('overlay');
+        const maidForm = document.getElementById('maid-form');
+        const cancelMaidSelection = document.getElementById('cancelMaidSelection');
+        const confirmButton = document.getElementById('confirmButton');
+        const statusMessage = document.getElementById('statusMessage');
+    
+        // Show file input dialog when 'Browse' link is clicked for PDF
+        document.getElementById('browseLink').addEventListener('click', function(event) {
+            event.preventDefault();
+            fileInput.click();
+        });
+    
+        // Show file input dialog when 'Browse' link is clicked for OCR.txt
+        ocrBrowseLink.addEventListener('click', function(event) {
+            event.preventDefault();
+            ocrFileInput.click();
+        });
+    
+        // Update file list when files are selected
+        fileInput.addEventListener('change', function() {
+            updateFileList();
+        });
+
+        // Update file name when OCR file is selected
+        ocrFileInput.addEventListener('change', function() {
+            if (ocrFileInput.files.length > 0) {
+                ocrFileName.textContent = ` ${ocrFileInput.files[0].name}`;
+            } else {
+                ocrFileName.textContent = ''; // Clear the file name display if no file is selected
+            }
+        });
+    
+        // Handle file upload button click
+        uploadButton.addEventListener('click', function() {
+            if (fileInput.files.length > 0) {
+                // Show spinner and hide the upload button
+                spinner.classList.remove('hidden');
+                uploadButton.classList.add('hidden');
+                overlay.style.display = 'block'; // Show overlay
+                maidTypeDialog.style.display = 'block'; // Show Maid Type Dialog
+            } else {
+                alert('Please select files first.');
+            }
+        });
+    
+        // Handle OCR file upload button click
+        ocrUploadButton.addEventListener('click', function() {
+            if (ocrFileInput.files.length > 0) {
+                ocrSpinner.classList.remove('hidden');
+                ocrUploadButton.classList.add('hidden');
+                
+                const formData = new FormData();
+                formData.append('file', ocrFileInput.files[0]);
+    
+                // fetch('/upload2', {
+                //     method: 'POST',
+                //     body: formData
+                // }).then(response => response.json())
+                //   .then(result => {
+                //       ocrSpinner.classList.add('hidden');
+                //       ocrUploadButton.classList.remove('hidden');
+                      
+                //       if (result.success) {
+                //           statusMessage.textContent = 'Upload successful';
+                //           statusMessage.className = 'status-message success';
+                //       } else {
+                //           statusMessage.textContent = result.message || 'An error occurred';
+                //           statusMessage.className = 'status-message failure';
+                //       }
+                //   })
+                //   .catch(error => {
+                //       ocrSpinner.classList.add('hidden');
+                //       ocrUploadButton.classList.remove('hidden');
+                //       console.error('Error:', error);
+                //       statusMessage.textContent = 'An error occurred';
+                //       statusMessage.className = 'status-message failure';
+                //   });
+            
+                fetch('/upload2', {
+                    method: 'POST',
+                    body: formData
+                }).then(response => response.json())
+                  .then(result => {
+                      // Hide spinner and show upload button
+                      spinner.classList.add('hidden');
+                      uploadButton.classList.remove('hidden');
+                      
+                      if (result.session_id) {
+                          window.location.href = `/extract?session_id=${result.session_id}`;
+                      } else {
+                          alert(result.message || 'An error occurred');
+                      }
+                  })
+                  .catch(error => {
+                      // Hide spinner and show upload button on error
+                      spinner.classList.add('hidden');
+                      uploadButton.classList.remove('hidden');
+                      console.error('Error:', error);
+                  });
+            
+
+            } else {
+                alert('Please select an OCR.txt file first.');
+            }
+        });
+    
+        // Handle Maid Type Form submission
+        maidForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const selectedMaidType = document.querySelector('input[name="maid_status"]:checked');
+            if (selectedMaidType) {
+                // Hide the dialog
+                maidTypeDialog.style.display = 'none';
+                overlay.style.display = 'none'; // Hide overlay
+    
+                // Show spinner
+                spinner.classList.remove('hidden');
+    
+                // Prepare the form data
+                const formData = new FormData();
+                for (let i = 0; i < fileInput.files.length; i++) {
+                    formData.append('files', fileInput.files[i]);
+                }
+                formData.append('maid_status', selectedMaidType.value);
+    
+                fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                }).then(response => response.json())
+                  .then(result => {
+                      // Hide spinner and show upload button
+                      spinner.classList.add('hidden');
+                      uploadButton.classList.remove('hidden');
+                      
+                    if (result.session_id) {
+                          window.location.href = `/status?session_id=${result.session_id}`;
+                      } else {
+                         alert(result.message || 'An error occurred');
+                    }
+
+                  })
+                  .catch(error => {
+                      // Hide spinner and show upload button on error
+                      spinner.classList.add('hidden');
+                      uploadButton.classList.remove('hidden');
+                      console.error('Error:', error);
+                  });
+            
+            } else {
+                alert('Please select a Maid Type.');
+            }
+        });
+    
+        // Handle 'Confirm' button click in Maid Type Dialog
+        confirmButton.addEventListener('click', function() {
+            const selectedMaidType = document.querySelector('input[name="maid_status"]:checked');
+            if (selectedMaidType) {
+                const maidStatus = selectedMaidType.value;
+    
+                fetch('/edit-default-options-value', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({ 'maid_status': maidStatus })
+                }).then(response => response.json())
+                  .then(data => {
+                      if (data.success) {
+                          statusMessage.textContent = 'Success';
+                          statusMessage.className = 'status-message success';
+                      } else {
+                          statusMessage.textContent = 'Failed';
+                          statusMessage.className = 'status-message failure';
+                      }
+                  })
+                  .catch(error => {
+                      console.error('Error:', error);
+                      statusMessage.textContent = 'Failed';
+                      statusMessage.className = 'status-message failure';
+                  });
+            } else {
+                alert('Please select a Maid Type.');
+            }
+        });
+    
+        // Handle 'Cancel' button click in Maid Type Dialog
+        cancelMaidSelection.addEventListener('click', function() {
+            // Hide the dialog and overlay
+            overlay.style.display = 'none';
+            maidTypeDialog.style.display = 'none';
+    
+            // Reset the spinner and upload button
+            spinner.classList.add('hidden');
+            uploadButton.classList.remove('hidden');
+    
+            // Clear file input (optional, if you want to reset file selection)
+            fileInput.value = '';
+            fileList.textContent = '';
+        });
+    
+        // Handle background overlay click
+        overlay.addEventListener('click', function() {
+            overlay.style.display = 'none'; // Hide overlay
+            maidTypeDialog.style.display = 'none'; // Hide Maid Type Dialog
+    
+            // Reset the spinner and upload button
+            spinner.classList.add('hidden');
+            uploadButton.classList.remove('hidden');
+    
+            // Clear file input (optional, if you want to reset file selection)
+            fileInput.value = '';
+            fileList.textContent = '';
+        });
+    
+        // Handle drag and drop events
+        uploadContainer.addEventListener('dragover', function(event) {
+            event.preventDefault();
+            uploadContainer.classList.add('dragging');
+        });
+    
+        uploadContainer.addEventListener('dragleave', function() {
+            uploadContainer.classList.remove('dragging');
+        });
+    
+        uploadContainer.addEventListener('drop', function(event) {
+            event.preventDefault();
+            uploadContainer.classList.remove('dragging');
+            fileInput.files = event.dataTransfer.files;
+            updateFileList();
+        });
+    
+        // Update file list display
+        function updateFileList() {
+            const files = fileInput.files;
+            const fileNames = Array.from(files).map(file => file.name);
+            const truncatedFileNames = fileNames.map(name => name.length > 30 ? name.slice(0, 30) + '...' : name);
+            fileList.textContent = truncatedFileNames.join(', ');
+        }
+    
+        // Navigation functions
+        function goToCustomPrompt() {
+            window.location.href = '/custom-prompt';
+        }
+    
+        function goToDefaultOptions(){
+            window.location.href = '/default-options';
+        }
+    </script>
+    
+    </body>
+</html>

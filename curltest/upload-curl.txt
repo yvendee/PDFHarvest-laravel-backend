@@ -1,0 +1,2 @@
+for %f in (files\*) do curl -X POST -F "files=@%f" http://localhost:5000/upload/sessionidhere
+

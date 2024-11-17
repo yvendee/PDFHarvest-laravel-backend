@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Default Options</title>
+    <style>
+        .button {
+            margin-right: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            background-color: #28a745; /* Green background */
+            transition: background-color 0.3s ease;
+        }
+        .button:hover {
+            background-color: #218838; /* Darker green on hover */
+        }
+        .message {
+            color: green;
+            font-size: 16px;
+            margin-top: 10px;
+            display: none; /* Hidden by default */
+            text-align: center; /* Center text */
+        }
+        .logout-button {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background-color: #dc3545; /* Red background */
+            color: white; /* White text */
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 16px;
+            text-decoration: none;
+        }
+        .logout-button:hover {
+            background-color: #c82333; /* Darker red background on hover */
+        }
+        /* Styling for the form with border radius */
+        .maid-status-form {
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            padding: 20px;
+            max-width: 500px;
+            margin: 20px auto;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .maid-status-form input[type="radio"] {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <a href="/home" class="logout-button">Back</a>
+    <br>
+    <br>
+
+    <form id="maid-form" class="maid-status-form" action="/edit-default-options-value" method="post">
+        <h2>Select Predefined Maid Type</h2>
+        <input type="radio" id="none" name="maid_status" value="None" {% if maid_status_global == "None" %}checked{% endif %}>
+        <label for="none">None</label><br>
+        
+        <input type="radio" id="new_maid" name="maid_status" value="New Maid" {% if maid_status_global == "New Maid" %}checked{% endif %}>
+        <label for="new_maid">New Maid</label><br>
+        
+        <input type="radio" id="transfer_maid" name="maid_status" value="Transfer Maid" {% if maid_status_global == "Transfer Maid" %}checked{% endif %}>
+        <label for="transfer_maid">Transfer Maid</label><br>
+        
+        <input type="radio" id="ex_sg_maid" name="maid_status" value="Ex-SG Maid" {% if maid_status_global == "Ex-SG Maid" %}checked{% endif %}>
+        <label for="ex_sg_maid">Ex-SG Maid</label><br>
+        <br>
+        
+        <button type="submit" class="button">Submit</button>
+    </form>
+    
+    <!-- Message div that will display the success message -->
+    <div id="message" class="message">Value Set Success</div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('maid-form');
+            const message = document.getElementById('message');
+
+            form.addEventListener('submit', function(event) {
+                event.preventDefault(); // Prevent the default form submission
+
+                const formData = new FormData(form);
+
+                fetch(form.action, {
+                    method: form.method,
+                    body: formData
+                })
+                .then(response => response.json()) // Assuming your server returns JSON
+                .then(data => {
+                    if (data.success) { // Check the response for success
+                        message.style.display = 'block';
+
+                        // Hide the message after 2 seconds
+                        setTimeout(function() {
+                            message.style.display = 'none';
+                        }, 2000); // 2000 milliseconds = 2 seconds
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

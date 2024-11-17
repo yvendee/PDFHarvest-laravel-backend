@@ -1,0 +1,3 @@
+curl -X DELETE "http://localhost:5000/clear/<session_id>"
+
+curl -X DELETE "http://localhost:5000/clear/ff0c5ae7aeb9a87648cb12b33fd59ed0"

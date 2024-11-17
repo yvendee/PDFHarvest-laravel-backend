@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OCR Settings</title>
+    <style>
+        .container {
+            display: flex;
+            flex-direction: column; /* Align buttons in a column */
+            align-items: center; /* Center align items */
+            margin-top: 50px;
+        }
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+            margin-bottom: 10px; /* Adjust spacing between switches */
+        }
+        .switch input { 
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #2196F3;
+        }
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        .slider.round {
+            border-radius: 34px;
+        }
+        .slider.round:before {
+            border-radius: 50%;
+        }
+        /* Style for the back button */
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background-color: red;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+        }
+
+        .rounded-box {
+    border: 1px solid #ccc; /* Border color and width */
+    border-radius: 10px;    /* Rounded corner radius */
+    padding: 20px;          /* Padding inside the box */
+    width: fit-content;     /* Adjust width to content */
+    display: inline-block;  /* Allow to display inline */
+    margin-bottom: 20px;    /* Space at the bottom */
+}
+
+        
+    </style>
+</head>
+<body>
+    <button class="back-button" onclick="goBack()">Back</button>
+    
+    <div class="container">
+        <h2>OCR Settings</h2>
+
+        <div class="rounded-box">
+            <label class="switch">
+                <input type="checkbox" id="gpt4omini_toggle">
+                <span class="slider round"></span>
+            </label>
+            <p>GPT4o mini OCR &nbsp;</p>
+        </div>
+
+        <div class="rounded-box">
+            <label class="switch">
+                <input type="checkbox" id="gpt4o_toggle">
+                <span class="slider round"></span>
+            </label>
+            <p>GPT4o OCR &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p>
+        </div>
+        
+        <div class="rounded-box">
+            <label class="switch">
+                <input type="checkbox" id="claude_toggle">
+                <span class="slider round"></span>
+            </label>
+            <p>Claude Haiku OCR</p>
+        </div>
+
+        <div class="rounded-box">
+            <label class="switch">
+                <input type="checkbox" id="tesseract_toggle" checked>
+                <span class="slider round"></span>
+            </label>
+            <p>Tesseract OCR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p>
+        </div>
+
+        <h2>Structured Text Settings</h2>
+
+
+        <div class="rounded-box">
+            <label class="switch">
+                <input type="checkbox" id="st_gpt4omini_toggle">
+                <span class="slider round"></span>
+            </label>
+            <p>GPT4o mini</p>
+        </div>
+
+        <!-- <div class="rounded-box">
+            <label class="switch">
+                <input type="checkbox" id="tesseract_toggle" checked>
+                <span class="slider round"></span>
+            </label>
+            <p>GPT4o &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p>
+        </div> -->
+        
+        <div class="rounded-box">
+            <label class="switch">
+                <input type="checkbox" id="st_gpt35_toggle">
+                <span class="slider round"></span>
+            </label>
+            <p>GPT3.5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p>
+        </div>
+        
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Fetch initial OCR setting
+            fetch('/current-ocr')
+                .then(response => response.json())
+                .then(data => {
+                    const currentOCR = data.current_ocr;
+                    // Update UI based on initial OCR setting
+                    switch (currentOCR) {
+
+                        case 'gpt4ominiOCR':
+                            document.getElementById('gpt4omini_toggle').checked = true;
+                            document.getElementById('gpt4o_toggle').checked = false;
+                            document.getElementById('tesseract_toggle').checked = false;
+                            document.getElementById('claude_toggle').checked = false;
+                            break;
+
+                        case 'gpt4oOCR':
+                            document.getElementById('gpt4omini_toggle').checked = false;
+                            document.getElementById('gpt4o_toggle').checked = true;
+                            document.getElementById('tesseract_toggle').checked = false;
+                            document.getElementById('claude_toggle').checked = false;
+                            break;
+                        case 'tesseractOCR':
+                            document.getElementById('gpt4omini_toggle').checked = false;
+                            document.getElementById('gpt4o_toggle').checked = false;
+                            document.getElementById('tesseract_toggle').checked = true;
+                            document.getElementById('claude_toggle').checked = false;
+                            break;
+                        case 'claudeOCR':
+                            document.getElementById('gpt4omini_toggle').checked = false;
+                            document.getElementById('gpt4o_toggle').checked = false;
+                            document.getElementById('tesseract_toggle').checked = false;
+                            document.getElementById('claude_toggle').checked = true;
+                            break;
+                        default:
+                            break;
+                    }
+                })
+                .catch(error => console.error('Error fetching current OCR:', error));
+        });
+
+        document.getElementById('gpt4omini_toggle').addEventListener('change', function() {
+            if (this.checked) {
+                toggleOCRSetting('gpt4omini', true);
+                document.getElementById('gpt4o_toggle').checked = false;
+                document.getElementById('tesseract_toggle').checked = false;
+                document.getElementById('claude_toggle').checked = false;
+            }
+        });
+
+        document.getElementById('gpt4o_toggle').addEventListener('change', function() {
+            if (this.checked) {
+                toggleOCRSetting('gpt4o', true);
+                document.getElementById('gpt4omini_toggle').checked = false;
+                document.getElementById('tesseract_toggle').checked = false;
+                document.getElementById('claude_toggle').checked = false;
+            }
+        });
+
+        document.getElementById('tesseract_toggle').addEventListener('change', function() {
+            if (this.checked) {
+                toggleOCRSetting('tesseract', true);
+                document.getElementById('gpt4omini_toggle').checked = false;
+                document.getElementById('gpt4o_toggle').checked = false;
+                document.getElementById('claude_toggle').checked = false;
+            }
+        });
+
+        document.getElementById('claude_toggle').addEventListener('change', function() {
+            if (this.checked) {
+                toggleOCRSetting('claude', true);
+                document.getElementById('gpt4omini_toggle').checked = false;
+                document.getElementById('gpt4o_toggle').checked = false;
+                document.getElementById('tesseract_toggle').checked = false;
+            }
+        });
+
+        function toggleOCRSetting(setting, enabled) {
+            // Example AJAX call using fetch
+            fetch(`/toggle-ocr/${setting}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ enabled: enabled })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);  // Handle response from server
+                // Optionally update UI based on response
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Fetch initial Structured Text setting
+            fetch('/current-st')
+                .then(response => response.json())
+                .then(data => {
+                    const currentST = data.current_structured_text;
+                    // Update UI based on initial Structured Text setting
+                    switch (currentST) {
+                        case 'gpt4omini':
+                            document.getElementById('st_gpt4omini_toggle').checked = true;
+                            document.getElementById('st_gpt35_toggle').checked = false;
+                            // document.getElementById('claude_toggle').checked = false;
+                            break;
+                        case 'gpt35':
+                            document.getElementById('st_gpt4omini_toggle').checked = false;
+                            document.getElementById('st_gpt35_toggle').checked = true;
+                            // document.getElementById('claude_toggle').checked = false;
+                            break;
+                        default:
+                            break;
+                    }
+                })
+                .catch(error => console.error('Error fetching current Structured Text:', error));
+        });
+
+        document.getElementById('st_gpt4omini_toggle').addEventListener('change', function() {
+            if (this.checked) {
+                toggleSTSetting('gpt4omini', true);
+                document.getElementById('st_gpt35_toggle').checked = false;
+                // document.getElementById('claude_toggle').checked = false;
+            }
+        });
+
+        document.getElementById('st_gpt35_toggle').addEventListener('change', function() {
+            if (this.checked) {
+                toggleSTSetting('gpt35', true);
+                document.getElementById('st_gpt4omini_toggle').checked = false;
+                // document.getElementById('claude_toggle').checked = false;
+            }
+        });
+
+        function toggleSTSetting(setting, enabled) {
+            // Example AJAX call using fetch
+            fetch(`/toggle-st/${setting}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ enabled: enabled })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);  // Handle response from server
+                // Optionally update UI based on response
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+
+
+        function goBack() {
+            window.location.href = '/';
+        }
+    </script>
+</body>
+</html>
