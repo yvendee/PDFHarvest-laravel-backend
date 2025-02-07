@@ -90,14 +90,12 @@
         }
         input[type="file"] {
             display: none;
-        }
-        
+        }   
         .file-list {
             font-size: 14px;
             color: #333;
             margin-top: 10px;
         }
-
         .file-name {
             font-size: 14px;
             color: #333;
@@ -217,11 +215,12 @@
 </head>
 <body>
 
-    <a href="/" class="logout-button">Back</a>
+    <a href='{{ backendurl }}/' class="logout-button">Back</a>
     
     <div class="download-buttons">
         <button class="download-button" onclick="goToCustomPrompt()">Custom Prompt Edit</button>
         <button class="download-button" onclick="goToDefaultOptions()">Default Options</button>
+        <button class="download-button" onclick="goToRunningJobs()">Running Jobs</button>
     </div>
     
     <div class="upload-stack-container">
@@ -337,32 +336,8 @@
                 
                 const formData = new FormData();
                 formData.append('file', ocrFileInput.files[0]);
-    
-                // fetch('/upload2', {
-                //     method: 'POST',
-                //     body: formData
-                // }).then(response => response.json())
-                //   .then(result => {
-                //       ocrSpinner.classList.add('hidden');
-                //       ocrUploadButton.classList.remove('hidden');
-                      
-                //       if (result.success) {
-                //           statusMessage.textContent = 'Upload successful';
-                //           statusMessage.className = 'status-message success';
-                //       } else {
-                //           statusMessage.textContent = result.message || 'An error occurred';
-                //           statusMessage.className = 'status-message failure';
-                //       }
-                //   })
-                //   .catch(error => {
-                //       ocrSpinner.classList.add('hidden');
-                //       ocrUploadButton.classList.remove('hidden');
-                //       console.error('Error:', error);
-                //       statusMessage.textContent = 'An error occurred';
-                //       statusMessage.className = 'status-message failure';
-                //   });
-            
-                fetch('/upload2', {
+                
+                fetch('{{ backendurl }}/api/file-upload/{{sessionId}}', {
                     method: 'POST',
                     body: formData
                 }).then(response => response.json())
@@ -372,7 +347,7 @@
                       uploadButton.classList.remove('hidden');
                       
                       if (result.session_id) {
-                          window.location.href = `/extract?session_id=${result.session_id}`;
+                          window.location.href = `{{ backendurl }}/extract?session_id=${result.session_id}`;
                       } else {
                           alert(result.message || 'An error occurred');
                       }
@@ -405,11 +380,12 @@
                 // Prepare the form data
                 const formData = new FormData();
                 for (let i = 0; i < fileInput.files.length; i++) {
-                    formData.append('files', fileInput.files[i]);
+                    formData.append('files[]', fileInput.files[i]);
                 }
                 formData.append('maid_status', selectedMaidType.value);
     
-                fetch('/upload', {
+                // fetch('{{ backendurl }}/api/upload/{{sessionId}}', {
+                fetch('{{ backendurl }}/api/file-upload/{{sessionId}}', {
                     method: 'POST',
                     body: formData
                 }).then(response => response.json())
@@ -419,8 +395,11 @@
                       uploadButton.classList.remove('hidden');
                       
                     if (result.session_id) {
-                          window.location.href = `/status?session_id=${result.session_id}`;
-                      } else {
+                        //   window.location.href = `{{ backendurl }}/process?session_id=${result.session_id}`;
+                        // window.location.href = `{{ backendurl }}/process/${result.session_id}`;
+                        window.location.href = `{{ backendurl }}/add-query?sessionId=${result.session_id}`;
+  
+                    } else {
                          alert(result.message || 'An error occurred');
                     }
 
@@ -443,7 +422,7 @@
             if (selectedMaidType) {
                 const maidStatus = selectedMaidType.value;
     
-                fetch('/edit-default-options-value', {
+                fetch('{{ backendurl }}/api/edit-default-options-value', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                     body: new URLSearchParams({ 'maid_status': maidStatus })
@@ -523,11 +502,15 @@
     
         // Navigation functions
         function goToCustomPrompt() {
-            window.location.href = '/custom-prompt';
+            window.location.href = '{{ backendurl }}/custom-prompt-editor';
         }
     
         function goToDefaultOptions(){
-            window.location.href = '/default-options';
+            window.location.href = '{{ backendurl }}/default-options';
+        }
+
+        function goToRunningJobs(){
+            window.location.href = '{{ backendurl }}/running-jobs';
         }
     </script>
     

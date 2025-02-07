@@ -1,0 +1,617 @@
+<!-- templates\running_jobs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Running Jobs</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /* height: 100vh; */
+            margin: 500;
+            background-color: #f0f0f0;
+        }
+
+        .app-container {
+            position: relative;
+        }
+
+        
+        .horizontal-box{
+            flex: 1; 
+            display: flex; 
+            flex-direction: row;
+            /* border: solid purple; */
+            align-items: center;
+            white-space: nowrap;
+            padding-bottom: 30px;
+        }
+
+        .vertical-box {
+            flex-direction: column;
+            align-items: right; 
+            justify-content: right; 
+            margin: 5px;
+        }
+
+        .nested-box {
+
+            display: flex;
+            width: 150px;
+            justify-content: center;
+        }
+
+        .container {
+            text-align: center;
+        }
+
+        .btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 24px;
+            font-size: 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            /* margin: 5px; */
+        }
+        .btn:hover {
+            background-color: #45a049;
+        }
+        .clear-btn {
+            background-color: #dc3545;
+        }
+        .clear-btn:hover {
+            background-color: #c82333;
+        }
+
+        /* Style for the label */
+        label {
+            color: #000000; 
+            font-family: Arial, sans-serif; 
+            font-size: 18px;
+            white-space: nowrap;
+        }
+
+
+        .label-red {
+            color: #ee0000; 
+            font-family: Arial, sans-serif; 
+            font-size: 18px; 
+            white-space: nowrap;
+        }
+
+        .status-btn {
+            padding: 5px 10px;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .link, .label {
+            padding: 5px 10px;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: bold;
+            /* width: 200px; */
+        }
+        .btn-green {
+            background-color: green;
+        }
+        .link-yellow {
+            background-color: yellow;
+            color: black;
+        }
+        .label-white {
+            background-color: white;
+            color: black;
+        }
+        .link-red {
+            background-color: red;
+            color: white;
+        }
+
+        .label-container {
+            width: 200px;;
+        }
+
+        .button-container {
+            width: 200px;;
+        }
+
+        .time-container {
+            width: 200px;;
+        }
+
+        .app-container-spacer {
+            height: 50px;
+        }
+
+
+
+        .back-button{
+            background-color: #ff0800;  /* Green background */
+            color: white;               /* Text color */
+            padding: 10px 20px;         /* Padding */
+            text-decoration: none;      /* Remove underline */
+            border-radius: 5px;         /* Rounded corners */
+            display: inline-block;      /* Display as inline block */
+            font-size: 16px;            /* Font size */
+        }
+
+        .add-query-button {
+            background-color: #4CAF50;  /* Green background */
+            color: white;               /* Text color */
+            padding: 10px 20px;         /* Padding */
+            text-decoration: none;      /* Remove underline */
+            border-radius: 5px;         /* Rounded corners */
+            display: inline-block;      /* Display as inline block */
+            font-size: 16px;            /* Font size */
+        }
+
+        .back-button:hover, .add-query-button:hover {
+            background-color: #929492;  /* Slightly darker shade on hover */
+        }
+
+        /* Back button styling - positioned top left */
+        .back-button {
+            position: fixed;            /* Fix to top left */
+            top: 10px;                  /* 10px from the top */
+            left: 10px;                 /* 10px from the left */
+        }
+
+        /* Add Query button styling - positioned top right */
+        .add-query-button {
+            position: fixed;            /* Fix to top right */
+            top: 10px;                  /* 10px from the top */
+            right: 10px;                /* 10px from the right */
+        }
+
+
+                /* Modal styles */
+                .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); /* Overlay background */
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .modal-buttons {
+            margin-top: 20px;
+        }
+
+        .modal-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 0 10px;
+            border: none;
+            border-radius: 5px;
+        }
+
+        .modal-button.cancel {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .modal-button.confirm {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        
+    </style>
+</head>
+<body>
+    <a href="{{ backendurl }}/" class="back-button">Back</a>
+    <a href="{{ backendurl }}/home" class="add-query-button">Add Query</a>
+    <!-- <a href="#" class="add-query-button" id="add-query-btn">Add Query</a> -->
+
+    <div class="container">
+
+        <div class="app-container"> 
+
+            <div classname="vertical-box">
+                <div classname="app-container-spacer">
+                    &nbsp;
+                </div>
+                <br>
+            </div>
+
+            <div classname="vertical-box">
+
+                <div class="vertical-box">
+                    <div class="horizontal-box">
+                        <div class="nested-box">    
+                            <label class="label-red">Queue Label</label>
+                        </div>
+            
+                        <div class="nested-box">    
+                            <label class="label-red">Status</label>
+                        </div>
+            
+                        <div class="nested-box"> 
+                            <label class="label-red" >Time</label>
+                        </div>
+            
+                        <div class="nested-box">  
+                            <label class="label-red" >#Biodata</label>
+                        </div>
+            
+                        <div class="nested-box">  
+                            <label class="label-red">Rate</label>
+                        </div>
+
+                        <div class="nested-box">  
+                            <label class="label-red">Action</label>
+                        </div>
+            
+                    </div>
+                </div>
+    
+                <div id="main-container"></div> <!-- Parent container for all the vertical boxes -->
+        
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal HTML structure -->
+    <div id="delete-modal" class="modal">
+        <div class="modal-content">
+            <h3>Are you sure you want to delete?</h3>
+            <div class="modal-buttons">
+                <button class="modal-button confirm" id="confirm-delete">OK</button>
+                <button class="modal-button cancel" id="cancel-delete">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+
+        // Store the query_id to be deleted
+        let queryIdToDelete = null;
+
+        // Function to open the delete confirmation modal
+        function showDeleteModal(query_id) {
+            queryIdToDelete = query_id;  // Save the query_id to delete
+            document.getElementById('delete-modal').style.display = 'flex'; // Show the modal
+        }
+
+        // Close the modal without deleting
+        function closeModal() {
+            document.getElementById('delete-modal').style.display = 'none'; // Hide the modal
+            queryIdToDelete = null;  // Reset the query_id
+        }
+
+        // Function to execute the delete action
+        document.getElementById('confirm-delete').addEventListener('click', function() {
+            if (queryIdToDelete) {
+                deleteFiles(queryIdToDelete); // Call the delete function
+            }
+            closeModal(); // Close the modal after deletion or cancel
+        });
+
+        // Close the modal when cancel is clicked
+        document.getElementById('cancel-delete').addEventListener('click', closeModal);
+
+        // Close the modal if the user clicks outside the modal content
+        window.addEventListener('click', function(event) {
+            const modal = document.getElementById('delete-modal');
+            if (event.target === modal) {
+                closeModal(); // Close modal if clicked outside
+            }
+        });
+
+ 
+        // // Sample data to loop through
+        // var data = [
+        //     {
+        //         query_label: "Query Label Example 1",
+        //         query_id: "12345",
+        //         status: "download",    // Status can be 'download', 'inprogress', 'waiting', or 'failed'
+        //         up_time: "2 hours",
+        //         num_files: "5 files",
+        //         rate: "50 KB/s"
+        //     },
+        //     {
+        //         query_label: "Query Label Example 2",
+        //         query_id: "67890",
+        //         status: "inprogress",
+        //         up_time: "1 hour",
+        //         num_files: "3 files",
+        //         rate: "30 KB/s"
+        //     },
+        //     {
+        //         query_label: "Query Label Example 3",
+        //         query_id: "11223",
+        //         status: "waiting",
+        //         up_time: "10 minutes",
+        //         num_files: "10 files",
+        //         rate: "70 KB/s"
+        //     },
+        //     {
+        //         query_label: "Query Label Example 3",
+        //         query_id: "11223",
+        //         status: "waiting",
+        //         up_time: "10 minutes",
+        //         num_files: "10 files",
+        //         rate: "70 KB/s"
+        //     },
+        //     {
+        //         query_label: "Query Label Example 3",
+        //         query_id: "11223",
+        //         status: "waiting",
+        //         up_time: "10 minutes",
+        //         num_files: "10 files",
+        //         rate: "70 KB/s"
+        //     },
+        //     {
+        //         query_label: "Query Label Example 3",
+        //         query_id: "11223",
+        //         status: "waiting",
+        //         up_time: "10 minutes",
+        //         num_files: "10 files",
+        //         rate: "70 KB/s"
+        //     },
+        //     {
+        //         query_label: "Query Label Example 3",
+        //         query_id: "11223",
+        //         status: "waiting",
+        //         up_time: "10 minutes",
+        //         num_files: "10 files",
+        //         rate: "70 KB/s"
+        //     },
+        //     {
+        //         query_label: "Query Label Example 3",
+        //         query_id: "11223",
+        //         status: "waiting",
+        //         up_time: "10 minutes",
+        //         num_files: "10 files",
+        //         rate: "70 KB/s"
+        //     },
+        //     {
+        //         query_label: "Query Label Example 3",
+        //         query_id: "11223",
+        //         status: "waiting",
+        //         up_time: "10 minutes",
+        //         num_files: "10 files",
+        //         rate: "70 KB/s"
+        //     },
+        //     {
+        //         query_label: "Query Label Example 3",
+        //         query_id: "11223",
+        //         status: "waiting",
+        //         up_time: "10 minutes",
+        //         num_files: "10 files",
+        //         rate: "70 KB/s"
+        //     },
+        //     {
+        //         query_label: "Query Label Example 3",
+        //         query_id: "11223",
+        //         status: "waiting",
+        //         up_time: "10 minutes",
+        //         num_files: "10 files",
+        //         rate: "70 KB/s"
+        //     },
+        //     {
+        //         query_label: "Query Label Example 3",
+        //         query_id: "11223",
+        //         status: "waiting",
+        //         up_time: "10 minutes",
+        //         num_files: "10 files",
+        //         rate: "70 KB/s"
+        //     },
+        //     {
+        //         query_label: "Query Label Example 3",
+        //         query_id: "11223",
+        //         status: "waiting",
+        //         up_time: "10 minutes",
+        //         num_files: "10 files",
+        //         rate: "70 KB/s"
+        //     },
+        //     {
+        //         query_label: "Query Label Example 3",
+        //         query_id: "11223",
+        //         status: "waiting",
+        //         up_time: "10 minutes",
+        //         num_files: "10 files",
+        //         rate: "70 KB/s"
+        //     },
+        //     {
+        //         query_label: "Query Label Example 3",
+        //         query_id: "11223",
+        //         status: "waiting",
+        //         up_time: "10 minutes",
+        //         num_files: "10 files",
+        //         rate: "70 KB/s"
+        //     },
+        //     {
+        //         query_label: "Query Label Example 3",
+        //         query_id: "11223",
+        //         status: "waiting",
+        //         up_time: "10 minutes",
+        //         num_files: "10 files",
+        //         rate: "70 KB/s"
+        //     },
+        //     {
+        //         query_label: "Query Label Example 4",
+        //         query_id: "33445",
+        //         status: "failed",
+        //         up_time: "5 minutes",
+        //         num_files: "2 files",
+        //         rate: "20 KB/s"
+        //     }
+        // ];
+
+        // Function to update container based on parameters
+        function updateContainer(query_label, query_id, status, up_time, num_files, rate) {
+            var container = document.createElement('div');
+            container.classList.add('vertical-box');
+
+            // Create and append the individual components
+            container.innerHTML = `
+                <div class="horizontal-box">
+                    <div class="nested-box">
+                        <label>${query_label}</label>
+                    </div>
+
+                    <div class="nested-box">
+                        <div id="dynamic-container-${query_id}"></div>
+                    </div>
+
+                    <div class="nested-box">
+                        <label>${up_time}</label>
+                    </div>
+
+                    <div class="nested-box">
+                        <label>${num_files}</label>
+                    </div>
+
+                    <div class="nested-box">
+                        <label>${rate}</label>
+                    </div>
+
+                    <div class="nested-box">
+                        <button class="btn clear-btn" onclick="showDeleteModal('${query_id}')">Delete</button>
+                    </div>
+                </div>
+            `;
+
+            // Dynamically update based on status
+            var buttonContainer = container.querySelector(`#dynamic-container-${query_id}`);
+            
+            if (status === "download") {
+                var button = document.createElement("button");
+                button.textContent = "Download";
+                button.classList.add("status-btn", "btn-green");
+                button.onclick = function () {
+                    window.location.href = `{{ backendurl }}/download-files?sessionId=${query_id}`; // Redirect to /download when clicked
+                };
+                buttonContainer.innerHTML = '';  // Clear previous content
+                buttonContainer.classList.add("button-container");
+                buttonContainer.appendChild(button);
+
+            } else if (status === "inprogress") {
+                var link = document.createElement("a");
+                link.textContent = "In Progress";
+                link.href = `{{ backendurl }}/process?sessionId=${query_id}`; // Redirects to "/progress"
+                link.classList.add("link", "link-yellow");
+                buttonContainer.innerHTML = '';  // Clear previous content
+                buttonContainer.classList.add("label-container");
+                buttonContainer.appendChild(link);
+
+            } else if (status === "waiting") {
+                var label = document.createElement("span");
+                label.textContent = "Queueing";
+                label.classList.add("label", "label-white");
+                buttonContainer.innerHTML = '';  // Clear previous content
+                buttonContainer.classList.add("label-container");
+                buttonContainer.appendChild(label);
+
+            } else if (status === "failed") {
+                var link = document.createElement("a");
+                link.textContent = "Failed";
+                link.href = `{{ backendurl }}/failed-jobs?sessionId=${query_id}`; // Redirects to "/failed"
+                link.classList.add("link", "link-red");
+                buttonContainer.innerHTML = '';  // Clear previous content
+                buttonContainer.classList.add("label-container");
+                buttonContainer.appendChild(link);
+            }
+
+            // Append the container to the main container
+            document.getElementById("main-container").appendChild(container);
+        }
+
+        // // Loop through the data and update each container
+        // data.forEach(function(item) {
+        //     updateContainer(item.query_label, item.query_id, item.status, item.up_time, item.num_files, item.rate);
+        // });
+
+
+        // // When the Add Query button is clicked
+        // document.getElementById('add-query-btn').addEventListener('click', function(event) {
+        //     // Prevent default behavior
+        //     event.preventDefault();
+
+        //     // Get the current URL's query parameters
+        //     var urlParams = new URLSearchParams(window.location.search);
+        //     var sessionId = urlParams.get('sessionId');
+        //     var query = urlParams.get('query');
+
+        //     // Create the new URL with sessionId and query as parameters
+        //     var newUrl = `{{ backendurl }}/new-query?sessionId=${sessionId}&query=${query}`;
+
+        //     // Redirect to the new URL
+        //     window.location.href = newUrl;
+        // });
+
+        function deleteFiles(query_id) {
+            // Make a GET request to the server
+            fetch(`{{ backendurl }}/api/delete-all-files?sessionId=${query_id}`, {
+                method: 'GET',  // Using GET since the server expects it
+            })
+            .then(response => {
+                if (!response.ok) {  // Check if the response status is not OK (e.g., 404, 500)
+                    return response.json().then(data => {
+                        throw new Error(data.error || 'Failed to delete files.');
+                    });
+                }
+                return response.json();  // Parse JSON if response is OK
+            })
+            .then(data => {
+                // Assuming the server sends a 'message' field on success
+                // alert(data.message || "Files deleted successfully.");
+                console.log(data.message, "Files deleted successfully.");
+                // Optionally, remove the job from the page or refresh the list
+                // Example: document.getElementById(`dynamic-container-${query_id}`).parentElement.remove();
+            })
+            .catch(error => {
+                console.error('Error deleting files:', error);
+                alert(error.message || "Error deleting files.");
+            });
+        }
+
+
+
+        // Function to fetch data from the Flask API
+        function fetchData() {
+            fetch('{{ backendurl }}/api/query_storage')  // Adjust `backendurl` as needed
+                .then(response => response.json())  // Convert the response to JSON
+                .then(data => {
+                    // Clear the previous contents
+                    document.getElementById("main-container").innerHTML = '';
+                    // Update the container with new data
+                    data.forEach(function(item) {
+                        updateContainer(item.query_label, item.query_id, item.status, item.up_time, item.num_files, item.rate);
+                    });
+                })
+                .catch(error => console.error('Error fetching data:', error));
+        }
+
+        // Fetch data initially when the page loads
+        fetchData();
+
+        // Set up an interval to fetch data every 5 second (1000ms)
+        setInterval(fetchData, 5000);
+
+    </script>
+</body>
+</html>

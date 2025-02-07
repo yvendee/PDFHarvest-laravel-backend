@@ -41,7 +41,7 @@
             }
 
             var xhr = new XMLHttpRequest();
-            xhr.open('POST', '/save-content', true);
+            xhr.open('POST', '{{ backendurl }}/api/save-content', true);
             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
             xhr.onreadystatechange = function() {
                 if (xhr.readyState === XMLHttpRequest.DONE) {
@@ -65,11 +65,11 @@
         }
 
         function downloadTemplate() {
-            window.location.href = '/download-template';
+            window.location.href = '{{ backendurl }}/api/download-template';
         }
 
         function goBack() {
-            window.location.href = '/';
+            window.location.href = '{{ backendurl }}/';
         }
     </script>
 </body>

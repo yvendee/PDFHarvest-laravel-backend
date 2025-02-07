@@ -1,4 +1,4 @@
-<!-- templates\status\status-page.html -->
+<!-- templates\process\process-page.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -171,11 +171,11 @@
     let sessionId;
 
     function goBack() {
-        window.location.href = '/'; // Redirect to home page
+        window.location.href = '{{ backendurl }}/'; // Redirect to home page
     }
 
     function cancelProcessing() {
-        fetch(`/cancel/${sessionId}`, { method: 'POST' })
+        fetch(`{{ backendurl }}/cancel?sessionId=${sessionId}`, { method: 'POST' })
             .then(response => response.json())
             .then(data => {
                 if (data.message === 'Processing cancelled') {
@@ -189,7 +189,7 @@
     }
 
     function updateProgress(sessionId) {
-        fetch(`/progress/${sessionId}`)
+        fetch(`{{ backendurl }}/process?sessionId=${sessionId}`)
             .then(response => response.json())
             .then(data => {
                 if (data.error) {
@@ -235,7 +235,7 @@
         sessionId = urlParams.get('session_id');
         if (sessionId) {
             // Start processing the files
-            fetch(`/process/${sessionId}`, { method: 'POST' })
+            fetch(`{{ backendurl }}/process?sessionId=${sessionId}`, { method: 'POST' })
                 .then(response => response.json())
                 .then(data => {
                     if (data.message === 'Processing started') {
@@ -249,12 +249,12 @@
 
             // Download GPT button click event
             document.getElementById('downloadGPTButton').addEventListener('click', function() {
-                window.location.href = `/download-gpt/${sessionId}`;
+                window.location.href = `{{ backendurl }}/download-gpt/${sessionId}`;
             });
 
             // Download OCR button click event
             document.getElementById('downloadOCRButton').addEventListener('click', function() {
-                window.location.href = `/download-ocr/${sessionId}`;
+                window.location.href = `{{ backendurl }}/download-ocr/${sessionId}`;
             });
 
             // Show Logs button click event
@@ -264,12 +264,12 @@
 
             document.getElementById('downloadButton').addEventListener('click', function() {
                 // Trigger download of .zip file
-                window.location.href = `/download/${sessionId}`;
+                window.location.href = `{{ backendurl }}/download/${sessionId}`;
                 
                 // After a delay, trigger download of output.csv
                 setTimeout(() => {
                     const link = document.createElement('a');
-                    link.href = `/download-csv/${sessionId}`;
+                    link.href = `{{ backendurl }}/download-csv/${sessionId}`;
                     link.download = 'output.csv';
                     document.body.appendChild(link);
                     link.click();
@@ -310,7 +310,7 @@
     }
 
     function fetchLogsContent(sessionId) {
-        fetch(`/fetch-logs/${sessionId}`)
+        fetch(`{{ backendurl }}/fetch-logs/${sessionId}`)
             .then(response => response.text())
             .then(data => {
                 const logsContent = document.getElementById('logsContent');

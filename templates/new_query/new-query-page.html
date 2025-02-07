@@ -1,0 +1,199 @@
+<!-- templates\new-query-page.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Query Page</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        .container {
+            text-align: center;
+        }
+        .input-box {
+            padding: 10px;
+            width: 300px;
+            font-size: 16px;
+            margin-bottom: 20px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+        .btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 24px;
+            font-size: 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin: 5px;
+        }
+        .btn:hover {
+            background-color: #45a049;
+        }
+        .clear-btn {
+            background-color: #dc3545;
+        }
+        .clear-btn:hover {
+            background-color: #c82333;
+        }
+        .back-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 16px;
+            text-decoration: none;
+        }
+        .back-button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            overflow: auto;
+        }
+        .modal-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 300px;
+            text-align: center;
+        }
+        .modal-buttons {
+            margin-top: 20px;
+        }
+        .modal-btn {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 5px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .modal-btn-yes {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .modal-btn-no {
+            background-color: #dc3545;
+            color: white;
+        }
+        .modal-btn:hover {
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <a href="{{ backendurl }}/running-jobs" class="back-button">Back</a>
+    <div class="container">
+        <h1>Enter queue label</h1>
+        <input type="text" class="input-box" id="query-input" placeholder="Enter your label">
+        <br>
+        <button class="btn" id="add-btn">Add</button>
+        <button class="btn clear-btn" id="clear-btn">Clear</button>
+    </div>
+
+    <!-- Modal -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <p>Are you sure?</p>
+            <div class="modal-buttons">
+                <button class="modal-btn modal-btn-yes" id="modal-yes">Yes</button>
+                <button class="modal-btn modal-btn-no" id="modal-no">No</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var queryInput = document.getElementById('query-input');
+            var addButton = document.getElementById('add-btn');
+            var clearButton = document.getElementById('clear-btn');
+            var modal = document.getElementById('modal');
+            var modalYes = document.getElementById('modal-yes');
+            var modalNo = document.getElementById('modal-no');
+
+            // Add Button functionality
+            addButton.addEventListener('click', function() {
+                var query = queryInput.value;
+                if (query) {
+                    modal.style.display = "block"; // Show modal
+                }
+            });
+
+            // Yes Button in modal
+            modalYes.addEventListener('click', function() {
+                var query = queryInput.value;
+                // Get the sessionId from the existing URL's query string
+                var urlParams = new URLSearchParams(window.location.search);
+                var sessionId = urlParams.get('sessionId');
+
+                // Prepare data for the fetch request
+                var requestData = {
+                    sessionId: sessionId,
+                    queryId: query
+                };
+
+                // Make a fetch request to the backend
+                fetch("{{backendurl}}/create-query?sessionId=" + encodeURIComponent(sessionId) + "&query=" + encodeURIComponent(query), {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.message === "success") {
+                        alert('Query successfully created!'); // You can replace this with your desired success action
+                        window.location.href = '{{backendurl}}' + "/running-jobs"; 
+                    } else {
+                        alert('Error: ' + data.message); // Handle error if necessary
+                    }
+                })
+                .catch(error => {
+                    alert('Error with fetch request: ' + error);
+                });
+            });
+
+            // No Button in modal
+            modalNo.addEventListener('click', function() {
+                modal.style.display = "none"; // Close modal without action
+            });
+
+            // Clear Button functionality
+            clearButton.addEventListener('click', function() {
+                queryInput.value = ''; // Clear input box
+            });
+
+            // Close modal if user clicks outside modal content
+            window.addEventListener('click', function(event) {
+                if (event.target == modal) {
+                    modal.style.display = "none"; // Close modal if background is clicked
+                }
+            });
+        });
+    </script>
+</body>
+</html>
