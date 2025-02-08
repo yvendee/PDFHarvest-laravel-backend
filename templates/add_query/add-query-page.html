@@ -149,20 +149,19 @@
 
                 if (query) {
                     modal.style.display = "none"; // Close modal after confirmation
-
-
                     // Get the sessionId from the existing URL's query string
                     var urlParams = new URLSearchParams(window.location.search);
                     var sessionId = urlParams.get('sessionId');
+                    var maidStatusId = urlParams.get('maidStatus');
 
                     // Prepare data for the fetch request
-                    var requestData = {
-                        sessionId: sessionId,
-                        queryId: query
-                    };
+                    // var requestData = {
+                    //     sessionId: sessionId,
+                    //     queryId: query
+                    // };
 
                     // Make a fetch request to the backend
-                    fetch("{{backendurl}}/api/add-query-to-query-storage?sessionId=" + encodeURIComponent(sessionId) + "&query=" + encodeURIComponent(query), {
+                    fetch("{{backendurl}}/api/add-query-to-query-storage?sessionId=" + encodeURIComponent(sessionId) + "&query=" + encodeURIComponent(query) + "&maidStatus=" + encodeURIComponent(maidStatusId), {
                         method: 'GET',
                         headers: {
                             'Content-Type': 'application/json'

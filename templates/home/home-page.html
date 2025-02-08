@@ -382,8 +382,9 @@
                 for (let i = 0; i < fileInput.files.length; i++) {
                     formData.append('files[]', fileInput.files[i]);
                 }
-                formData.append('maid_status', selectedMaidType.value);
-    
+
+                // formData.append('maid_status', selectedMaidType.value);
+                
                 // fetch('{{ backendurl }}/api/upload/{{sessionId}}', {
                 fetch('{{ backendurl }}/api/file-upload/{{sessionId}}', {
                     method: 'POST',
@@ -397,7 +398,7 @@
                     if (result.session_id) {
                         //   window.location.href = `{{ backendurl }}/process?session_id=${result.session_id}`;
                         // window.location.href = `{{ backendurl }}/process/${result.session_id}`;
-                        window.location.href = `{{ backendurl }}/add-query?sessionId=${result.session_id}`;
+                        window.location.href = `{{ backendurl }}/add-query?sessionId=${result.session_id}&maidStatus=${selectedMaidType.value}`;
   
                     } else {
                          alert(result.message || 'An error occurred');

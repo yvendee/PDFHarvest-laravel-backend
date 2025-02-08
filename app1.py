@@ -1039,8 +1039,8 @@ def upload_files():
     last_upload_time = datetime.now()
 
     uploaded_files = []
-    uploaded_pdf_file_list = []
     uploaded_file_list = []
+    uploaded_pdf_file_list = []
     new_uploaded_pdf_file_path_list = []
     session_id = str(os.urandom(16).hex())
     progress[session_id] = {'current': 0, 'total': len(files)}  # Initialize progress
@@ -1144,9 +1144,10 @@ def process_files(session_id):
                     print (f"Error has occurred during documents to pdf conversion {e}")
 
                 # Simulate processing of each file
-                # time.sleep(3)  # Simulate processing delay
+                time.sleep(3)  # Simulate processing delay
 
                 process_pdf_extract_image(filename)
+
                 pdf_path = os.path.join(UPLOAD_FOLDER, filename)
                 page_images, maid_ref_code = pdf_to_jpg(pdf_path, EXTRACTED_PAGE_IMAGES_FOLDER, session_id, zoom=2) ## ocr and analyzing
                 index += 1

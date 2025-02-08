@@ -135,7 +135,8 @@
     </style>
 </head>
 <body onload="storeUploadTime()">
-
+ 
+<body>
 <button class="back-button hidden" id="backButton" onclick="goBack()">Back</button>
 
 <div class="download-buttons">
@@ -175,7 +176,7 @@
     }
 
     function cancelProcessing() {
-        fetch(`{{ backendurl }}/cancel?sessionId=${sessionId}`, { method: 'POST' })
+        fetch(`{{ backendurl }}/api/cancel?sessionId=${sessionId}`, { method: 'GET' })
             .then(response => response.json())
             .then(data => {
                 if (data.message === 'Processing cancelled') {
@@ -189,7 +190,7 @@
     }
 
     function updateProgress(sessionId) {
-        fetch(`{{ backendurl }}/process?sessionId=${sessionId}`)
+        fetch(`{{ backendurl }}/api/progress/${sessionId}`)
             .then(response => response.json())
             .then(data => {
                 if (data.error) {
@@ -232,13 +233,17 @@
     document.addEventListener('DOMContentLoaded', function() {
         // Retrieve session ID from URL parameters
         const urlParams = new URLSearchParams(window.location.search);
-        sessionId = urlParams.get('session_id');
+        sessionId = urlParams.get('sessionId');
+        console.log("Current Session:", sessionId);
         if (sessionId) {
+            console.log("Current Session:", sessionId);
             // Start processing the files
-            fetch(`{{ backendurl }}/process?sessionId=${sessionId}`, { method: 'POST' })
+            // fetch(`{{ backendurl }}/process?sessionId=${sessionId}`, { method: 'GET' })
+            fetch(`{{ backendurl }}/api/process/${sessionId}`,{ method: 'POST' })
                 .then(response => response.json())
                 .then(data => {
                     if (data.message === 'Processing started') {
+                        console.log()
                         startTimer(); // Start the timer when processing starts
                         updateProgress(sessionId);
                     } else {
@@ -249,12 +254,12 @@
 
             // Download GPT button click event
             document.getElementById('downloadGPTButton').addEventListener('click', function() {
-                window.location.href = `{{ backendurl }}/download-gpt/${sessionId}`;
+                window.location.href = `{{ backendurl }}/api/download-gpt/${sessionId}`;
             });
 
             // Download OCR button click event
             document.getElementById('downloadOCRButton').addEventListener('click', function() {
-                window.location.href = `{{ backendurl }}/download-ocr/${sessionId}`;
+                window.location.href = `{{ backendurl }}/api/download-ocr/${sessionId}`;
             });
 
             // Show Logs button click event
@@ -264,12 +269,12 @@
 
             document.getElementById('downloadButton').addEventListener('click', function() {
                 // Trigger download of .zip file
-                window.location.href = `{{ backendurl }}/download/${sessionId}`;
+                window.location.href = `{{ backendurl }}/api/download/${sessionId}`;
                 
                 // After a delay, trigger download of output.csv
                 setTimeout(() => {
                     const link = document.createElement('a');
-                    link.href = `{{ backendurl }}/download-csv/${sessionId}`;
+                    link.href = `{{ backendurl }}/api/download-csv/${sessionId}`;
                     link.download = 'output.csv';
                     document.body.appendChild(link);
                     link.click();
@@ -327,6 +332,12 @@
             modal.style.display = 'none';
         }
     };
+
+    function storeUploadTime() {
+        // Store the current timestamp in sessionStorage
+        const uploadTime = new Date().toISOString();
+        sessionStorage.setItem('uploadTime', uploadTime);
+    }
 </script>
 
 </body>
