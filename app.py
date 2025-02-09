@@ -842,7 +842,7 @@ def resize_image_if_needed(image_pil):
     return image_pil
 
 # Function to extract images with faces from a specific PDF file
-def extract_images_with_faces(pdf_path):
+def extract_images_with_faces(pdf_path, session_id):
     global image_fullpath_with_face_list, face_cascade
     # Get the base name of the PDF file
     pdf_basename = os.path.splitext(os.path.basename(pdf_path))[0]
@@ -949,7 +949,7 @@ def process_pdf_extract_image(filename, session_id):
     session_folder = os.path.join(app.config['UPLOAD_FOLDER'], session_id)
     pdf_path = os.path.join(session_folder, filename)
     if os.path.exists(pdf_path) and pdf_path.endswith(".pdf"):
-        extracted_images = extract_images_with_faces(pdf_path)
+        extracted_images = extract_images_with_faces(pdf_path, session_id)
         # print(f"Processed {pdf_path}: {len(extracted_images)} images extracted with faces")
         # save_log(os.path.join(EXTRACTED_PAGE_IMAGES_FOLDER, "logs.txt"),f"Processed {pdf_path}: {len(extracted_images)} images extracted with faces")
         return extracted_images
@@ -1077,14 +1077,6 @@ def update_query_storage_status(session_id, new_status):
 
 
 
-
-
-
-
-
-
-
-
 @app.route('/api/upload/<session_id>', methods=['POST'])
 def upload_file(session_id):
     print(f"Session ID: {session_id}")  # Log the session ID
@@ -1155,38 +1147,38 @@ def process_files(session_id):
                     filename = os.path.basename(file_path)
                     file_ext = os.path.splitext(filename)[1].lower()
 
-                    # ### pdf conversion
-                    # try:
+                    ### pdf conversion
+                    try:
 
-                    #     # Check the file extension and convert if necessary
-                    #     if file_ext in ['.doc', '.docx']:
-                    #         # pdf_path = replace_extension_with_pdf(app.config['UPLOAD_FOLDER'], filename)
-                    #         session_folder = os.path.join(app.config['UPLOAD_FOLDER'], session_id)
-                    #         converted_pdf_path = convert_doctypes_to_pdf(file_path, session_folder)
-                    #         if converted_pdf_path:
-                    #             print (f"Success converting a file")
-                    #             filename = os.path.basename(converted_pdf_path)
-                    #             session_folder = os.path.join(app.config['EXTRACTED_PROFILE_PICTURE_FOLDER'], session_id)
-                    #             new_file_path = copy_file(converted_pdf_path, session_folder)
-                    #             new_pdf_list.append(new_file_path)
+                        # Check the file extension and convert if necessary
+                        if file_ext in ['.doc', '.docx']:
+                            # pdf_path = replace_extension_with_pdf(app.config['UPLOAD_FOLDER'], filename)
+                            session_folder = os.path.join(app.config['UPLOAD_FOLDER'], session_id)
+                            converted_pdf_path = convert_doctypes_to_pdf(file_path, session_folder)
+                            if converted_pdf_path:
+                                print (f"Success converting a file")
+                                filename = os.path.basename(converted_pdf_path)
+                                session_folder = os.path.join(app.config['EXTRACTED_PROFILE_PICTURE_FOLDER'], session_id)
+                                new_file_path = copy_file(converted_pdf_path, session_folder)
+                                new_pdf_list.append(new_file_path)
                                 
-                    #         else:
-                    #             print (f"Error converting a file")
-                    #     else:
-                    #         # For PDF files or unsupported formats, use the original path
-                    #         session_folder = os.path.join(app.config['EXTRACTED_PROFILE_PICTURE_FOLDER'], session_id)
-                    #         new_file_path = copy_file(file_path, session_folder)
-                    #         new_pdf_list.append(new_file_path)
+                            else:
+                                print (f"Error converting a file")
+                        else:
+                            # For PDF files or unsupported formats, use the original path
+                            session_folder = os.path.join(app.config['EXTRACTED_PROFILE_PICTURE_FOLDER'], session_id)
+                            new_file_path = copy_file(file_path, session_folder)
+                            new_pdf_list.append(new_file_path)
     
-                    # except Exception as e:
-                    #     print (f"Error has occurred during documents to pdf conversion {e}")
+                    except Exception as e:
+                        print (f"Error has occurred during documents to pdf conversion {e}")
 
                     # Simulate processing of each file
-                    time.sleep(5)  # Simulate processing delay
+                    # time.sleep(5)  # Simulate processing delay
 
                     # extracted_image_session_folder = os.path.join(app.config['EXTRACTED_PROFILE_PICTURE_FOLDER'], session_id)
 
-                    # extract_images_with_faces = process_pdf_extract_image(filename, session_id)
+                    process_pdf_extract_image(filename, session_id)
                     # session_folder = os.path.join(app.config['UPLOAD_FOLDER'], session_id)
                     # pdf_path = os.path.join(session_folder, filename)
                     # page_images, maid_ref_code = pdf_to_jpg(pdf_path, extracted_image_session_folder, session_id, zoom=2) ## ocr and analyzing
@@ -1202,9 +1194,9 @@ def process_files(session_id):
                 #     # print(f"new-pdf-list-path: {new_pdf_list}")
 
                 #     # rename_files(image_fullpath_with_face_list, maidrefcode_list) ## renaming extracted images
-                #     rename_files(extract_images_with_faces, maidrefcode_list) ## renaming extracted images
-                #     rename_files2(new_pdf_list, maidrefcode_list) ## renaming input pdf
-                #     session_folder = os.path.join(app.config['EXTRACTED_PAGE_IMAGES_FOLDER'], session_id)
+                    rename_files(image_fullpath_with_face_list, maidrefcode_list) ## renaming extracted images
+                    rename_files2(new_pdf_list, maidrefcode_list) ## renaming input pdf
+                    session_folder = os.path.join(app.config['EXTRACTED_PAGE_IMAGES_FOLDER'], session_id)
                 #     save_log(os.path.join(session_folder, "logs.txt"),f"Processed Completed. Ready to download!")
                 
                 # except Exception as e:
@@ -1213,9 +1205,11 @@ def process_files(session_id):
                 #     save_log(os.path.join(session_folder, "logs.txt"),f"An error occured during renaming process: {e}")
                 
                 print(f"Processing document finished with session ID {session_id}")
+                update_query_storage_status(session_id,"download")
                 
             except Exception as e:
                 print(f"Error during upload processing: {e}")
+                update_query_storage_status(session_id,"failed")
 
 
     try:
@@ -1227,7 +1221,7 @@ def process_files(session_id):
         # Wait for the thread to finish and print "process exited" once it does
         thread.join()
         print("Process exited")
-        update_query_storage_status(session_id,"download")
+        # update_query_storage_status(session_id,"download")
         
     except Exception as e:
         print(f"Error during thread start: {e}")
