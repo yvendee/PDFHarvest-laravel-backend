@@ -215,7 +215,7 @@
 </head>
 <body>
 
-    <a href='{{ backendurl }}/' class="logout-button">Back</a>
+    <a href='/' class="logout-button">Back</a>
     
     <div class="download-buttons">
         <button class="download-button" onclick="goToCustomPrompt()">Custom Prompt Edit</button>
@@ -337,7 +337,7 @@
                 const formData = new FormData();
                 formData.append('file', ocrFileInput.files[0]);
                 
-                fetch('{{ backendurl }}/api/ocr-file-upload/{{sessionId}}', {
+                fetch('/api/ocr-file-upload/{{sessionId}}', {
                     method: 'POST',
                     body: formData
                 }).then(response => response.json())
@@ -348,7 +348,7 @@
                       console.log("success");
                       
                       if (result.session_id) {
-                          window.location.href = `{{ backendurl }}/extract?sessionId={{sessionId}}`;
+                          window.location.href = `/extract?sessionId={{sessionId}}`;
                       } else {
                           alert(result.message || 'An error occurred');
                       }
@@ -386,8 +386,8 @@
 
                 // formData.append('maid_status', selectedMaidType.value);
                 
-                // fetch('{{ backendurl }}/api/upload/{{sessionId}}', {
-                fetch('{{ backendurl }}/api/file-upload/{{sessionId}}', {
+                // fetch('/api/upload/{{sessionId}}', {
+                fetch('/api/file-upload/{{sessionId}}', {
                     method: 'POST',
                     body: formData
                 }).then(response => response.json())
@@ -397,9 +397,9 @@
                       uploadButton.classList.remove('hidden');
                       
                     if (result.session_id) {
-                        //   window.location.href = `{{ backendurl }}/process?session_id=${result.session_id}`;
-                        // window.location.href = `{{ backendurl }}/process/${result.session_id}`;
-                        window.location.href = `{{ backendurl }}/add-query?sessionId=${result.session_id}&maidStatus=${selectedMaidType.value}`;
+                        //   window.location.href = `/process?session_id=${result.session_id}`;
+                        // window.location.href = `/process/${result.session_id}`;
+                        window.location.href = `/add-query?sessionId=${result.session_id}&maidStatus=${selectedMaidType.value}`;
   
                     } else {
                          alert(result.message || 'An error occurred');
@@ -424,7 +424,7 @@
             if (selectedMaidType) {
                 const maidStatus = selectedMaidType.value;
     
-                fetch('{{ backendurl }}/api/edit-default-options-value', {
+                fetch('/api/edit-default-options-value', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                     body: new URLSearchParams({ 'maid_status': maidStatus })
@@ -504,15 +504,15 @@
     
         // Navigation functions
         function goToCustomPrompt() {
-            window.location.href = '{{ backendurl }}/custom-prompt-editor';
+            window.location.href = '/custom-prompt-editor';
         }
     
         function goToDefaultOptions(){
-            window.location.href = '{{ backendurl }}/default-options';
+            window.location.href = '/default-options';
         }
 
         function goToRunningJobs(){
-            window.location.href = '{{ backendurl }}/running-jobs';
+            window.location.href = '/running-jobs';
         }
     </script>
     
