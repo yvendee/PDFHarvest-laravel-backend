@@ -51,8 +51,8 @@ current_structured_text = "gpt4omini"
 maid_status_global = "None"
 
 
-FRONTEND_API_URL = os.environ.get('FRONTEND_API_URL', 'http://127.0.0.1:8000')  # Default to localhost:8000 if not set
-BACKEND_API_URL = os.environ.get('BACKEND_API_URL', 'http://127.0.0.1:5000')  # Default to localhost:8000 if not set
+FRONTEND_API_URL = os.environ.get('FRONTEND_API_URL', 'http://localhost:8000')  # Default to localhost:8000 if not set
+BACKEND_API_URL = os.environ.get('BACKEND_API_URL', 'http://localhost:5000')  # Default to localhost:8000 if not set
 
 GENERATE_CSV_FOLDER = 'output_csv'
 DOWNLOAD_OCR_FILE_PATH = 'uploads/OCR.txt'
