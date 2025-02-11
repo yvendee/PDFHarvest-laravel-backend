@@ -63,13 +63,13 @@ app.config['UPLOAD_FOLDER'] = 'uploads/'  # Make sure this folder exists
 app.config['OUTPUT_FOLDER'] = 'output_files/'  # Make sure this folder exists
 app.config['EXTRACTED_PROFILE_PICTURE_FOLDER'] = 'output_extracted_profile_image/'
 app.config['EXTRACTED_PAGE_IMAGES_FOLDER'] = 'output_extracted_page_image/'
-
 app.config['GENERATE_CSV_FOLDER'] = 'output_csv'
 
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 os.makedirs(app.config['OUTPUT_FOLDER'], exist_ok=True)
 os.makedirs(app.config['EXTRACTED_PROFILE_PICTURE_FOLDER'], exist_ok=True)
 os.makedirs(app.config['EXTRACTED_PAGE_IMAGES_FOLDER'], exist_ok=True)
+os.makedirs(app.config['GENERATE_CSV_FOLDER'], exist_ok=True)
 
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # Limit file size to 16 MB
 
@@ -119,6 +119,19 @@ uploaded_pdf_file_list = []
 uploaded_file_list = []
 new_uploaded_pdf_file_path_list = []
 
+
+def format_duration(duration):
+    if duration >= 86400:  # More than or equal to 1 day (86400 seconds)
+        days = duration // 86400
+        return f"{days} day{'s' if days > 1 else ''}"
+    elif duration >= 3600:  # More than or equal to 1 hour (3600 seconds)
+        hours = duration // 3600
+        return f"{hours} hour{'s' if hours > 1 else ''}"
+    elif duration >= 60:  # More than or equal to 1 minute (60 seconds)
+        minutes = duration // 60
+        return f"{minutes} minute{'s' if minutes > 1 else ''}"
+    else:  # Less than 1 minute
+        return f"{int(duration)} second{'s' if duration > 1 else ''}"
 
 def copy_file(file_path, extracted_page_images_folder):
     
@@ -213,30 +226,48 @@ def replace_extension_with_pdf(folder_path, filename):
         print(f"Error: {str(e)}")
         return None
 
-def convert_doctypes_to_pdf(doc_file, pdf_dir):
+def convert_doctypes_to_pdf(doc_file, pdf_dir, session_id):
     global EXTRACTED_PAGE_IMAGES_FOLDER
     try:
         # Use the subprocess module to run the soffice command for conversion
         process = subprocess.Popen(['soffice', '--headless', '--convert-to', 'pdf', '--outdir', pdf_dir, doc_file])
-        save_log(os.path.join(EXTRACTED_PAGE_IMAGES_FOLDER, "logs.txt"),f"PDF Conversion started!")
+        
+        
+        # save_log(os.path.join(EXTRACTED_PAGE_IMAGES_FOLDER, "logs.txt"),f"PDF Conversion started!")
+        session_folder = os.path.join(app.config['EXTRACTED_PAGE_IMAGES_FOLDER'], session_id)
+        save_log(os.path.join(session_folder, "logs.txt"),f"PDF Conversion started!")
+
 
         # Wait for the conversion to complete
         while process.poll() is None:
             time.sleep(1)  # Sleep for 1 second
-        
+
+
+        pdf_path = os.path.join(pdf_dir, f"{os.path.splitext(os.path.basename(doc_file))[0]}.pdf")
+
         # Check if the conversion was successful
         if process.returncode == 0:
-            pdf_path = os.path.join(pdf_dir, f"{os.path.splitext(os.path.basename(doc_file))[0]}.pdf")
+
             print(f"Conversion complete. PDF saved to {pdf_path}")
-            save_log(os.path.join(EXTRACTED_PAGE_IMAGES_FOLDER, "logs.txt"),f"Conversion complete. PDF saved to {pdf_path}")
+
+            # save_log(os.path.join(EXTRACTED_PAGE_IMAGES_FOLDER, "logs.txt"),f"Conversion complete. PDF saved to {pdf_path}")
+            session_folder = os.path.join(app.config['EXTRACTED_PAGE_IMAGES_FOLDER'], session_id)
+            save_log(os.path.join(session_folder, "logs.txt"), f"Conversion complete. PDF saved to {pdf_path}")
+
             return pdf_path
         else:
-            save_log(os.path.join(EXTRACTED_PAGE_IMAGES_FOLDER, "logs.txt"),f"PDF Conversion failed.")
-            print("Conversion failed.")
+            
+            # save_log(os.path.join(EXTRACTED_PAGE_IMAGES_FOLDER, "logs.txt"),f"PDF Conversion failed.")
+            session_folder = os.path.join(app.config['EXTRACTED_PAGE_IMAGES_FOLDER'], session_id)
+            save_log(os.path.join(session_folder, "logs.txt"), f"PDF Conversion failed. {pdf_path}")
+
+            print(f"Conversion failed. {pdf_path}")
             return None
     except Exception as e:
         print(f"Error: {str(e)}")
-        save_log(os.path.join(EXTRACTED_PAGE_IMAGES_FOLDER, "logs.txt"),f"Error during PDF conversion start: {str(e)}")
+
+        session_folder = os.path.join(app.config['EXTRACTED_PAGE_IMAGES_FOLDER'], session_id)
+        save_log(os.path.join(session_folder, "logs.txt"),f"Error during PDF conversion start: {str(e)} {pdf_path}")
         return None
 
 # Function to extract filenames and content from the input text
@@ -396,28 +427,42 @@ def summary_generation(total_summary, output_folder, base_name, session_id):
             word_count = count_words(total_summary)
 
             print(f"word count: {word_count}")
-            save_log(os.path.join(output_folder, "logs.txt"),f"word count: {word_count} , gpt3.5 words limit is 3000")
+
+            # save_log(os.path.join(output_folder, "logs.txt"),f"word count: {word_count} , gpt3.5 words limit is 3000")
+
+            session_folder = os.path.join(app.config['EXTRACTED_PAGE_IMAGES_FOLDER'], session_id)
+            save_log(os.path.join(session_folder, "logs.txt"),f"word count: {word_count} , gpt3.5 words limit is 3000")
+
             
             # Check word count and print appropriate message
             if word_count <= 2900:
                 print("Sending text to OpenAI  GPT3.5...")
-                save_log(os.path.join(output_folder, "logs.txt"),"Sending text to OpenAI GPT3.5...")
-                summary_text = get_summary_from_text(total_summary) ## summary text from gpt3.5
+                # save_log(os.path.join(output_folder, "logs.txt"),"Sending text to OpenAI GPT3.5...")
+                session_folder = os.path.join(app.config['EXTRACTED_PAGE_IMAGES_FOLDER'], session_id)
+                save_log(os.path.join(session_folder, "logs.txt"),"Sending text to OpenAI GPT3.5...")
+                summary_text = get_summary_from_text(total_summary, session_id) ## summary text from gpt3.5
             else:
-                save_log(os.path.join(output_folder, "logs.txt"),"Words limit exceeds..switching to GPT4o")
-                save_log(os.path.join(output_folder, "logs.txt"),"Sending text to OpenAI GPT4o...")
-                summary_text = get_summary_from_text_gpt4o(total_summary) ## summary text from gpt4o
+                # save_log(os.path.join(output_folder, "logs.txt"),"Words limit exceeds..switching to GPT4o")
+                # save_log(os.path.join(output_folder, "logs.txt"),"Sending text to OpenAI GPT4o...")
+
+                session_folder = os.path.join(app.config['EXTRACTED_PAGE_IMAGES_FOLDER'], session_id)
+                save_log(os.path.join(session_folder, "logs.txt"),"Words limit exceeds..switching to GPT4o")
+                save_log(os.path.join(session_folder, "logs.txt"),"Sending text to OpenAI GPT4o...")
+
+                summary_text = get_summary_from_text_gpt4o(total_summary, session_id) ## summary text from gpt4o
         else:  ## gpt4omini
 
             # Count words in the input string
             word_count = count_words(total_summary)
 
             print("Sending text to OpenAI  GPT4omini...")
-            save_log(os.path.join(output_folder, "logs.txt"),"Sending text to OpenAI GPT4omini...")
-            summary_text = get_summary_from_text_gpt4omini(total_summary) ## summary text from gpt4omini
+            # save_log(os.path.join(output_folder, "logs.txt"),"Sending text to OpenAI GPT4omini...")
+            session_folder = os.path.join(app.config['EXTRACTED_PAGE_IMAGES_FOLDER'], session_id)
+            save_log(os.path.join(session_folder, "logs.txt"),"Sending text to OpenAI GPT4omini...")
+            summary_text = get_summary_from_text_gpt4omini(total_summary, session_id) ## summary text from gpt4omini
 
         ## test
-        # summary_text = get_summary_from_text_test(total_summary)
+        # summary_text = get_summary_from_text_test(total_summary, session_id)
 
         # Extracting values and updating summary_dict
         pattern = r'\[(.*?)\]:\s*(.*)'
@@ -723,11 +768,15 @@ def summary_generation(total_summary, output_folder, base_name, session_id):
         # print(summary_dict)
         # print(values_array)
 
-        save_log(os.path.join(output_folder, "logs.txt"),f"Appending data to output.csv")
-        csv_path = f'output_csv/output-{session_id}.csv'
-        save_csv(csv_path, matches_list, values_array)
+        # save_log(os.path.join(output_folder, "logs.txt"),f"Appending data to output.csv")
+        session_folder = os.path.join(app.config['EXTRACTED_PAGE_IMAGES_FOLDER'], session_id)
+        save_log(os.path.join(session_folder, "logs.txt"), f"Appending data to output.csv")
 
-    with open(os.path.join(output_folder, "summary_text_from_gpt.txt"), "a", encoding="utf-8") as text_file:
+        session_csv_folder = os.path.join(app.config['GENERATE_CSV_FOLDER'] , session_id)
+        # csv_path = f'output_csv/{session_id}.csv'
+        save_csv(os.path.join(session_csv_folder, f"{session_id}.csv"), matches_list, values_array)
+
+    with open(os.path.join(output_folder, f'{session_id}-summary.txt'), "a", encoding="utf-8") as text_file:
         text_file.write(f"[start]{base_name}[/start]\n")
         text_file.write(str(summary_dict))
         text_file.write("\n")
@@ -752,7 +801,11 @@ def pdf_to_jpg(pdf_file, output_folder, session_id, zoom=2):
     # Open the PDF file
     pdf_document = fitz.open(pdf_file)
 
-    save_log(os.path.join(output_folder, "logs.txt"),f"Opening pdf file: {pdf_file}")
+    # save_log(os.path.join(output_folder, "logs.txt"),f"Opening pdf file: {pdf_file}")
+
+    session_folder = os.path.join(app.config['EXTRACTED_PAGE_IMAGES_FOLDER'], session_id)
+    save_log(os.path.join(session_folder, "logs.txt"),f"Opening pdf file: {pdf_file}")
+
     
     # List to store the filenames of the images for each page
     page_images = []
@@ -783,37 +836,45 @@ def pdf_to_jpg(pdf_file, output_folder, session_id, zoom=2):
         # print(f"Page {page_num + 1} of {pdf_file} saved as {image_filename}")
         # print(image_filename)
 
-        save_log(os.path.join(output_folder, "logs.txt"),f"Page {page_num + 1} of {pdf_file} extracted")
-
-        save_log(os.path.join(output_folder, "logs.txt"),f"Current OCR used is {current_ocr}")
+        session_folder = os.path.join(app.config['EXTRACTED_PAGE_IMAGES_FOLDER'], session_id)
+        save_log(os.path.join(session_folder, "logs.txt"),f"Page {page_num + 1} of {pdf_file} extracted")
+        save_log(os.path.join(session_folder, "logs.txt"),f"Current OCR used is {current_ocr}")
 
         if current_ocr == 'gpt4oOCR':
-            summary = get_summary_from_image(image_filename) ## summary text from gpt4o OCR
+            summary = get_summary_from_image(image_filename, session_id) ## summary text from gpt4o OCR
         elif current_ocr == 'tesseractOCR':
-            summary = extract_text_from_image(image_filename) ## extracted text from local tesseract OCR
+            summary = extract_text_from_image(image_filename, session_id) ## extracted text from local tesseract OCR
         elif current_ocr == 'claudeOCR':
-            summary = get_summary_from_image_using_claude(image_filename) ## summary text from claude Haiku OCR
+            summary = get_summary_from_image_using_claude(image_filename, session_id) ## summary text from claude Haiku OCR
         elif current_ocr == 'gpt4ominiOCR':
-            summary = get_summary_from_image_gpt4omini(image_filename) ## summary text from gpt4omini OCR
+            summary = get_summary_from_image_gpt4omini(image_filename, session_id) ## summary text from gpt4omini OCR
         else:
-            summary = get_summary_from_image_gpt4omini(image_filename) ## summary text from gpt4omini OCR
+            summary = get_summary_from_image_gpt4omini(image_filename, session_id) ## summary text from gpt4omini OCR
 
-        # summary = "test"
+        ## this is a test code
+        # summary = "summary_from_page"
+        # random_number = random.randint(1000, 9999)
+        # summary = summary + str(random_number)
+
         total_summary += summary + "\n"  # Add newline between summaries
     
     # Close the PDF file
     pdf_document.close()
 
     results_from_ocr, maid_ref_code = summary_generation(total_summary, output_folder, base_name, session_id)
-    # maid_ref_code = "maid_ref_code_test"
-    # results_from_ocr = "test"
+    
+    # ## this is a test
+    # random_number = random.randint(1000, 9999)
+    # maid_ref_code = "maid_ref_code_test" + str(random_number)
+    # # results_from_ocr = "test"
 
     # Print the list of page image filenames
     # print(f"List of page images for {pdf_file}: {page_images}")
 
     ## Write total_summary
-    with open(os.path.join(output_folder, f"OCR-{session_id}.txt"), "a", encoding="utf-8") as text_file:
-    # with open(os.path.join(output_folder, f"OCR.txt"), "a", encoding="utf-8") as text_file:
+    # session_folder = os.path.join(app.config['EXTRACTED_PROFILE_PICTURE_FOLDER'], session_id)
+    # with open(os.path.join(session_folder, f"OCR-{session_id}.txt"), "a", encoding="utf-8") as text_file:
+    with open(os.path.join(output_folder, f'{session_id}-OCR.txt'), "a", encoding="utf-8") as text_file:
         text_file.write(f"[start]{base_name}[/start]\n")
         text_file.write(results_from_ocr)
         text_file.write(f"\n[end]{base_name}[/end]\n")
@@ -847,7 +908,7 @@ def extract_images_with_faces(pdf_path, session_id):
     # Get the base name of the PDF file
     pdf_basename = os.path.splitext(os.path.basename(pdf_path))[0]
     # Create the main folder if it doesn't exist
-    main_folder = os.path.join(app.config['EXTRACTED_PAGE_IMAGES_FOLDER'], session_id)
+    main_folder = os.path.join(app.config['EXTRACTED_PROFILE_PICTURE_FOLDER'], session_id)
     if not os.path.exists(main_folder):
         os.makedirs(main_folder)
 
@@ -958,6 +1019,8 @@ def process_pdf_extract_image(filename, session_id):
         print(f"File '{filename}' not found or is not a PDF.")
         save_log(os.path.join(app.config['EXTRACTED_PAGE_IMAGES_FOLDER'], "logs.txt"),f"File '{filename}' not found or is not a PDF.")
 
+
+
 def check_queries():
 
     # Flag to indicate if we found and changed a "waiting" item
@@ -972,6 +1035,15 @@ def check_queries():
                     item["status"] = "inprogress"
                     found_waiting = True
                     print(f"INFO: [EXECUTE] {item['query_label']} ({item['query_id']}) ")
+
+                    # Trigger the URL using test client
+                    session_id = item["query_id"]
+                    try:
+                        run_process_files(session_id)  # Call the function to simulate the request
+                    except Exception as e:
+                        print(f"Error occurred while triggering process for session {session_id}: {e}")
+                    
+
                     # print(f"Changing status for {item['query_label']} ({item['query_id']}) to 'inprogress'")
                     break  # Stop checking after changing the first "waiting" item
 
@@ -1067,6 +1139,14 @@ def zip_files(session_folder, zip_file_path):
         print(f"[INFO] Zipped {len(files)} file(s) into {zip_file_path}")
 
 
+def get_maid_status(query_id):
+    # Search for the item with the given query_id
+    for query in query_storage:
+        if query.get('query_id') == query_id:
+            return query.get("maid_status_id")  # Return the maid_status_id if found
+
+    return None  # Return None if no matching query_id is found
+
 # Update query storage status function
 def update_query_storage_status(session_id, new_status):
     for query in query_storage:
@@ -1075,7 +1155,29 @@ def update_query_storage_status(session_id, new_status):
             print(f"Status updated for session {session_id}: {new_status}")
             break
 
+# Update query storage time function
+def update_query_storage_uptime(session_id, new_time):
+    for query in query_storage:
+        if query['query_id'] == session_id: 
+            query['up_time'] = new_time
+            print(f"Uptime updated for session {session_id}: {new_time}")
+            break
 
+# Update query storage num_files function
+def update_query_storage_num_files(session_id, num_files):
+    for query in query_storage:
+        if query['query_id'] == session_id: 
+            query['num_files'] = num_files
+            print(f"Number of Files updated for session {session_id}: {num_files}")
+            break
+
+# Update query storage rate function
+def update_query_storage_rate(session_id, new_rate):
+    for query in query_storage:
+        if query['query_id'] == session_id: 
+            query['rate'] = new_rate
+            print(f"Rate updated for session {session_id}: {new_rate}")
+            break
 
 @app.route('/api/upload/<session_id>', methods=['POST'])
 def upload_file(session_id):
@@ -1114,12 +1216,13 @@ def upload_file(session_id):
     }), 200
 
 # @app.route('/api/process', methods=['GET'])
-@app.route('/api/process/<session_id>', methods=['POST'])
+@app.route('/api/process/<session_id>', methods=['GET'])
 @login_required
 def process_files(session_id):
     # session_id = request.args.get('sessionId')
 
-    global image_fullpath_with_face_list, uploaded_pdf_file_list, uploaded_file_list, new_uploaded_pdf_file_path_list
+    # global image_fullpath_with_face_list, uploaded_pdf_file_list, uploaded_file_list, new_uploaded_pdf_file_path_list
+    global uploaded_pdf_file_list, uploaded_file_list, new_uploaded_pdf_file_path_list, maid_status_global
 
     if not check_authenticated():
         return jsonify({'error': 'Unauthorized access'}), 401
@@ -1128,6 +1231,11 @@ def process_files(session_id):
         return jsonify({'error': 'Invalid session ID'}), 400
 
     def mock_processing(session_id):
+        maid_status_id_value = get_maid_status(session_id)
+        maid_status_global = maid_status_id_value
+        print(f"maid status set value: {maid_status_id_value}")
+        start_time = time.time()  # Record the start time
+        total_files = ""
         with app.app_context(): ## By pushing the application context manually, you ensure that Flask has the necessary context to handle things like query_storage without running into the "Working outside of application context" error.
             print(f"INFO: Processing started for session: {session_id}")
             new_pdf_list = []
@@ -1137,8 +1245,14 @@ def process_files(session_id):
                 uploaded_files = os.listdir(session_folder)
                 # print(uploaded_files)
                 total_files = len(uploaded_files)
+                update_query_storage_num_files(session_id, f"{total_files} files")
                 progress[session_id]['total'] = total_files
                 print(f"Total files in the uploads is {total_files} with session ID {session_id}")
+
+
+                session_folder = os.path.join(app.config['EXTRACTED_PAGE_IMAGES_FOLDER'], session_id)
+                save_log(os.path.join(session_folder, "logs.txt"),f"Uploaded file list: {str(uploaded_file_list)}")
+                
 
                 # for index, filename in enumerate(uploaded_files):
                 index = 0
@@ -1154,7 +1268,7 @@ def process_files(session_id):
                         if file_ext in ['.doc', '.docx']:
                             # pdf_path = replace_extension_with_pdf(app.config['UPLOAD_FOLDER'], filename)
                             session_folder = os.path.join(app.config['UPLOAD_FOLDER'], session_id)
-                            converted_pdf_path = convert_doctypes_to_pdf(file_path, session_folder)
+                            converted_pdf_path = convert_doctypes_to_pdf(file_path, session_folder, session_id)
                             if converted_pdf_path:
                                 print (f"Success converting a file")
                                 filename = os.path.basename(converted_pdf_path)
@@ -1174,43 +1288,56 @@ def process_files(session_id):
                         print (f"Error has occurred during documents to pdf conversion {e}")
 
                     # Simulate processing of each file
-                    # time.sleep(5)  # Simulate processing delay
+                    # time.sleep(1)  # Simulate processing delay
+                    # time.sleep(2)  # Simulate processing delay
 
-                    # extracted_image_session_folder = os.path.join(app.config['EXTRACTED_PROFILE_PICTURE_FOLDER'], session_id)
-
-                    process_pdf_extract_image(filename, session_id)
-                    # session_folder = os.path.join(app.config['UPLOAD_FOLDER'], session_id)
-                    # pdf_path = os.path.join(session_folder, filename)
-                    # page_images, maid_ref_code = pdf_to_jpg(pdf_path, extracted_image_session_folder, session_id, zoom=2) ## ocr and analyzing
+                    image_with_face_list = process_pdf_extract_image(filename, session_id) ## extract the profile picture and
+                    session_folder = os.path.join(app.config['UPLOAD_FOLDER'], session_id)
+                    pdf_path = os.path.join(session_folder, filename)
+                    extracted_image_session_folder = os.path.join(app.config['EXTRACTED_PAGE_IMAGES_FOLDER'], session_id)
+                    page_images, maid_ref_code = pdf_to_jpg(pdf_path, extracted_image_session_folder, session_id, zoom=2) ## ocr and analyzing
                     index += 1
                     progress[session_id]['current'] = index
-                    # maidrefcode_list.append(maid_ref_code)
+                    maidrefcode_list.append(maid_ref_code)
                     
-                # try:
-                #     # maidrefcode_list = ['SRANML240075','CML','AA']
-                #     # maidrefcode_list = ['CP760722', 'EI990522', 'aaa']
-                #     # print(f"maid-ref-code-list: {maidrefcode_list}")
-                #     # print(f"image-path-with-face-path: {image_fullpath_with_face_list}")
-                #     # print(f"new-pdf-list-path: {new_pdf_list}")
+                try:
+                    # maidrefcode_list = ['SRANML240075','CML','AA']
+                    # maidrefcode_list = ['CP760722', 'EI990522', 'aaa','bbb']
+                    print(f"maid-ref-code-list: {maidrefcode_list}")
+                    print(f"image-path-with-face-path: {image_with_face_list}")
+                    print(f"new-pdf-list-path: {new_pdf_list}")
 
                 #     # rename_files(image_fullpath_with_face_list, maidrefcode_list) ## renaming extracted images
-                    rename_files(image_fullpath_with_face_list, maidrefcode_list) ## renaming extracted images
+                    rename_files(image_with_face_list, maidrefcode_list) ## renaming extracted images
                     rename_files2(new_pdf_list, maidrefcode_list) ## renaming input pdf
                     session_folder = os.path.join(app.config['EXTRACTED_PAGE_IMAGES_FOLDER'], session_id)
-                #     save_log(os.path.join(session_folder, "logs.txt"),f"Processed Completed. Ready to download!")
+                    save_log(os.path.join(session_folder, "logs.txt"),f"Processed Completed. Ready to download!")
                 
-                # except Exception as e:
-                #     print(f"An error occured: {e}")
-                #     session_folder = os.path.join(app.config['EXTRACTED_PAGE_IMAGES_FOLDER'], session_id)
-                #     save_log(os.path.join(session_folder, "logs.txt"),f"An error occured during renaming process: {e}")
+                except Exception as e:
+                    print(f"An error occured: {e}")
+                    session_folder = os.path.join(app.config['EXTRACTED_PAGE_IMAGES_FOLDER'], session_id)
+                    save_log(os.path.join(session_folder, "logs.txt"),f"An error occured during renaming process: {e}")
                 
                 print(f"Processing document finished with session ID {session_id}")
                 update_query_storage_status(session_id,"download")
                 
             except Exception as e:
                 print(f"Error during upload processing: {e}")
+                session_folder = os.path.join(app.config['EXTRACTED_PAGE_IMAGES_FOLDER'], session_id)
+                save_log(os.path.join(session_folder, "logs.txt"),f"An error occured during renaming process: {e}")
                 update_query_storage_status(session_id,"failed")
 
+        # Print this when the background task is done
+        print(f"Process exited for session ID: {session_id}")
+
+        end_time = time.time()  # Record the end time
+        duration = end_time - start_time  # Calculate the duration
+
+        formatted_duration = format_duration(duration)
+        print(f"Processing duration for session ID {session_id}: {formatted_duration}")
+        update_query_storage_uptime(session_id, formatted_duration)
+        rate = round(duration / total_files, 2) if total_files > 0 else 0
+        update_query_storage_rate(session_id, str(rate))
 
     try:
         # Start the mock processing in a separate thread
@@ -1219,16 +1346,193 @@ def process_files(session_id):
         thread.start()
 
         # Wait for the thread to finish and print "process exited" once it does
-        thread.join()
-        print("Process exited")
+        # thread.join()
+        print(f"Process exited for session ID: {session_id}")
         # update_query_storage_status(session_id,"download")
         
     except Exception as e:
         print(f"Error during thread start: {e}")
         update_query_storage_status(session_id,"failed")
 
-    
     return jsonify({'message': 'Processing started'}), 200
+
+
+def run_process_files(session_id):
+    # session_id = request.args.get('sessionId')
+
+    # global image_fullpath_with_face_list, uploaded_pdf_file_list, uploaded_file_list, new_uploaded_pdf_file_path_list
+    global uploaded_pdf_file_list, uploaded_file_list, new_uploaded_pdf_file_path_list, maid_status_global
+
+
+    def mock_processing(session_id):
+        maid_status_id_value = get_maid_status(session_id)
+        maid_status_global = maid_status_id_value
+        print(f"maid status set value: {maid_status_id_value}")
+
+        session_folder = os.path.join(app.config['EXTRACTED_PAGE_IMAGES_FOLDER'], session_id)
+        save_log(os.path.join(session_folder, "logs.txt"),f"maid status set value: {maid_status_id_value}")
+        
+
+        start_time = time.time()  # Record the start time
+        total_files = ""
+        with app.app_context(): ## By pushing the application context manually, you ensure that Flask has the necessary context to handle things like query_storage without running into the "Working outside of application context" error.
+            print(f"INFO: Processing started for session: {session_id}")
+            new_pdf_list = []
+            maidrefcode_list = []
+            try:
+                session_folder = os.path.join(app.config['UPLOAD_FOLDER'], session_id)
+                uploaded_files = os.listdir(session_folder)
+                # print(uploaded_files)
+                total_files = len(uploaded_files)
+                update_query_storage_num_files(session_id, f"{total_files} files")
+                progress[session_id]['total'] = total_files
+                print(f"Total files in the uploads is {total_files} with session ID {session_id}")
+
+
+                session_folder = os.path.join(app.config['EXTRACTED_PAGE_IMAGES_FOLDER'], session_id)
+                save_log(os.path.join(session_folder, "logs.txt"),f"Uploaded file list: {str(uploaded_file_list)}")
+                
+
+                # for index, filename in enumerate(uploaded_files):
+                index = 0
+                for i in range (len(uploaded_file_list)):
+                    file_path = uploaded_file_list[i]
+                    filename = os.path.basename(file_path)
+                    file_ext = os.path.splitext(filename)[1].lower()
+
+                    ### pdf conversion
+                    try:
+
+                        # Check the file extension and convert if necessary
+                        if file_ext in ['.doc', '.docx']:
+                            # pdf_path = replace_extension_with_pdf(app.config['UPLOAD_FOLDER'], filename)
+                            session_folder = os.path.join(app.config['UPLOAD_FOLDER'], session_id)
+                            converted_pdf_path = convert_doctypes_to_pdf(file_path, session_folder, session_id)
+                            if converted_pdf_path:
+                                print (f"Success converting a file")
+                                filename = os.path.basename(converted_pdf_path)
+                                session_folder = os.path.join(app.config['EXTRACTED_PROFILE_PICTURE_FOLDER'], session_id)
+                                new_file_path = copy_file(converted_pdf_path, session_folder)
+                                new_pdf_list.append(new_file_path)
+                                
+                            else:
+                                print (f"Error converting a file")
+                        else:
+                            # For PDF files or unsupported formats, use the original path
+                            session_folder = os.path.join(app.config['EXTRACTED_PROFILE_PICTURE_FOLDER'], session_id)
+                            new_file_path = copy_file(file_path, session_folder)
+                            new_pdf_list.append(new_file_path)
+    
+                    except Exception as e:
+                        print (f"Error has occurred during documents to pdf conversion {e}")
+
+                    # Simulate processing of each file
+                    # time.sleep(1)  # Simulate processing delay
+                    # time.sleep(30)  # Simulate processing delay
+
+                    image_with_face_list = process_pdf_extract_image(filename, session_id) ## extract the profile picture and
+                    session_folder = os.path.join(app.config['UPLOAD_FOLDER'], session_id)
+                    pdf_path = os.path.join(session_folder, filename)
+                    extracted_image_session_folder = os.path.join(app.config['EXTRACTED_PAGE_IMAGES_FOLDER'], session_id)
+                    page_images, maid_ref_code = pdf_to_jpg(pdf_path, extracted_image_session_folder, session_id, zoom=2) ## ocr and analyzing
+                    index += 1
+                    progress[session_id]['current'] = index
+                    maidrefcode_list.append(maid_ref_code)
+                    
+                try:
+                    # maidrefcode_list = ['SRANML240075','CML','AA']
+                    # maidrefcode_list = ['CP760722', 'EI990522', 'aaa','bbb']
+                    print(f"maid-ref-code-list: {maidrefcode_list}")
+                    print(f"image-path-with-face-path: {image_with_face_list}")
+                    print(f"new-pdf-list-path: {new_pdf_list}")
+
+                #     # rename_files(image_fullpath_with_face_list, maidrefcode_list) ## renaming extracted images
+                    rename_files(image_with_face_list, maidrefcode_list) ## renaming extracted images
+                    rename_files2(new_pdf_list, maidrefcode_list) ## renaming input pdf
+                    session_folder = os.path.join(app.config['EXTRACTED_PAGE_IMAGES_FOLDER'], session_id)
+                    save_log(os.path.join(session_folder, "logs.txt"),f"Processed Completed. Ready to download!")
+                
+                except Exception as e:
+                    print(f"An error occured: {e}")
+                    session_folder = os.path.join(app.config['EXTRACTED_PAGE_IMAGES_FOLDER'], session_id)
+                    save_log(os.path.join(session_folder, "logs.txt"),f"An error occured during renaming process: {e}")
+                
+                print(f"Processing document finished with session ID {session_id}")
+                update_query_storage_status(session_id,"download")
+                
+            except Exception as e:
+                print(f"Error during upload processing: {e}")
+                session_folder = os.path.join(app.config['EXTRACTED_PAGE_IMAGES_FOLDER'], session_id)
+                save_log(os.path.join(session_folder, "logs.txt"),f"An error occured during renaming process: {e}")
+                update_query_storage_status(session_id,"failed")
+
+        # Print this when the background task is done
+        print(f"Process exited for session ID: {session_id}")
+
+        end_time = time.time()  # Record the end time
+        duration = end_time - start_time  # Calculate the duration
+
+        formatted_duration = format_duration(duration)
+        print(f"Processing duration for session ID {session_id}: {formatted_duration}")
+        update_query_storage_uptime(session_id, formatted_duration)
+        rate = round(duration / total_files, 2) if total_files > 0 else 0
+        update_query_storage_rate(session_id, str(rate))
+
+    try:
+        # Start the mock processing in a separate thread
+        thread = threading.Thread(target=mock_processing, args=(session_id,))
+        thread.daemon = True  # Ensure thread exits when the main program exits
+        thread.start()
+
+        # Wait for the thread to finish and print "process exited" once it does
+        # thread.join()
+        print(f"Process exited for session ID: {session_id}")
+        # update_query_storage_status(session_id,"download")
+        
+    except Exception as e:
+        print(f"Error during thread start: {e}")
+        update_query_storage_status(session_id,"failed")
+
+
+@app.route('/api/ocr-file-upload/<session_id>', methods=['POST'])
+@login_required
+def upload_ocrfile(session_id):
+
+    progress[session_id] = {'current': 0, 'total': 1}  # Initialize progress
+
+    if 'file' not in request.files:
+        return jsonify({'success': False, 'message': 'No file part in the request.'}), 400
+
+    file = request.files['file']
+
+    if file.filename == '':
+        return jsonify({'success': False, 'message': 'No selected file.'}), 400
+
+    filename = file.filename
+    session_folder = os.path.join(app.config['UPLOAD_FOLDER'], session_id)
+    file_path = os.path.join(session_folder, filename)
+
+    # Normalize the file path (this ensures that it works on both Windows and Linux)
+    filepath = os.path.normpath(file_path)
+    
+    # Get the directory from the file path
+    directory = os.path.dirname(filepath)
+    
+    # Create the directory and any necessary subdirectories if they don't exist
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
+    if file and file.filename.endswith('.txt'):
+        file.save(file_path)
+        response = {
+            'success': True,
+            'message': 'File successfully uploaded.',
+            'session_id': session_id
+        }
+        return jsonify(response), 200  
+    else:
+        return jsonify({'success': False, 'message': 'Invalid file type. Only .txt files are allowed.'}), 400
+
 
 
 @app.route('/api/progress/<session_id>')
@@ -1346,23 +1650,93 @@ def update_custom_prompt():
         return jsonify({'error': str(e)}), 500
 
 
-@app.route('/api/download/<session_id>', methods=['GET'])
-def download_file(session_id):
+# @app.route('/api/download/<session_id>', methods=['GET'])
+# def download_file(session_id):
+#     try:
+#         # Construct the zip file name and path using OUTPUT_FOLDER
+#         zip_filename = f"{session_id}.zip"
+#         zip_filepath = os.path.join(app.config['EXTRACTED_PROFILE_PICTURE_FOLDER'], session_id, zip_filename)
+#         print(zip_filepath)
+#         # Check if the zip file exists
+#         if not os.path.exists(zip_filepath):
+#             return jsonify({'error': 'File not found'}), 404
+
+#         # Send the file for download using send_file
+#         return send_file(zip_filepath, as_attachment=True, download_name=zip_filename)
+
+#     except Exception as e:
+#         print(f"Error during download_file: {e}")
+#         return jsonify({'error': 'An error occurred while trying to download the file.'}), 500
+
+
+@app.route('/api/download/<session_id>')
+@login_required
+def download_zip_files(session_id):
     try:
-        # Construct the zip file name and path using OUTPUT_FOLDER
+        if not check_authenticated():
+            return jsonify({'error': 'Unauthorized access'}), 401
+        if session_id not in progress or progress[session_id]['current'] < progress[session_id]['total']:
+            return jsonify({'error': 'Files are still being processed or invalid session ID'}), 400
+
+
         zip_filename = f"{session_id}.zip"
-        zip_filepath = os.path.join(app.config['OUTPUT_FOLDER'], session_id, zip_filename)
+        session_folder = os.path.join(app.config['EXTRACTED_PROFILE_PICTURE_FOLDER'], session_id)
+        zip_filepath = os.path.join(session_folder, zip_filename)
+        print(f"zip path: {zip_filepath}")
 
-        # Check if the zip file exists
-        if not os.path.exists(zip_filepath):
-            return jsonify({'error': 'File not found'}), 404
+        with zipfile.ZipFile(zip_filepath, 'w') as zipf:
+            for root, dirs, files in os.walk(session_folder):
+                for file in files:
+                    file_path = os.path.join(root, file)
+                    # Exclude the zip file itself from being added
+                    if file_path != zip_filepath:
+                        arcname = os.path.relpath(file_path, session_folder)
+                        zipf.write(file_path, arcname)
 
-        # Send the file for download using send_file
-        return send_file(zip_filepath, as_attachment=True, download_name=zip_filename)
-
+        return send_file(zip_filepath, as_attachment=True)
     except Exception as e:
-        print(f"Error during download_file: {e}")
-        return jsonify({'error': 'An error occurred while trying to download the file.'}), 500
+        print(f"Error during download_files: {e}")
+
+@app.route('/api/download-csv/<session_id>')
+@login_required
+def download_output_csv(session_id):
+    if not check_authenticated():
+        return jsonify({'error': 'Unauthorized access'}), 401
+    
+    session_folder = os.path.join(app.config['GENERATE_CSV_FOLDER'], session_id)
+    csv_filepath = os.path.join(session_folder, f'{session_id}.csv')
+
+    if os.path.exists(csv_filepath):
+        return send_file(csv_filepath, as_attachment=True)
+    else:
+        return jsonify({'error': 'output.csv not found'}), 404
+
+
+@app.route('/api/download-gpt/<session_id>')
+def download_gpt(session_id):
+    # Replace with actual path to summary_text_from_gpt.txt
+    # filepath = 'output_pdf2images/summary_text_from_gpt.txt'
+    session_folder = os.path.join(app.config['EXTRACTED_PAGE_IMAGES_FOLDER'], session_id)
+    filepath = os.path.join(session_folder, f'{session_id}-summary.txt')
+    if os.path.exists(filepath):
+        return send_file(filepath, as_attachment=True)
+    else:
+        return jsonify({'error': 'File not found'})
+
+@app.route('/api/download-ocr/<session_id>')
+def download_ocr(session_id):
+    # Replace with actual path to ocr_results.txt
+    # filepath = f'output_pdf2images/OCR-{session_id}.txt'
+
+    session_folder = os.path.join(app.config['EXTRACTED_PAGE_IMAGES_FOLDER'], session_id)
+    filepath = os.path.join(session_folder, f'{session_id}-OCR.txt')
+
+    # filepath = f'output_pdf2images/OCR.txt'
+    if os.path.exists(filepath):
+        return send_file(filepath, as_attachment=True)
+    else:
+        return jsonify({'error': 'File not found'})
+
 
 @app.route('/api/clear-output-files', methods=['GET'])
 def clear_output_files():
@@ -1417,6 +1791,64 @@ def clear_upload_files():
     except Exception as e:
         print(f"Error while clearing upload files: {e}")
         return jsonify({'error': 'An error occurred while clearing the uploads folder.'}), 500
+
+
+@app.route('/api/clear-multiple-folders', methods=['GET'])
+def clear_multiple_folders():
+    folders_to_clear = [
+        'output_csv',
+        'output_extracted_page_image',
+        'output_extracted_profile_image',
+        'uploads'
+    ]
+
+    try:
+        for folder in folders_to_clear:
+            # Ensure the folder exists
+            if not os.path.exists(folder):
+                return jsonify({'error': f'Folder {folder} not found', 'timestamp': datetime.utcnow().isoformat()}), 404
+
+            # Walk through the folder and delete all files and subdirectories
+            for root, dirs, files in os.walk(folder, topdown=False):
+                for name in files:
+                    file_path = os.path.join(root, name)
+                    os.remove(file_path)  # Remove the file
+                for name in dirs:
+                    dir_path = os.path.join(root, name)
+                    shutil.rmtree(dir_path)  # Remove the directory
+
+            # # Optionally, remove the folder itself if it is empty
+            # if not os.listdir(folder):
+            #     os.rmdir(folder)  # Remove the folder if it's empty
+
+        return jsonify({
+            'message': 'All specified folders and their contents cleared successfully',
+            'timestamp': datetime.utcnow().isoformat()
+        }), 200
+    except Exception as e:
+        print(f"Error while clearing multiple folders: {e}")
+        return jsonify({
+            'error': 'An error occurred while clearing the specified folders.',
+            'timestamp': datetime.utcnow().isoformat()
+        }), 500
+
+
+# Route to fetch logs content
+@app.route('/api/fetch-logs/<session_id>')
+def fetch_logs(session_id):
+    # Logic to read and return logs.txt content
+    try:
+        session_folder = os.path.join(app.config['EXTRACTED_PAGE_IMAGES_FOLDER'], session_id)
+        log_file_path = f'{session_folder}/logs.txt'  # Use f-string for proper interpolation
+        
+        with open(log_file_path, 'r') as file:
+            logs_content = file.read()
+        
+        return logs_content
+    except Exception as e:
+        # Return error message and HTTP status code 500 for server error
+        return "Waiting for the log file to be available", 500
+
 
 @app.route('/api/delete-upload-files', methods=['GET'])
 def delete_upload_files():
@@ -1508,6 +1940,9 @@ def delete_all_files():
         # Define the path to the session's upload folder and output folder
         upload_folder = os.path.join(app.config['UPLOAD_FOLDER'], session_id)
         output_folder = os.path.join(app.config['OUTPUT_FOLDER'], session_id)
+        output_extracted_page_image = os.path.join(app.config['EXTRACTED_PAGE_IMAGES_FOLDER'], session_id)
+        output_extracted_profile_image = os.path.join(app.config['EXTRACTED_PROFILE_PICTURE_FOLDER'], session_id)
+        output_csv = os.path.join(app.config['GENERATE_CSV_FOLDER'], session_id)
 
         # Check if the upload folder exists, if not, return an error indicating that files have already been deleted
         if not os.path.exists(upload_folder) and not os.path.exists(output_folder):
@@ -1534,6 +1969,39 @@ def delete_all_files():
                     dir_path = os.path.join(root, name)
                     shutil.rmtree(dir_path)  # Remove the directory
             shutil.rmtree(output_folder)  # Remove the session folder
+
+        # Delete output_extracted_page_image files if the folder exists
+        if os.path.exists(output_extracted_page_image):
+            for root, dirs, files in os.walk(output_extracted_page_image, topdown=False):
+                for name in files:
+                    file_path = os.path.join(root, name)
+                    os.remove(file_path)  # Remove the file
+                for name in dirs:
+                    dir_path = os.path.join(root, name)
+                    shutil.rmtree(dir_path)  # Remove the directory
+            shutil.rmtree(output_extracted_page_image)  # Remove the session folder
+
+        # Delete output_extracted_profile_image files if the folder exists
+        if os.path.exists(output_extracted_profile_image):
+            for root, dirs, files in os.walk(output_extracted_profile_image, topdown=False):
+                for name in files:
+                    file_path = os.path.join(root, name)
+                    os.remove(file_path)  # Remove the file
+                for name in dirs:
+                    dir_path = os.path.join(root, name)
+                    shutil.rmtree(dir_path)  # Remove the directory
+            shutil.rmtree(output_extracted_profile_image)  # Remove the session folder
+
+        # Delete output_csv files if the folder exists
+        if os.path.exists(output_csv):
+            for root, dirs, files in os.walk(output_csv, topdown=False):
+                for name in files:
+                    file_path = os.path.join(root, name)
+                    os.remove(file_path)  # Remove the file
+                for name in dirs:
+                    dir_path = os.path.join(root, name)
+                    shutil.rmtree(dir_path)  # Remove the directory
+            shutil.rmtree(output_csv)  # Remove the session folder
 
         # Remove the corresponding item from query_storage using session_id (query_id)
         global query_storage
@@ -1612,6 +2080,61 @@ def add_query_to_query_storage():
         return jsonify({"error": "Missing required parameters (sessionId, query)"}), 400
 
 
+# http://127.0.0.1:5000/api/update_status?query_id=12345&status=inprogress
+# http://127.0.0.1:5000/api/update_status?query_id=12345&status=inprogress
+@app.route('/api/update_status', methods=['GET'])
+def update_status():
+    query_id = request.args.get('query_id')
+    new_status = request.args.get('status')
+
+    # Validate status input
+    if new_status not in ['waiting', 'download', 'inprogress', 'failed']:
+        return jsonify({"error": "Invalid status value"}), 400
+
+    # Find the query by query_id and update its status
+    for query in query_storage:
+        if query['query_id'] == query_id:
+            query['status'] = new_status
+            return jsonify({"message": "Status updated successfully", "query": query}), 200
+
+    # If query_id not found
+    return jsonify({"error": "Query ID not found"}), 404
+
+
+@app.route('/api/report-logs')
+@login_required
+def report_logs():
+    # Get the session_id from the query string
+    session_id = request.args.get('sessionId')
+
+    if not session_id:
+        # Handle case where sessionId is not provided
+        return jsonify({"message": "Session ID is missing"}), 400
+
+    if not check_authenticated():
+        return redirect(url_for('login'))
+
+    # Fetch the logs from the corresponding session folder
+    try:
+        session_folder = os.path.join(app.config['EXTRACTED_PAGE_IMAGES_FOLDER'], session_id)
+        log_file_path = f'{session_folder}/logs.txt'
+        
+        if not os.path.exists(log_file_path):
+            return jsonify({"message": "Logs file not found"}), 404
+
+        with open(log_file_path, 'r') as file:
+            logs_content = file.read()
+
+        return jsonify({
+            "message": "Logs fetched successfully",
+            "sessionId": session_id,
+            "logs": logs_content
+        }), 200
+
+    except Exception as e:
+        return jsonify({"error": "Error while fetching logs", "details": str(e)}), 500
+        
+
 # http://127.0.0.1:5000/add_query?query_label=Query%205&query_id=55555&status=waiting&up_time=15%20minutes&num_files=8%20files&rate=60%20KB/s
 # http://127.0.0.1:5000/add_query?query_label=Query5&query_id=55555&status=waiting&up_time=15%20minutes&num_files=8%20files&rate=60%20KB/s
 
@@ -1669,28 +2192,6 @@ def test_update_status():
 @app.route('/api/test-get-queries', methods=['GET'])
 def test_get_queries():
     return jsonify({"query_storage": query_storage}), 200
-
-
-# http://127.0.0.1:5000/update_status?query_id=12345&status=inprogress
-# http://127.0.0.1:5000/update_status?query_id=12345&status=inprogress
-@app.route('/update_status', methods=['GET'])
-def update_status():
-    query_id = request.args.get('query_id')
-    new_status = request.args.get('status')
-
-    # Validate status input
-    if new_status not in ['waiting', 'download', 'inprogress', 'failed']:
-        return jsonify({"error": "Invalid status value"}), 400
-
-    # Find the query by query_id and update its status
-    for query in query_storage:
-        if query['query_id'] == query_id:
-            query['status'] = new_status
-            return jsonify({"message": "Status updated successfully", "query": query}), 200
-
-    # If query_id not found
-    return jsonify({"error": "Query ID not found"}), 404
-
 
 
 @app.route('/api/test-get-progress', methods=['GET'])
@@ -1832,6 +2333,21 @@ def runningjobs():
 
 #     return render_template('process/process-page.html', session_id=session_id, backendurl=BACKEND_API_URL)
 
+
+@login_required
+@app.route('/report')
+def failed_page():
+    # Extract sessionId from URL query parameters
+    session_id = request.args.get('sessionId')
+
+    # Check if sessionId is provided
+    if not session_id:
+        return "Session ID is required!", 400
+    
+    return render_template('report/report-page.html', session_id=session_id, backendurl=BACKEND_API_URL)
+
+
+
 # Download files page
 @app.route('/download-files')
 @login_required
@@ -1849,22 +2365,130 @@ def download_files():
     # Return a JSON response with the sessionId and a message
     return jsonify({"message": "Request successful", "sessionId": session_id})
 
-# Route for handling the failed jobs page
-@app.route('/failed-jobs')
+
+@app.route('/extract')
 @login_required
-def failed_jobs():
-    # Get the session_id from the query string
-    session_id = request.args.get('sessionId')
-
-    if not session_id:
-        # Handle case where sessionId is not provided
-        return jsonify({"message": "Session ID is missing"}), 400
-
+def extract_page():
+    session_id = request.args.get('sessionId') 
     if not check_authenticated():
         return redirect(url_for('login'))
+    return render_template('extract/extract-page.html', session_id=session_id, backendurl=BACKEND_API_URL)
 
-    # Return a JSON response with the sessionId and a message
-    return jsonify({"message": "Redirecting to failed jobs", "sessionId": session_id})
+
+@app.route('/api/extracting/<session_id>', methods=['POST'])
+def extracting_status(session_id):
+    if not check_authenticated():
+        return jsonify({'error': 'Unauthorized access'}), 401
+    if session_id in progress:
+        return jsonify(progress[session_id]), 200
+    else:
+        return jsonify({'error': 'Invalid session ID'}), 400
+
+
+@app.route('/api/extraction/<session_id>', methods=['POST'])
+@login_required
+def extract_ocrfile(session_id):
+    global last_upload_time, maid_status_global
+
+    if not check_authenticated():
+        return jsonify({'error': 'Unauthorized access'}), 401
+
+    def mock_ocr_processing(session_id):
+        try:
+            print("documents extraction process started")
+            total_detected_documents = 0
+            extracted_content = []
+
+            try:
+                # Construct the full file path
+                # full_path = os.path.join(os.getcwd(), DOWNLOAD_OCR_FILE_PATH)
+                # print(full_path)
+
+                session_folder = os.path.join(app.config['UPLOAD_FOLDER'], session_id)
+                os.makedirs(session_folder, exist_ok=True)  # Create session-specific folder
+
+                files = os.listdir(session_folder)
+                # Filter out files that end with '.txt'
+                txt_files = [f for f in files if f.endswith('.txt')]
+
+                # Check if there are any .txt files
+                if not txt_files:
+                    print(f"No .txt files found in the {app.config['UPLOAD_FOLDER']} directory.")
+                    return jsonify({'message': 'No .txt files found in the directory.'}), 200
+                
+                # Sort files (optional: you can customize sorting if needed)
+                txt_files.sort()
+                
+                # Take the first file
+                first_txt_file = txt_files[0]
+                session_folder = os.path.join(app.config['UPLOAD_FOLDER'], session_id)
+                full_path = os.path.join(session_folder, first_txt_file)
+
+                # Check if file exists
+                if not os.path.isfile(full_path):
+                    print("Download OCR.txt is not found")
+
+                else:
+                    # Open and read the file
+                    try:
+                        with open(full_path, 'r', encoding='utf-8') as file:
+                            file_content = file.read()
+                    except UnicodeDecodeError:
+                        # If utf-8 fails, try a different encoding
+                        with open(full_path, 'r', encoding='latin-1') as file:
+                            file_content = file.read()
+
+                    # Extract data from the file content
+                    extracted_data = extract_data_from_text(file_content)
+
+                    # Print the result
+                    for item in extracted_data:
+                        # print(item)
+                        extracted_content.append(item)
+
+                    total_detected_documents = len(extracted_content)
+                    print(f"documents found: {total_detected_documents}")
+                  
+            except Exception as e:
+                print(f"Error during download OCR read: {e}")
+
+              
+            progress[session_id]['total'] = total_detected_documents
+
+            # for index, filename in enumerate(uploaded_files):
+            index = 0
+            for i in range (total_detected_documents):
+  
+                # Simulate processing of each file
+                # time.sleep(3)  # Simulate processing delay
+
+                # Update the last_upload_time
+                last_upload_time = datetime.now()
+
+                # print(extracted_content[i][1])
+                session_folder = os.path.join(app.config['EXTRACTED_PAGE_IMAGES_FOLDER'], session_id)
+
+                summary_generation(extracted_content[i][1], session_folder, extracted_content[i][0], session_id) ## summary_generation(total_summary, output_folder, base_name)
+
+                index += 1
+                progress[session_id]['current'] = index
+                
+            print("documents extraction process finished")
+        except Exception as e:
+            print(f"Error during upload processing: {e}")
+
+    if session_id not in progress:
+        return jsonify({'error': 'Invalid session ID'}), 400
+    
+    try:
+        # Start the mock processing in a separate thread
+        thread = threading.Thread(target=mock_ocr_processing, args=(session_id,))
+        thread.daemon = True  # Ensure thread exits when the main program exits
+        thread.start()
+    except Exception as e:
+        print(f"Error during thread start: {e}")
+
+    return jsonify({'message': 'Processing started'}), 200
 
 @app.route('/api/status')
 @login_required

@@ -237,20 +237,22 @@
         console.log("Current Session:", sessionId);
         if (sessionId) {
             console.log("Current Session:", sessionId);
+            updateProgress(sessionId);
+            startTimer();
             // Start processing the files
             // fetch(`{{ backendurl }}/process?sessionId=${sessionId}`, { method: 'GET' })
-            fetch(`{{ backendurl }}/api/process/${sessionId}`,{ method: 'POST' })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.message === 'Processing started') {
-                        console.log()
-                        startTimer(); // Start the timer when processing starts
-                        updateProgress(sessionId);
-                    } else {
-                        console.error(data.error);
-                    }
-                })
-                .catch(error => console.error('Error:', error));
+            // fetch(`{{ backendurl }}/api/process/${sessionId}`,{ method: 'POST' })
+            //     .then(response => response.json())
+            //     .then(data => {
+            //         if (data.message === 'Processing started') {
+            //             console.log()
+            //             startTimer(); // Start the timer when processing starts
+            //             updateProgress(sessionId);
+            //         } else {
+            //             console.error(data.error);
+            //         }
+            //     })
+            //     .catch(error => console.error('Error:', error));
 
             // Download GPT button click event
             document.getElementById('downloadGPTButton').addEventListener('click', function() {
@@ -315,7 +317,7 @@
     }
 
     function fetchLogsContent(sessionId) {
-        fetch(`{{ backendurl }}/fetch-logs/${sessionId}`)
+        fetch(`{{ backendurl }}/api/fetch-logs/${sessionId}`)
             .then(response => response.text())
             .then(data => {
                 const logsContent = document.getElementById('logsContent');

@@ -337,7 +337,7 @@
                 const formData = new FormData();
                 formData.append('file', ocrFileInput.files[0]);
                 
-                fetch('{{ backendurl }}/api/file-upload/{{sessionId}}', {
+                fetch('{{ backendurl }}/api/ocr-file-upload/{{sessionId}}', {
                     method: 'POST',
                     body: formData
                 }).then(response => response.json())
@@ -345,9 +345,10 @@
                       // Hide spinner and show upload button
                       spinner.classList.add('hidden');
                       uploadButton.classList.remove('hidden');
+                      console.log("success");
                       
                       if (result.session_id) {
-                          window.location.href = `{{ backendurl }}/extract?session_id=${result.session_id}`;
+                          window.location.href = `{{ backendurl }}/extract?sessionId={{sessionId}}`;
                       } else {
                           alert(result.message || 'An error occurred');
                       }

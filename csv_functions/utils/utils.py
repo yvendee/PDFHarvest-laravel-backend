@@ -46,6 +46,16 @@ def convert_date(date_str):
 
 def save_csv(filename, header, data):
 
+    # Normalize the file path (this ensures that it works on both Windows and Linux)
+    filepath = os.path.normpath(filename)
+    
+    # Get the directory from the file path
+    directory = os.path.dirname(filepath)
+    
+    # Create the directory and any necessary subdirectories if they don't exist
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
     # Replace spaces with underscores in headers
     header = [column.replace(' ', '_') for column in header]
 

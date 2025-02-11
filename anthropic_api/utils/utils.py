@@ -1,3 +1,4 @@
+from flask import Flask
 import anthropic
 import base64
 import json
@@ -10,7 +11,8 @@ from log_functions.utils.utils import save_log
 # Fetch API key from environment variable
 api_key = os.getenv("ANTHROPIC_API_KEY")
 
-LOGPATH = 'output_pdf2images'
+app = Flask(__name__)
+app.config['EXTRACTED_PAGE_IMAGES_FOLDER'] = 'output_extracted_page_image/'
 
 def get_summary_from_image_using_claude(image_path):
   global api_key
@@ -54,7 +56,8 @@ def get_summary_from_image_using_claude(image_path):
     base64_gray_image = base64.b64encode(buffer).decode('utf-8')
 
     print("Sending image and text to Anthropic...")
-    save_log(os.path.join(LOGPATH, "logs.txt"),"Sending image and text to Anthropic...")
+    session_folder = os.path.join(app.config['EXTRACTED_PAGE_IMAGES_FOLDER'], session_id)
+    save_log(os.path.join(session_folder, "logs.txt"),"Sending image and text to Anthropic...")
 
     # Initialize the anthropic client
     client = anthropic.Anthropic(
@@ -93,7 +96,9 @@ def get_summary_from_image_using_claude(image_path):
     )
 
     print("[Success] Sending image and text to Anthropic...")
-    save_log(os.path.join(LOGPATH, "logs.txt"),"Received data from Anthropic Claude Haiku...")
+
+    session_folder = os.path.join(app.config['EXTRACTED_PAGE_IMAGES_FOLDER'], session_id)
+    save_log(os.path.join(session_folder, "logs.txt"),"Received data from Anthropic Claude Haiku...")
 
     rtn_list = message.content
     rtn_str = str(rtn_list)
@@ -106,5 +111,9 @@ def get_summary_from_image_using_claude(image_path):
   except Exception as e:
     print(f"Error generating summary: {e}")
     save_log(os.path.join(LOGPATH, "logs.txt"),f"Error generating summary: {e}")
-    save_log(os.path.join(LOGPATH, "logs.txt"),"[Failed] Sending image and text to Anthropic Claude Haiku...")
+    
+    session_folder = os.path.join(app.config['EXTRACTED_PAGE_IMAGES_FOLDER'], session_id)
+    save_log(os.path.join(session_folder, "logs.txt"),f"Error generating summary: {e}")
+    save_log(os.path.join(session_folder, "logs.txt"),f"[Failed] Sending image and text to Anthropic Claude Haiku...")
+
     return f"Error generating summary: {e}"

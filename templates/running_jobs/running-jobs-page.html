@@ -503,7 +503,18 @@
                 button.textContent = "Download";
                 button.classList.add("status-btn", "btn-green");
                 button.onclick = function () {
-                    window.location.href = `{{ backendurl }}/api/download-files?sessionId=${query_id}`; // Redirect to /download when clicked
+                    window.location.href = `{{ backendurl }}/api/download/${query_id}`; // Redirect to /download when clicked
+                    
+                    // After a delay, trigger download of output.csv
+                    setTimeout(() => {
+                        const link = document.createElement('a');
+                        link.href = `{{ backendurl }}/api/download-csv/${query_id}`;  // Assuming sessionId is available in scope
+                        link.download = 'output.csv';
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                    }, 1000); // Delay in milliseconds (1 second)
+
                 };
                 buttonContainer.innerHTML = '';  // Clear previous content
                 buttonContainer.classList.add("button-container");
@@ -514,6 +525,7 @@
                 link.textContent = "In Progress";
                 link.href = `{{ backendurl }}/api/status?sessionId=${query_id}`; // Redirects to "/status"
                 link.classList.add("link", "link-yellow");
+                link.setAttribute("target", "_blank");  // This makes the link open in a new tab
                 buttonContainer.innerHTML = '';  // Clear previous content
                 buttonContainer.classList.add("label-container");
                 buttonContainer.appendChild(link);
@@ -529,7 +541,7 @@
             } else if (status === "failed") {
                 var link = document.createElement("a");
                 link.textContent = "Failed";
-                link.href = `{{ backendurl }}/api/failed-jobs?sessionId=${query_id}`; // Redirects to "/failed"
+                link.href = `{{ backendurl }}/report?sessionId=${query_id}`; // Redirects to "/failed"
                 link.classList.add("link", "link-red");
                 buttonContainer.innerHTML = '';  // Clear previous content
                 buttonContainer.classList.add("label-container");

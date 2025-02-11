@@ -249,7 +249,7 @@
 
             // Download GPT button click event
             document.getElementById('downloadGPTButton').addEventListener('click', function() {
-                window.location.href = `/download-gpt/${sessionId}`;
+                window.location.href = `/api/download-gpt/${sessionId}`;
             });
 
             // Download OCR button click event
@@ -264,12 +264,12 @@
 
             document.getElementById('downloadButton').addEventListener('click', function() {
                 // Trigger download of .zip file
-                window.location.href = `/download/${sessionId}`;
+                window.location.href = `/api/download/${sessionId}`;
                 
                 // After a delay, trigger download of output.csv
                 setTimeout(() => {
                     const link = document.createElement('a');
-                    link.href = `/download-csv/${sessionId}`;
+                    link.href = `/api/download-csv/${sessionId}`;
                     link.download = 'output.csv';
                     document.body.appendChild(link);
                     link.click();

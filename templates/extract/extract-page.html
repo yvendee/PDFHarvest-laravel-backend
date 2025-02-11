@@ -133,7 +133,7 @@
         }
     </style>
 </head>
-<body onload="storeUploadTime()">
+<body>
 
 <button class="back-button hidden" id="backButton" onclick="goBack()">Back</button>
 
@@ -173,7 +173,7 @@
     }
 
     function cancelProcessing() {
-        fetch(`/cancel2/${sessionId}`, { method: 'POST' })
+        fetch(`/api/cancel2/${sessionId}`, { method: 'POST' })
             .then(response => response.json())
             .then(data => {
                 if (data.message === 'Processing cancelled') {
@@ -187,7 +187,7 @@
     }
 
     function updateProgress(sessionId) {
-        fetch(`/extracting/${sessionId}`)
+        fetch(`/api/extracting/${sessionId}`, { method: 'POST' })
             .then(response => response.json())
             .then(data => {
                 if (data.error) {
@@ -230,10 +230,10 @@
     document.addEventListener('DOMContentLoaded', function() {
         // Retrieve session ID from URL parameters
         const urlParams = new URLSearchParams(window.location.search);
-        sessionId = urlParams.get('session_id');
+        sessionId = urlParams.get('sessionId');
         if (sessionId) {
             // Start processing the files
-            fetch(`/extracting/${sessionId}`, { method: 'POST' })
+            fetch(`/api/extraction/${sessionId}`, { method: 'POST' })
                 .then(response => response.json())
                 .then(data => {
                     if (data.message === 'Processing started') {
@@ -248,7 +248,7 @@
 
             // Download GPT button click event
             document.getElementById('downloadGPTButton').addEventListener('click', function() {
-                window.location.href = `/download-gpt/${sessionId}`;
+                window.location.href = `/api/download-gpt/${sessionId}`;
             });
 
             // Show Logs button click event
@@ -258,7 +258,7 @@
 
             document.getElementById('downloadButton').addEventListener('click', function() {
                 // Trigger download of output.csv
-                window.location.href = `/download-csv/${sessionId}`;
+                window.location.href = `/api/download-csv/${sessionId}`;
             });
         }
     });
@@ -294,7 +294,7 @@
     }
 
     function fetchLogsContent(sessionId) {
-        fetch(`/fetch-logs/${sessionId}`)
+        fetch(`/api/fetch-logs/${sessionId}`)
             .then(response => response.text())
             .then(data => {
                 const logsContent = document.getElementById('logsContent');

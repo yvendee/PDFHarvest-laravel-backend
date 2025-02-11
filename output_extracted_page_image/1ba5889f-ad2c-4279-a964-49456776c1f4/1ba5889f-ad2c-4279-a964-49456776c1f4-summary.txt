@@ -1,0 +1,197 @@
+[start]BNPH_-_478_GLENDA_ANGELES_(_Ex-sg,infant,child_care,catholic,single,36_yo_)_-_Copy[/start]
+{'maid name': 'GLENDA ANGELES', 'maid ref code': 'BNPH478', 'maid type': 'Ex-SG Maid', 'maid expected salary': '$700', 'availability status': 'Immediate', 'youtube link': 'null', 'evalsg lang english stars': '5', 'evalsg lang mandarin stars': 'null', 'evalsg lang malay stars': 'null', 'evalsg lang tamil stars': 'null', 'evalsg lang hindi stars': 'null', 'public maid introduction': 'null', 'date of birth': '16/09/1988', 'place of birth': 'CATANUAN QUEZON', 'height cm': '160', 'weight kg': '63', 'nationality': 'Filipino', 'sub nationality': 'null', 'home address': 'SAN ISIDRO CATANUAN QUEZON', 'home airport repatriate': 'NAIA', 'home contact number': '+63', 'religion': 'catholic', 'education': 'high school (11-12 yrs)', 'siblings count': '1', 'marital status': 'single', 'children count': '2', 'children ages': '15 AND 4 YEARS OLD', 'allergies': 'SEAFOODS W SHELLS (SHE CAN EAT FISH)', 'illness mental': 'No', 'illness epilepsy': 'No', 'illness asthma': 'No', 'illness diabetes': 'No', 'illness hypertension': 'No', 'illness tubercolosis': 'No', 'illness heart disease': 'No', 'illness malaria': 'No', 'illness operations': 'Yes', 'illness others': 'N/A', 'physical disabilities': 'NONE', 'dietary restrictions': 'NONE', 'handle pork': 'Yes', 'handle beef': 'Yes', 'handle pets': 'Yes', 'handle others': 'SHE HAVE OPERATION IN HER HAND', 'maid preferred rest day': '1 rest days per month', 'maid other remarks': 'WILLING TO ACCEPT PAID RESTDAY', 'eval no agency no trainingctr': 'null', 'eval_agency': 'Singapore EA', 'eval_agency_telephone': 'null', 'eval_agency_videoconference': 'Yes', 'eval_agency_in_person': 'No', 'eval_agency_in_person_observation': 'No', 'eval agency age range infant child': 'null', 'eval agency willing infant child': 'Yes', 'eval agency years infant child': '1', 'eval agency stars infant child': '5', 'eval agency comments infant child': 'SHE HAS EXPERIENCE IN LOOKING AFTER NEWBORN BABY IN SINGAPORE.', 'eval agency willing elderly': 'Yes', 'eval agency years elderly': '0', 'eval agency stars elderly': 'null', 'eval agency comments elderly': 'NO EXPERIENCE', 'eval agency willing disabled': 'Yes', 'eval agency years disabled': '0', 'eval agency stars disabled': 'null', 'eval agency comments disabled': 'null', 'eval agency willing housework': 'Yes', 'eval agency years housework': '2', 'eval agency stars housework': 'null', 'eval agency comments housework': 'null', 'eval agency specify cuisines cooking': 'CHINESE DISHES, WILLING TO LEARN MORE.', 'eval agency willing cooking': 'Yes', 'eval agency years cooking': '2', 'eval agency stars cooking': '4', 'eval agency comments cooking': 'null', 'eval agency language': 'English', 'eval agency willing language': 'Yes', 'eval agency years language': '0', 'eval agency stars language': 'Good', 'eval agency comments language': 'English is Good with 0 years of experience.', 'eval agency specify other skills': 'null', 'eval agency willing other skills': 'null', 'eval agency years other skills': '0', 'eval agency stars other skills': 'null', 'eval agency comments other skills': 'null', 'trainingctr name': 'null', 'trainingctr certified': 'null', 'eval trainingctr telephone': 'null', 'eval trainingctr videoconference': 'null', 'eval trainingctr in person': 'null', 'eval trainingctr in person observation': 'null', 'eval trainingctr age range infant child': 'null', 'eval trainingctr willing infant child': 'Yes', 'eval trainingctr years infant child': '0', 'eval trainingctr stars infant child': 'null', 'eval trainingctr comments infant child': 'null', 'eval trainingctr willing elderly': 'Yes', 'eval trainingctr years elderly': '0', 'eval trainingctr stars elderly': 'null', 'eval trainingctr comments elderly': 'null', 'eval trainingctr willing disabled': 'Yes', 'eval trainingctr years disabled': '0', 'eval trainingctr stars disabled': 'null', 'eval trainingctr comments disabled': 'null', 'eval trainingctr willing housework': 'Yes', 'eval trainingctr years housework': '0', 'eval trainingctr stars housework': 'null', 'eval trainingctr comments housework': 'null', 'eval trainingctr specify cuisines cooking': 'null', 'eval trainingctr willing cooking': 'Yes', 'eval trainingctr years cooking': '0', 'eval trainingctr stars cooking': 'null', 'eval trainingctr comments cooking': 'null', 'eval trainingctr language': 'null', 'eval trainingctr willing language': 'Yes', 'eval trainingctr years language': '0', 'eval trainingctr stars language': 'null', 'eval trainingctr comments language': 'null', 'eval trainingctr specify other skills': 'null', 'eval trainingctr willing other skills': 'Yes', 'eval trainingctr years other skills': '0', 'eval trainingctr stars other skills': 'null', 'eval trainingctr comments other skills': 'null', 'employment history': '- date: 10 NOV 2023 - 23 NOV 2024', 'employer1_date_from': '10 NOV 2023', 'employer1_date_to': '23 NOV 2024', 'employer1_country': 'SINGAPORE', 'employer1_name': 'CHINESE', 'employer1_work_duties': 'There are 3 people in the house consist Mam, Sir and newborn baby. HDB, 3 bedroom and 2 toilets. They have 2 helpers. Her duties do all general household, cleaning, washing, ironing the clothes, wash the dishes, marketing, cooking and sometimes assist the nanny to look after the newborn.', 'employer1_remarks': '-', 'employer2_date_from': '25 JUN 2016', 'employer2_date_to': '29 AUG 2018', 'employer2_country': 'SINGAPORE', 'employer2_name': 'CHINESE', 'employer2_work_duties': 'There are 3 people in the house consist Mam, Sir and 1 kids 10 years old. HDB, 2 bedroom and 2 toilets. She only helper in the house. Her duties take care the kids need to prepare for school, sent / fetch to school bus, prepare for breakfast, food, remind to do homework and do all general household, cleaning, washing, ironing the clothes, marketing, wash the dishes and cooking.', 'employer2_remarks': '-', 'employer3_date_from': 'null', 'employer3_date_to': 'null', 'employer3_country': 'NA', 'employer3_name': 'null', 'employer3_work_duties': 'null', 'employer3_remarks': 'null', 'employer4_date_from': 'null', 'employer4_date_to': 'null', 'employer4_country': 'NA', 'employer4_name': 'null', 'employer4_work_duties': 'null', 'employer4_remarks': 'null', 'employer5_date_from': 'null', 'employer5_date_to': 'null', 'employer5_country': 'NA', 'employer5_name': 'null', 'employer5_work_duties': 'null', 'employer5_remarks': 'null', 'employer6_date_from': 'null', 'employer6_date_to': 'null', 'employer6_country': 'NA', 'employer6_name': 'null', 'employer6_work_duties': 'null', 'employer6_remarks': 'null', 'employer7_date_from': 'null', 'employer7_date_to': 'null', 'employer7_country': 'NA', 'employer7_name': 'null', 'employer7_work_duties': 'null', 'employer7_remarks': 'null', 'employer8_date_from': 'null', 'employer8_date_to': 'null', 'employer8_country': 'NA', 'employer8_name': 'null', 'employer8_work_duties': 'null', 'employer8_remarks': 'null', 'prev work in sg': 'Null', 'maid prev feedback1': 'Null', 'maid prev feedback2': 'Null', 'avail_interview_not_available': 'Null', 'avail_interview_phone': 'Null', 'avail_interview_videoconference': 'Null', 'avail_interview_in_person': 'Null', 'other remarks': 'Null', 'maid passport no': 'Null', 'trainingctr maid introduction': 'Null', 'internal notes': 'Null'}
+```
+[maid name]: GLENDA ANGELES
+[maid ref code]: BNPH - 478
+[maid type]: Ex-SG Maid
+[maid expected salary]: $700
+[availability status]: Immediate
+[youtube link]: null
+[evalsg lang english stars]: 5
+[evalsg lang mandarin stars]: null
+[evalsg lang malay stars]: null
+[evalsg lang tamil stars]: null
+[evalsg lang hindi stars]: null
+[public maid introduction]: null
+[date of birth]: 16/09/1988
+[place of birth]: CATANUAN QUEZON
+[height cm]: 160
+[weight kg]: 63
+[nationality]: Filipino
+[sub nationality]: null
+[home address]: SAN ISIDRO CATANUAN QUEZON
+[home airport repatriate]: NAIA
+[home contact number]: +63
+[religion]: Catholic
+[education]: High School (11-12 yrs)
+[siblings count]: 1
+[marital status]: Single
+[children count]: 2
+[children ages]: 15 AND 4 YEARS OLD
+[allergies]: SEAFOODS W SHELLS (SHE CAN EAT FISH)
+[illness mental]: No
+[illness epilepsy]: No
+[illness asthma]: No
+[illness diabetes]: No
+[illness hypertension]: No
+[illness tubercolosis]: No
+[illness heart disease]: No
+[illness malaria]: No
+[illness operations]: Yes
+[illness others]: N/A
+[physical disabilities]: NONE
+[dietary restrictions]: NONE
+[handle pork]: Yes
+[handle beef]: Yes
+[handle pets]: Yes
+[handle others]: SHE HAVE OPERATION IN HER HAND
+[maid preferred rest day]: EVERY SUNDAY
+[maid other remarks]: WILLING TO ACCEPT PAID RESTDAY
+[eval no agency no trainingctr]: null
+[eval_agency]: Singapore EA
+[eval_agency_telephone]: null
+[eval_agency_videoconference]: Yes
+[eval_agency_in_person]: No
+[eval_agency_in_person_observation]: No
+[eval agency age range infant child]: null
+[eval agency willing infant child]: Yes
+[eval agency years infant child]: 1
+[eval agency stars infant child]: 5
+[eval agency comments infant child]: SHE HAS EXPERIENCE IN LOOKING AFTER NEWBORN BABY IN SINGAPORE.
+[eval agency willing elderly]: Yes
+[eval agency years elderly]: 0
+[eval agency stars elderly]: null
+[eval agency comments elderly]: NO EXPERIENCE
+[eval agency willing disabled]: Yes
+[eval agency years disabled]: 0
+[eval agency stars disabled]: null
+[eval agency comments disabled]: null
+[eval agency willing housework]: Yes
+[eval agency years housework]: 2
+[eval agency stars housework]: null
+[eval agency comments housework]: null
+[eval agency specify cuisines cooking]: CHINESE DISHES, WILLING TO LEARN MORE.
+[eval agency willing cooking]: Yes
+[eval agency years cooking]: 2
+[eval agency stars cooking]: 4
+[eval agency comments cooking]: null
+[eval agency language]: English 
+[eval agency willing language]: Yes 
+[eval agency years language]: 0 
+[eval agency stars language]: Good 
+[eval agency comments language]: English is Good with 0 years of experience.
+[eval agency specify other skills]: null 
+[eval agency willing other skills]: null 
+[eval agency years other skills]: 0 
+[eval agency stars other skills]: null 
+[eval agency comments other skills]: null 
+[trainingctr name]: null 
+[trainingctr certified]: null 
+[eval trainingctr telephone]: null 
+[eval trainingctr videoconference]: null 
+[eval trainingctr in person]: null 
+[eval trainingctr in person observation]: null 
+[eval trainingctr age range infant child]: null 
+[eval trainingctr willing infant child]: Yes 
+[eval trainingctr years infant child]: 0 
+[eval trainingctr stars infant child]: null 
+[eval trainingctr comments infant child]: null 
+[eval trainingctr willing elderly]: Yes 
+[eval trainingctr years elderly]: 0 
+[eval trainingctr stars elderly]: null 
+[eval trainingctr comments elderly]: null 
+[eval trainingctr willing disabled]: Yes 
+[eval trainingctr years disabled]: 0 
+[eval trainingctr stars disabled]: null 
+[eval trainingctr comments disabled]: null 
+[eval trainingctr willing housework]: Yes 
+[eval trainingctr years housework]: 0 
+[eval trainingctr stars housework]: null 
+[eval trainingctr comments housework]: null 
+[eval trainingctr specify cuisines cooking]: null 
+[eval trainingctr willing cooking]: Yes 
+[eval trainingctr years cooking]: 0 
+[eval trainingctr stars cooking]: null 
+[eval trainingctr comments cooking]: null 
+[eval trainingctr language]: null 
+[eval trainingctr willing language]: Yes 
+[eval trainingctr years language]: 0 
+[eval trainingctr stars language]: null 
+[eval trainingctr comments language]: null 
+[eval trainingctr specify other skills]: null 
+[eval trainingctr willing other skills]: Yes 
+[eval trainingctr years other skills]: 0 
+[eval trainingctr stars other skills]: null 
+[eval trainingctr comments other skills]: null 
+[employment history]:
+- date: 10 NOV 2023 - 23 NOV 2024
+- country: SINGAPORE
+- employer: CHINESE
+- work duties: There are 3 people in the house consist Mam, Sir and newborn baby. HDB, 3 bedroom and 2 toilets. They have 2 helpers. Her duties do all general household, cleaning, washing, ironing the clothes, wash the dishes, marketing, cooking and sometimes assist the nanny to look after the newborn.
+- remarks: -
+- date: 25 JUN 2016 - 29 AUG 2018
+- country: SINGAPORE
+- employer: CHINESE
+- work duties: There are 3 people in the house consist Mam, Sir and 1 kids 10 years old. HDB, 2 bedroom and 2 toilets. She only helper in the house. Her duties take care the kids need to prepare for school, sent / fetch to school bus, prepare for breakfast, food, remind to do homework and do all general household, cleaning, washing, ironing the clothes, marketing, wash the dishes and cooking.
+- remarks: -
+[employer1_date_from]: 10 NOV 2023
+[employer1_date_to]: 23 NOV 2024
+[employer1_country]: SINGAPORE
+[employer1_name]: CHINESE
+[employer1_work_duties]: There are 3 people in the house consist Mam, Sir and newborn baby. HDB, 3 bedroom and 2 toilets. They have 2 helpers. Her duties do all general household, cleaning, washing, ironing the clothes, wash the dishes, marketing, cooking and sometimes assist the nanny to look after the newborn.
+[employer1_remarks]: -
+[employer2_date_from]: 25 JUN 2016
+[employer2_date_to]: 29 AUG 2018
+[employer2_country]: SINGAPORE
+[employer2_name]: CHINESE
+[employer2_work_duties]: There are 3 people in the house consist Mam, Sir and 1 kids 10 years old. HDB, 2 bedroom and 2 toilets. She only helper in the house. Her duties take care the kids need to prepare for school, sent / fetch to school bus, prepare for breakfast, food, remind to do homework and do all general household, cleaning, washing, ironing the clothes, marketing, wash the dishes and cooking.
+[employer2_remarks]: -
+[employer3_date_from]: null
+[employer3_date_to]: null
+[employer3_country]: NA
+[employer3_name]: null
+[employer3_work_duties]: null
+[employer3_remarks]: null
+[employer4_date_from]: null
+[employer4_date_to]: null
+[employer4_country]: NA
+[employer4_name]: null
+[employer4_work_duties]: null
+[employer4_remarks]: null
+[employer5_date_from]: null
+[employer5_date_to]: null
+[employer5_country]: NA
+[employer5_name]: null
+[employer5_work_duties]: null
+[employer5_remarks]: null
+[employer6_date_from]: null
+[employer6_date_to]: null
+[employer6_country]: NA
+[employer6_name]: null
+[employer6_work_duties]: null
+[employer6_remarks]: null
+[employer7_date_from]: null
+[employer7_date_to]: null
+[employer7_country]: NA
+[employer7_name]: null
+[employer7_work_duties]: null
+[employer7_remarks]: null
+[employer8_date_from]: null
+[employer8_date_to]: null
+[employer8_country]: NA
+[employer8_name]: null
+[employer8_work_duties]: null
+[employer8_remarks]: null  
+ [prev work in sg] : Yes  
+ [maid prev feedback1] : null  
+ [maid prev feedback2] : null  
+ [avail_interview_not_available] : No  
+ [avail_interview_phone] : No  
+ [avail_interview_videoconference] : Yes  
+ [avail_interview_in_person] : No  
+ [other remarks] : null  
+ [maid passport no] : null  
+ [trainingctr maid introduction] : null  
+ [internal notes] : null  
+```
+[end]BNPH_-_478_GLENDA_ANGELES_(_Ex-sg,infant,child_care,catholic,single,36_yo_)_-_Copy[/end]

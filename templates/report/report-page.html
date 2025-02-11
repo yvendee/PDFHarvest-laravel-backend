@@ -1,0 +1,87 @@
+<!-- templates\report-jobs-page.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Logs</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+        }
+        .back-button {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background-color: #007bff; /* Blue background */
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            text-decoration: none;
+        }
+        .back-button:hover {
+            background-color: #0056b3; /* Darker blue background on hover */
+        }
+        .container {
+            margin: 50px;
+        }
+        .report-jobs-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-height: 80vh;
+            overflow-y: scroll;
+            padding-right: 10px;
+            font-size: 14px;
+            white-space: pre-wrap;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <!-- Back button -->
+    <a href="javascript:history.back()" class="back-button">Back</a>
+
+    <div class="container">
+        <br>
+        <br>
+        <h1>Report Logs</h1>
+        <div class="report-jobs-content" id="report-jobs-content">
+            <!-- The report job data will be injected here dynamically -->
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get the sessionId from the URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const sessionId = urlParams.get('sessionId');
+
+            // Check if sessionId is available
+            if (sessionId) {
+                // Fetch report job data using the sessionId
+                fetch(`{{ backendurl }}/api/report-logs?sessionId=${sessionId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        // Extract the logs from the response
+                        const logs = data.logs || 'No logs found.';
+                        // Inject the logs into the container
+                        document.getElementById('report-jobs-content').textContent = logs;
+                    })
+                    .catch(error => {
+                        console.error('Error fetching report jobs data:', error);
+                    });
+            } else {
+                console.error('Session ID is missing from URL');
+            }
+        });
+    </script>
+</body>
+</html>
