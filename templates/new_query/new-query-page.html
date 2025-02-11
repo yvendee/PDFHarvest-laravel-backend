@@ -106,7 +106,7 @@
     </style>
 </head>
 <body>
-    <a href="{{ backendurl }}/running-jobs" class="back-button">Back</a>
+    <a href="/running-jobs" class="back-button">Back</a>
     <div class="container">
         <h1>Enter queue label</h1>
         <input type="text" class="input-box" id="query-input" placeholder="Enter your label">
@@ -157,7 +157,7 @@
                 };
 
                 // Make a fetch request to the backend
-                fetch("{{backendurl}}/create-query?sessionId=" + encodeURIComponent(sessionId) + "&query=" + encodeURIComponent(query), {
+                fetch("/create-query?sessionId=" + encodeURIComponent(sessionId) + "&query=" + encodeURIComponent(query), {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json'
@@ -167,7 +167,7 @@
                 .then(data => {
                     if (data.message === "success") {
                         alert('Query successfully created!'); // You can replace this with your desired success action
-                        window.location.href = '{{backendurl}}' + "/running-jobs"; 
+                        window.location.href = '' + "/running-jobs"; 
                     } else {
                         alert('Error: ' + data.message); // Handle error if necessary
                     }

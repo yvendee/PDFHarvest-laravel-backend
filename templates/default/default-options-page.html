@@ -61,7 +61,7 @@
     <br>
     <br>
 
-    <form id="maid-form" class="maid-status-form" action="{{ backendurl }}/api/edit-default-options-value" method="post">
+    <form id="maid-form" class="maid-status-form" action="/api/edit-default-options-value" method="post">
         <h2>Select Predefined Maid Type</h2>
         <input type="radio" id="none" name="maid_status" value="None" {% if maid_status_global == "None" %}checked{% endif %}>
         <label for="none">None</label><br>

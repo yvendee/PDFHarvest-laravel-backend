@@ -219,8 +219,8 @@
     </style>
 </head>
 <body>
-    <a href="{{ backendurl }}/" class="back-button">Back</a>
-    <a href="{{ backendurl }}/home" class="add-query-button">Add Query</a>
+    <a href="/" class="back-button">Back</a>
+    <a href="/home" class="add-query-button">Add Query</a>
     <!-- <a href="#" class="add-query-button" id="add-query-btn">Add Query</a> -->
 
     <div class="container">
@@ -503,12 +503,12 @@
                 button.textContent = "Download";
                 button.classList.add("status-btn", "btn-green");
                 button.onclick = function () {
-                    window.location.href = `{{ backendurl }}/api/download/${query_id}`; // Redirect to /download when clicked
+                    window.location.href = `/api/download/${query_id}`; // Redirect to /download when clicked
                     
                     // After a delay, trigger download of output.csv
                     setTimeout(() => {
                         const link = document.createElement('a');
-                        link.href = `{{ backendurl }}/api/download-csv/${query_id}`;  // Assuming sessionId is available in scope
+                        link.href = `/api/download-csv/${query_id}`;  // Assuming sessionId is available in scope
                         link.download = 'output.csv';
                         document.body.appendChild(link);
                         link.click();
@@ -523,7 +523,7 @@
             } else if (status === "inprogress") {
                 var link = document.createElement("a");
                 link.textContent = "In Progress";
-                link.href = `{{ backendurl }}/api/status?sessionId=${query_id}`; // Redirects to "/status"
+                link.href = `/api/status?sessionId=${query_id}`; // Redirects to "/status"
                 link.classList.add("link", "link-yellow");
                 link.setAttribute("target", "_blank");  // This makes the link open in a new tab
                 buttonContainer.innerHTML = '';  // Clear previous content
@@ -541,7 +541,7 @@
             } else if (status === "failed") {
                 var link = document.createElement("a");
                 link.textContent = "Failed";
-                link.href = `{{ backendurl }}/report?sessionId=${query_id}`; // Redirects to "/failed"
+                link.href = `/report?sessionId=${query_id}`; // Redirects to "/failed"
                 link.classList.add("link", "link-red");
                 buttonContainer.innerHTML = '';  // Clear previous content
                 buttonContainer.classList.add("label-container");
@@ -569,7 +569,7 @@
         //     var query = urlParams.get('query');
 
         //     // Create the new URL with sessionId and query as parameters
-        //     var newUrl = `{{ backendurl }}/new-query?sessionId=${sessionId}&query=${query}`;
+        //     var newUrl = `/new-query?sessionId=${sessionId}&query=${query}`;
 
         //     // Redirect to the new URL
         //     window.location.href = newUrl;
@@ -577,7 +577,7 @@
 
         function deleteFiles(query_id) {
             // Make a GET request to the server
-            fetch(`{{ backendurl }}/api/delete-all-files?sessionId=${query_id}`, {
+            fetch(`/api/delete-all-files?sessionId=${query_id}`, {
                 method: 'GET',  // Using GET since the server expects it
             })
             .then(response => {
@@ -605,7 +605,7 @@
 
         // Function to fetch data from the Flask API
         function fetchData() {
-            fetch('{{ backendurl }}/api/query-storage')  // Adjust `backendurl` as needed
+            fetch('/api/query-storage')  // Adjust `backendurl` as needed
                 .then(response => response.json())  // Convert the response to JSON
                 .then(data => {
                     // Clear the previous contents

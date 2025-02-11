@@ -106,7 +106,7 @@
     </style>
 </head>
 <body>
-    <a href="{{ backendurl }}/home" class="back-button">Back</a>
+    <a href="/home" class="back-button">Back</a>
     <div class="container">
         <h1>Enter queue label</h1>
         <input type="text" class="input-box" id="query-input" placeholder="Enter your label">
@@ -161,7 +161,7 @@
                     // };
 
                     // Make a fetch request to the backend
-                    fetch("{{backendurl}}/api/add-query-to-query-storage?sessionId=" + encodeURIComponent(sessionId) + "&query=" + encodeURIComponent(query) + "&maidStatus=" + encodeURIComponent(maidStatusId), {
+                    fetch("/api/add-query-to-query-storage?sessionId=" + encodeURIComponent(sessionId) + "&query=" + encodeURIComponent(query) + "&maidStatus=" + encodeURIComponent(maidStatusId), {
                         method: 'GET',
                         headers: {
                             'Content-Type': 'application/json'
@@ -171,8 +171,8 @@
                     .then(data => {
                         if (data.message === "Query added successfully") {
                             // alert('Query successfully created!'); 
-                            // window.location.href = '{{backendurl}}' + "/running-jobs?sessionId=" + encodeURIComponent(sessionId) + "&query=" + encodeURIComponent(query); 
-                            window.location.href = '{{backendurl}}' + "/running-jobs"; 
+                            // window.location.href = '' + "/running-jobs?sessionId=" + encodeURIComponent(sessionId) + "&query=" + encodeURIComponent(query); 
+                            window.location.href = '' + "/running-jobs"; 
                         } else {
                             alert('Error: ' + data.error); // Handle error if necessary
                         }

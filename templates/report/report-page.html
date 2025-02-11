@@ -67,7 +67,7 @@
             // Check if sessionId is available
             if (sessionId) {
                 // Fetch report job data using the sessionId
-                fetch(`{{ backendurl }}/api/report-logs?sessionId=${sessionId}`)
+                fetch(`/api/report-logs?sessionId=${sessionId}`)
                     .then(response => response.json())
                     .then(data => {
                         // Extract the logs from the response
