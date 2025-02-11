@@ -1050,7 +1050,7 @@ def check_queries():
          # Loop over each item in the query_storage
         for index, item in enumerate(query_storage):
             if item["status"] == "inprogress":
-                # print(f"{item['query_label']} ({item['query_id']}) --> 'inprogress'")
+                print(f"{item['query_label']} ({item['query_id']}) --> 'inprogress'")
                 break  # Stop checking after changing the first "waiting" item
 
             if item["status"] == "waiting":
