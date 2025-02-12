@@ -2,6 +2,8 @@ from flask import Flask, request, Blueprint, render_template, jsonify, session, 
 from flask_cors import CORS
 from functools import wraps
 
+from apscheduler.schedulers.background import BackgroundScheduler
+
 import os
 import shutil
 import requests
@@ -76,16 +78,16 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # Limit file size to 16 MB
 query_storage = []
 progress = {}
 
-query_storage = [
-    {
-        "query_label": "Query1",
-        "query_id": "12345",
-        "status": "failed",  # Status can be 'download', 'inprogress', 'waiting', or 'failed'
-        "up_time": "0",
-        "num_files": "0 files",
-        "rate": "0"
-    },
-]
+# query_storage = [
+#     {
+#         "query_label": "Query1",
+#         "query_id": "12345",
+#         "status": "failed",  # Status can be 'download', 'inprogress', 'waiting', or 'failed'
+#         "up_time": "0",
+#         "num_files": "0 files",
+#         "rate": "0"
+#     },
+# ]
 #     {
 #         "query_label": "Query2",
 #         "query_id": "67890",
@@ -2502,10 +2504,25 @@ def status_page():
         return redirect(url_for('login'))
     return render_template('process/process-page.html', session_id=session_id, backendurl=BACKEND_API_URL)
 
+
+
+# Initialize scheduler
+scheduler = BackgroundScheduler()
+scheduler.add_job(func=check_queries, trigger="interval", seconds=5)  # Run every 5 seconds
+scheduler.start()
+
 # Run the checking in a separate thread when the Flask app starts
 # @app.before_first_request
 if __name__ == '__main__':
-    thread = threading.Thread(target=check_queries)
-    thread.daemon = True  # Ensure thread exits when the main program exits
-    thread.start()
-    app.run(debug=True)
+    # thread = threading.Thread(target=check_queries)
+    # thread.daemon = True  # Ensure thread exits when the main program exits
+    # thread.start()
+    # app.run(debug=True)
+
+    try:
+        app.run(debug=True)
+    except (KeyboardInterrupt, SystemExit):
+        pass
+    finally:
+        # Gracefully shutdown the scheduler when the app exits
+        scheduler.shutdown()
