@@ -1043,7 +1043,6 @@ def check_queries():
                     except Exception as e:
                         print(f"Error occurred while triggering process for session {session_id}: {e}")
                     
-
                     # print(f"Changing status for {item['query_label']} ({item['query_id']}) to 'inprogress'")
                     break  # Stop checking after changing the first "waiting" item
 
