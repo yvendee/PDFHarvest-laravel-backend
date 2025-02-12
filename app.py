@@ -1058,7 +1058,7 @@ def check_queries():
             if item["status"] == "waiting":
                 found_waiting = False
                 break
-        # print("check queries reached the end!")
+        print("check queries reached the end!")
         time.sleep(5)
 
 # Define a decorator function to check if the user is authenticated
