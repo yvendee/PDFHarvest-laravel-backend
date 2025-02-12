@@ -76,15 +76,16 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # Limit file size to 16 MB
 query_storage = []
 progress = {}
 
-# query_storage = [
-#     {
-#         "query_label": "Query1",
-#         "query_id": "12345",
-#         "status": "waiting",  # Status can be 'download', 'inprogress', 'waiting', or 'failed'
-#         "up_time": "2 hours",
-#         "num_files": "5 files",
-#         "rate": "50 KB/s"
-#     },
+query_storage = [
+    {
+        "query_label": "Query1",
+        "query_id": "12345",
+        "status": "failed",  # Status can be 'download', 'inprogress', 'waiting', or 'failed'
+        "up_time": "0",
+        "num_files": "0 files",
+        "rate": "0"
+    },
+]
 #     {
 #         "query_label": "Query2",
 #         "query_id": "67890",
@@ -1020,11 +1021,13 @@ def process_pdf_extract_image(filename, session_id):
         save_log(os.path.join(app.config['EXTRACTED_PAGE_IMAGES_FOLDER'], "logs.txt"),f"File '{filename}' not found or is not a PDF.")
 
 
+found_waiting = False
 
 def check_queries():
+    global found_waiting
 
     # Flag to indicate if we found and changed a "waiting" item
-    found_waiting = False
+    # found_waiting = False
 
     while True:
         if not found_waiting:
@@ -1055,6 +1058,7 @@ def check_queries():
             if item["status"] == "waiting":
                 found_waiting = False
                 break
+        # print("check queries reached the end!")
         time.sleep(5)
 
 # Define a decorator function to check if the user is authenticated
