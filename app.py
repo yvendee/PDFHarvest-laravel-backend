@@ -1488,7 +1488,7 @@ def run_process_files(session_id):
         thread.start()
 
         # Wait for the thread to finish and print "process exited" once it does
-        # thread.join()
+        thread.join()
         print(f"Process exited for session ID: {session_id}")
         # update_query_storage_status(session_id,"download")
         
