@@ -1,3 +1,4 @@
+import logging
 from flask import Flask, request, Blueprint, render_template, jsonify, session, redirect, url_for, send_file
 from flask_cors import CORS
 from functools import wraps
@@ -35,6 +36,8 @@ from log_functions.utils.utils import save_log
 from tesseract.utils.utils import extract_text_from_image
 import subprocess
 
+# Disable all warnings and lower-level logs from APScheduler
+logging.getLogger('apscheduler').setLevel(logging.CRITICAL)
 
 # app = Flask(__name__)
 app = Flask(__name__, template_folder='templates', static_folder='static', static_url_path='/static')
@@ -1060,7 +1063,7 @@ def check_queries():
             if item["status"] == "waiting":
                 found_waiting = False
                 break
-        print("check queries reached the end!")
+        # print("check queries reached the end!")
         time.sleep(5)
 
 # Define a decorator function to check if the user is authenticated
@@ -2508,7 +2511,9 @@ def status_page():
 
 # Initialize scheduler
 scheduler = BackgroundScheduler()
-scheduler.add_job(func=check_queries, trigger="interval", seconds=5)  # Run every 5 seconds
+# scheduler.add_job(func=check_queries, trigger="interval", seconds=5)  # Run every 5 seconds
+scheduler.add_job(func=check_queries, trigger="interval", seconds=5, max_instances=2)
+# 
 scheduler.start()
 
 # Run the checking in a separate thread when the Flask app starts
