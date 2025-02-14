@@ -245,9 +245,13 @@
                         <div class="nested-box">    
                             <label class="label-red">Status</label>
                         </div>
+
+                        <div class="nested-box"> 
+                            <label class="label-red" >Date Entry</label>
+                        </div>
             
                         <div class="nested-box"> 
-                            <label class="label-red" >Time</label>
+                            <label class="label-red" >Elapse Time</label>
                         </div>
             
                         <div class="nested-box">  
@@ -462,7 +466,7 @@
         // ];
 
         // Function to update container based on parameters
-        function updateContainer(query_label, query_id, status, up_time, num_files, rate) {
+        function updateContainer(query_label, query_id, status, up_time, datetime_entry, num_files, rate) {
             var container = document.createElement('div');
             container.classList.add('vertical-box');
 
@@ -475,6 +479,10 @@
 
                     <div class="nested-box">
                         <div id="dynamic-container-${query_id}"></div>
+                    </div>
+
+                    <div class="nested-box">
+                        <label>${datetime_entry}</label>
                     </div>
 
                     <div class="nested-box">
@@ -612,7 +620,7 @@
                     document.getElementById("main-container").innerHTML = '';
                     // Update the container with new data
                     data.forEach(function(item) {
-                        updateContainer(item.query_label, item.query_id, item.status, item.up_time, item.num_files, item.rate);
+                        updateContainer(item.query_label, item.query_id, item.status, item.up_time, item.datetime_entry, item.num_files, item.rate);
                     });
                 })
                 .catch(error => console.error('Error fetching data:', error));

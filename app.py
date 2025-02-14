@@ -120,10 +120,10 @@ progress = {}
 # Load the pre-trained face detection classifier
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 
-image_fullpath_with_face_list = []
-uploaded_pdf_file_list = []
+# image_fullpath_with_face_list = []
+# uploaded_pdf_file_list = []
 uploaded_file_list = []
-new_uploaded_pdf_file_path_list = []
+# new_uploaded_pdf_file_path_list = []
 
 
 def format_duration(duration):
@@ -233,7 +233,7 @@ def replace_extension_with_pdf(folder_path, filename):
         return None
 
 def convert_doctypes_to_pdf(doc_file, pdf_dir, session_id):
-    global EXTRACTED_PAGE_IMAGES_FOLDER
+    # global EXTRACTED_PAGE_IMAGES_FOLDER
     try:
         # Use the subprocess module to run the soffice command for conversion
         process = subprocess.Popen(['soffice', '--headless', '--convert-to', 'pdf', '--outdir', pdf_dir, doc_file])
@@ -289,7 +289,7 @@ def extract_data_from_text(text):
     
     return result
 
-def copy_files_to_directory(file_paths, target_directory):
+def copy_files_to_directory(file_paths, target_directory, new_uploaded_pdf_file_path_list):
     """
     Copies files specified by file_paths to the target_directory.
     
@@ -909,8 +909,9 @@ def resize_image_if_needed(image_pil):
     return image_pil
 
 # Function to extract images with faces from a specific PDF file
-def extract_images_with_faces(pdf_path, session_id):
-    global image_fullpath_with_face_list, face_cascade
+def extract_images_with_faces(pdf_path, session_id, image_fullpath_with_face_list):
+    # global image_fullpath_with_face_list, face_cascade
+    global face_cascade
     # Get the base name of the PDF file
     pdf_basename = os.path.splitext(os.path.basename(pdf_path))[0]
     # Create the main folder if it doesn't exist
@@ -1011,12 +1012,12 @@ def extract_images_with_faces(pdf_path, session_id):
     return image_fullpath_with_face_list
 
 # Function to process a specific PDF file in the "uploads" folder
-def process_pdf_extract_image(filename, session_id):
+def process_pdf_extract_image(filename, session_id, image_fullpath_with_face_list):
 
     session_folder = os.path.join(app.config['UPLOAD_FOLDER'], session_id)
     pdf_path = os.path.join(session_folder, filename)
     if os.path.exists(pdf_path) and pdf_path.endswith(".pdf"):
-        extracted_images = extract_images_with_faces(pdf_path, session_id)
+        extracted_images = extract_images_with_faces(pdf_path, session_id, image_fullpath_with_face_list)
         # print(f"Processed {pdf_path}: {len(extracted_images)} images extracted with faces")
         # save_log(os.path.join(EXTRACTED_PAGE_IMAGES_FOLDER, "logs.txt"),f"Processed {pdf_path}: {len(extracted_images)} images extracted with faces")
         return extracted_images
@@ -1187,6 +1188,14 @@ def update_query_storage_rate(session_id, new_rate):
             print(f"Rate updated for session {session_id}: {new_rate}")
             break
 
+# Update query storage datetime_entry function
+def update_query_storage_date_entry(session_id, datetime_entry):
+    for query in query_storage:
+        if query['query_id'] == session_id: 
+            query['datetime_entry'] = datetime_entry
+            print(f"Rate updated for session {session_id}: {datetime_entry}")
+            break
+
 @app.route('/api/upload/<session_id>', methods=['POST'])
 def upload_file(session_id):
     print(f"Session ID: {session_id}")  # Log the session ID
@@ -1230,7 +1239,7 @@ def process_files(session_id):
     # session_id = request.args.get('sessionId')
 
     # global image_fullpath_with_face_list, uploaded_pdf_file_list, uploaded_file_list, new_uploaded_pdf_file_path_list
-    global uploaded_pdf_file_list, uploaded_file_list, new_uploaded_pdf_file_path_list, maid_status_global
+    global maid_status_global
 
     if not check_authenticated():
         return jsonify({'error': 'Unauthorized access'}), 401
@@ -1251,7 +1260,9 @@ def process_files(session_id):
             try:
                 session_folder = os.path.join(app.config['UPLOAD_FOLDER'], session_id)
                 uploaded_files = os.listdir(session_folder)
-                # print(uploaded_files)
+                print("test:")
+                print(uploaded_files)
+                uploaded_file_list = []
                 total_files = len(uploaded_files)
                 update_query_storage_num_files(session_id, f"{total_files} files")
                 progress[session_id]['total'] = total_files
@@ -1261,7 +1272,7 @@ def process_files(session_id):
                 session_folder = os.path.join(app.config['EXTRACTED_PAGE_IMAGES_FOLDER'], session_id)
                 save_log(os.path.join(session_folder, "logs.txt"),f"Uploaded file list: {str(uploaded_file_list)}")
                 
-
+         
                 # for index, filename in enumerate(uploaded_files):
                 index = 0
                 for i in range (len(uploaded_file_list)):
@@ -1299,28 +1310,28 @@ def process_files(session_id):
                     # time.sleep(1)  # Simulate processing delay
                     # time.sleep(2)  # Simulate processing delay
 
-                    image_with_face_list = process_pdf_extract_image(filename, session_id) ## extract the profile picture and
-                    session_folder = os.path.join(app.config['UPLOAD_FOLDER'], session_id)
-                    pdf_path = os.path.join(session_folder, filename)
-                    extracted_image_session_folder = os.path.join(app.config['EXTRACTED_PAGE_IMAGES_FOLDER'], session_id)
-                    page_images, maid_ref_code = pdf_to_jpg(pdf_path, extracted_image_session_folder, session_id, zoom=2) ## ocr and analyzing
-                    index += 1
-                    progress[session_id]['current'] = index
-                    maidrefcode_list.append(maid_ref_code)
+                    # image_with_face_list = process_pdf_extract_image(filename, session_id) ## extract the profile picture and
+                    # session_folder = os.path.join(app.config['UPLOAD_FOLDER'], session_id)
+                    # pdf_path = os.path.join(session_folder, filename)
+                    # extracted_image_session_folder = os.path.join(app.config['EXTRACTED_PAGE_IMAGES_FOLDER'], session_id)
+                    # page_images, maid_ref_code = pdf_to_jpg(pdf_path, extracted_image_session_folder, session_id, zoom=2) ## ocr and analyzing
+                    # index += 1
+                    # progress[session_id]['current'] = index
+                    # maidrefcode_list.append(maid_ref_code)
                     
                 try:
-                    # maidrefcode_list = ['SRANML240075','CML','AA']
-                    # maidrefcode_list = ['CP760722', 'EI990522', 'aaa','bbb']
-                    print(f"maid-ref-code-list: {maidrefcode_list}")
-                    print(f"image-path-with-face-path: {image_with_face_list}")
-                    print(f"new-pdf-list-path: {new_pdf_list}")
+                #     # maidrefcode_list = ['SRANML240075','CML','AA']
+                #     # maidrefcode_list = ['CP760722', 'EI990522', 'aaa','bbb']
+                #     print(f"maid-ref-code-list: {maidrefcode_list}")
+                #     print(f"image-path-with-face-path: {image_with_face_list}")
+                #     print(f"new-pdf-list-path: {new_pdf_list}")
 
-                #     # rename_files(image_fullpath_with_face_list, maidrefcode_list) ## renaming extracted images
-                    rename_files(image_with_face_list, maidrefcode_list) ## renaming extracted images
-                    rename_files2(new_pdf_list, maidrefcode_list) ## renaming input pdf
-                    session_folder = os.path.join(app.config['EXTRACTED_PAGE_IMAGES_FOLDER'], session_id)
-                    save_log(os.path.join(session_folder, "logs.txt"),f"Processed Completed. Ready to download!")
-                
+                # #     # rename_files(image_fullpath_with_face_list, maidrefcode_list) ## renaming extracted images
+                #     rename_files(image_with_face_list, maidrefcode_list) ## renaming extracted images
+                #     rename_files2(new_pdf_list, maidrefcode_list) ## renaming input pdf
+                #     session_folder = os.path.join(app.config['EXTRACTED_PAGE_IMAGES_FOLDER'], session_id)
+                #     save_log(os.path.join(session_folder, "logs.txt"),f"Processed Completed. Ready to download!")
+                    pass
                 except Exception as e:
                     print(f"An error occured: {e}")
                     session_folder = os.path.join(app.config['EXTRACTED_PAGE_IMAGES_FOLDER'], session_id)
@@ -1345,7 +1356,7 @@ def process_files(session_id):
         print(f"Processing duration for session ID {session_id}: {formatted_duration}")
         update_query_storage_uptime(session_id, formatted_duration)
         rate = round(duration / total_files, 2) if total_files > 0 else 0
-        update_query_storage_rate(session_id, str(rate))
+        update_query_storage_rate(session_id, rate)
 
     try:
         # Start the mock processing in a separate thread
@@ -1365,14 +1376,78 @@ def process_files(session_id):
     return jsonify({'message': 'Processing started'}), 200
 
 
+@app.route('/api/file-upload/<session_id>', methods=['POST'])
+def upload_files(session_id):
+
+    # global last_upload_time, uploaded_pdf_file_list, uploaded_file_list, new_uploaded_pdf_file_path_list
+
+    global last_upload_time
+
+
+    if not check_authenticated():
+        return jsonify({'error': 'Unauthorized access'}), 401
+
+    print(f"Session ID: {session_id}")  # Log the session ID
+    # progress[session_id] = {'current': 0, 'total': len(files)}  # Initialize progres
+
+    session_folder = os.path.join(app.config['UPLOAD_FOLDER'], session_id)
+    os.makedirs(session_folder, exist_ok=True)  # Create session-specific folder
+
+    if 'files[]' not in request.files:
+        print("No file part")
+        return jsonify({'error': 'No file part', 'session_id': session_id}), 400
+
+    files = request.files.getlist('files[]')
+    if not files or all(file.filename == '' for file in files):
+        print("No selected files")
+        return jsonify({'error': 'No selected files', 'session_id': session_id}), 400
+
+   
+    total_files = len(files)  # Total files to be uploaded
+
+    last_upload_time = datetime.now()
+    uploaded_files = []
+    # uploaded_file_list = []
+    # uploaded_pdf_file_list = []
+    # new_uploaded_pdf_file_path_list = []
+
+    progress[session_id] = {'current': 0, 'total': len(files)}  # Initialize progress
+
+    # For each file uploaded, save it and then notify Laravel app asynchronously
+    for index, file in enumerate(files):
+        print(f"Uploading: {file.filename}")  # Log the file names
+        file_path = os.path.join(session_folder, file.filename)
+        file.save(file_path)
+        uploaded_files.append(file.filename)
+        # uploaded_file_list.append(file_path)
+
+    
+    return jsonify({
+        'message': 'Files uploaded successfully',
+        'session_id': session_id,
+        'uploaded_files': uploaded_files,
+        'total_files': total_files
+    }), 200
+
+
 def run_process_files(session_id):
     # session_id = request.args.get('sessionId')
 
     # global image_fullpath_with_face_list, uploaded_pdf_file_list, uploaded_file_list, new_uploaded_pdf_file_path_list
-    global uploaded_pdf_file_list, uploaded_file_list, new_uploaded_pdf_file_path_list, maid_status_global
+    global  maid_status_global
 
 
     def mock_processing(session_id):
+
+        current_time = datetime.now()
+
+        # Format the current time to match "ddMMMyyyy:HH:MM" format
+        formatted_time = current_time.strftime("%d%b%Y:%H:%M")
+
+        # Prepare the query string with rate and formatted date
+        update_query_storage_date_entry(session_id, f"{formatted_time}")
+
+        image_fullpath_with_face_list = []
         maid_status_id_value = get_maid_status(session_id)
         maid_status_global = maid_status_id_value
         print(f"maid status set value: {maid_status_id_value}")
@@ -1380,7 +1455,7 @@ def run_process_files(session_id):
         session_folder = os.path.join(app.config['EXTRACTED_PAGE_IMAGES_FOLDER'], session_id)
         save_log(os.path.join(session_folder, "logs.txt"),f"maid status set value: {maid_status_id_value}")
         
-
+        uploaded_file_list = []
         start_time = time.time()  # Record the start time
         total_files = ""
         with app.app_context(): ## By pushing the application context manually, you ensure that Flask has the necessary context to handle things like query_storage without running into the "Working outside of application context" error.
@@ -1390,7 +1465,11 @@ def run_process_files(session_id):
             try:
                 session_folder = os.path.join(app.config['UPLOAD_FOLDER'], session_id)
                 uploaded_files = os.listdir(session_folder)
-                # print(uploaded_files)
+                # print(uploaded_files) ## will print the file name ['APRILIANA NINGTYAS 29 F.pdf', 'ESTER ROZALINDA 39 F.pdf', 'IND-52 LALRINENGI.pdf', 'IND-55 ROTHANGPUII EX-SGP.pdf', 'INGGRITA NURID FARIDA 40 F.pdf', 'ISMI SETYANINGRUM 23 F.pdf', 'Jayshree_45_ES_H_M.pdf', 'JUWARIYAH 33 GE.pdf', 'Kajalben_29_F_H_S.pdf', 'Manisha_28_F_H_S.pdf', 'Ncy-K PAWHLIE .pdf', 'Ncy-S GOLDENY .pdf', 'SUSANTI 38 EA.pdf']
+                # Store full file paths in a list
+                uploaded_file_list = [os.path.join(session_folder, file) for file in uploaded_files] 
+                # Print the list of file paths
+                # print(uploaded_file_list)
                 total_files = len(uploaded_files)
                 update_query_storage_num_files(session_id, f"{total_files} files")
                 progress[session_id]['total'] = total_files
@@ -1400,7 +1479,6 @@ def run_process_files(session_id):
                 session_folder = os.path.join(app.config['EXTRACTED_PAGE_IMAGES_FOLDER'], session_id)
                 save_log(os.path.join(session_folder, "logs.txt"),f"Uploaded file list: {str(uploaded_file_list)}")
                 
-
                 # for index, filename in enumerate(uploaded_files):
                 index = 0
                 for i in range (len(uploaded_file_list)):
@@ -1438,7 +1516,7 @@ def run_process_files(session_id):
                     # time.sleep(1)  # Simulate processing delay
                     # time.sleep(30)  # Simulate processing delay
 
-                    image_with_face_list = process_pdf_extract_image(filename, session_id) ## extract the profile picture and
+                    image_with_face_list = process_pdf_extract_image(filename, session_id, image_fullpath_with_face_list) ## extract the profile picture and
                     session_folder = os.path.join(app.config['UPLOAD_FOLDER'], session_id)
                     pdf_path = os.path.join(session_folder, filename)
                     extracted_image_session_folder = os.path.join(app.config['EXTRACTED_PAGE_IMAGES_FOLDER'], session_id)
@@ -1480,11 +1558,19 @@ def run_process_files(session_id):
         end_time = time.time()  # Record the end time
         duration = end_time - start_time  # Calculate the duration
 
-        formatted_duration = format_duration(duration)
-        print(f"Processing duration for session ID {session_id}: {formatted_duration}")
-        update_query_storage_uptime(session_id, formatted_duration)
-        rate = round(duration / total_files, 2) if total_files > 0 else 0
-        update_query_storage_rate(session_id, str(rate))
+        # Convert duration from seconds to minutes
+        duration_in_minutes = duration / 60  # Duration in minutes
+
+        duration_in_minutes = round(duration_in_minutes, 2)
+
+        update_query_storage_uptime(session_id, f"{duration_in_minutes} min")
+
+        # Calculate the rate (minutes per file)
+        rate = round(duration_in_minutes / total_files, 2) if total_files > 0 else 0
+
+        print(f"Processing duration for session ID {session_id}: {rate} min/file")
+        update_query_storage_rate(session_id, f"{rate} min/bio")
+
 
     try:
         # Start the mock processing in a separate thread
@@ -1500,6 +1586,7 @@ def run_process_files(session_id):
     except Exception as e:
         print(f"Error during thread start: {e}")
         update_query_storage_status(session_id,"failed")
+
 
 
 @app.route('/api/ocr-file-upload/<session_id>', methods=['POST'])
@@ -1551,56 +1638,6 @@ def progress_status(session_id):
         return jsonify(progress[session_id]), 200
     else:
         return jsonify({'error': 'Invalid session ID'}), 400
-
-@app.route('/api/file-upload/<session_id>', methods=['POST'])
-def upload_files(session_id):
-
-    global last_upload_time, uploaded_pdf_file_list, uploaded_file_list, new_uploaded_pdf_file_path_list
-
-    if not check_authenticated():
-        return jsonify({'error': 'Unauthorized access'}), 401
-
-    print(f"Session ID: {session_id}")  # Log the session ID
-    # progress[session_id] = {'current': 0, 'total': len(files)}  # Initialize progres
-
-    session_folder = os.path.join(app.config['UPLOAD_FOLDER'], session_id)
-    os.makedirs(session_folder, exist_ok=True)  # Create session-specific folder
-
-    if 'files[]' not in request.files:
-        print("No file part")
-        return jsonify({'error': 'No file part', 'session_id': session_id}), 400
-
-    files = request.files.getlist('files[]')
-    if not files or all(file.filename == '' for file in files):
-        print("No selected files")
-        return jsonify({'error': 'No selected files', 'session_id': session_id}), 400
-
-   
-    total_files = len(files)  # Total files to be uploaded
-
-    last_upload_time = datetime.now()
-    uploaded_files = []
-    uploaded_file_list = []
-    uploaded_pdf_file_list = []
-    new_uploaded_pdf_file_path_list = []
-
-    progress[session_id] = {'current': 0, 'total': len(files)}  # Initialize progress
-
-    # For each file uploaded, save it and then notify Laravel app asynchronously
-    for index, file in enumerate(files):
-        print(f"Uploading: {file.filename}")  # Log the file names
-        file_path = os.path.join(session_folder, file.filename)
-        file.save(file_path)
-        uploaded_files.append(file.filename)
-        uploaded_file_list.append(file_path)
-
-    
-    return jsonify({
-        'message': 'Files uploaded successfully',
-        'session_id': session_id,
-        'uploaded_files': uploaded_files,
-        'total_files': total_files
-    }), 200
 
 # curl -X DELETE http://localhost:5000/api/delete_progress/dc44d630-7fa4-41d8-a156-24243d250bba
 # curl -X DELETE http://localhost:5000/api/delete_progress/
@@ -2074,9 +2111,10 @@ def add_query_to_query_storage():
             'query_label': query_label,
             'query_id': query_id,
             'status': 'waiting',  # Set status as 'inprogress'
-            'up_time': '0 seconds',  # Placeholder for up_time, can be updated later
-            'num_files': '0 files',  # Placeholder for num_files, can be updated later
-            'rate': '0',  # Placeholder for rate, can be updated later
+            'datetime_entry': '-',
+            'up_time': '-',  # Placeholder for up_time, can be updated later
+            'num_files': '-',  # Placeholder for num_files, can be updated later
+            'rate': '-',  # Placeholder for rate, can be updated later
             'maid_status_id': maid_status_id
         }
         
@@ -2142,6 +2180,37 @@ def report_logs():
     except Exception as e:
         return jsonify({"error": "Error while fetching logs", "details": str(e)}), 500
         
+
+@app.route('/api/download-upload-folder', methods=['GET'])
+@login_required
+def download_zip_upload_folder():
+    try:
+        # Check if the upload folder exists
+        if not os.path.exists(app.config['UPLOAD_FOLDER']):
+            return jsonify({'error': 'Upload folder not found'}), 400
+
+        # Zip filename to be created
+        zip_filename = 'upload_folder.zip'
+        zip_filepath = os.path.join(app.config['UPLOAD_FOLDER'], zip_filename)
+
+        # If the zip file already exists, delete it
+        if os.path.exists(zip_filepath):
+            os.remove(zip_filepath)
+
+        # Create a zip file with all contents from the upload folder
+        with zipfile.ZipFile(zip_filepath, 'w', zipfile.ZIP_DEFLATED) as zipf:
+            for root, dirs, files in os.walk(app.config['UPLOAD_FOLDER']):
+                for file in files:
+                    file_path = os.path.join(root, file)
+                    arcname = os.path.relpath(file_path, app.config['UPLOAD_FOLDER'])
+                    zipf.write(file_path, arcname)
+
+        # Return the zip file for download
+        return send_file(zip_filepath, as_attachment=True)
+
+    except Exception as e:
+        print(f"Error during download_files: {e}")
+        return jsonify({'error': 'An error occurred while zipping the files'}), 500
 
 # http://127.0.0.1:5000/add_query?query_label=Query%205&query_id=55555&status=waiting&up_time=15%20minutes&num_files=8%20files&rate=60%20KB/s
 # http://127.0.0.1:5000/add_query?query_label=Query5&query_id=55555&status=waiting&up_time=15%20minutes&num_files=8%20files&rate=60%20KB/s
@@ -2256,10 +2325,11 @@ def logout():
 @app.route('/home')
 @login_required
 def home_page():
-    global image_fullpath_with_face_list, new_uploaded_pdf_file_path_list
+    # global image_fullpath_with_face_list, new_uploaded_pdf_file_path_list
+    # global image_fullpath_with_face_list
 
-    image_fullpath_with_face_list = []
-    new_uploaded_pdf_file_path_list = []
+    # image_fullpath_with_face_list = []
+    # new_uploaded_pdf_file_path_list = []
     # uploaded_pdf_file_path_list = []
 
     if not check_authenticated():
@@ -2509,20 +2579,28 @@ def status_page():
 
 
 
+
+# # Run the checking in a separate thread when the Flask app starts
+# # @app.before_first_request
+# if __name__ == '__main__':
+#     thread = threading.Thread(target=check_queries)
+#     thread.daemon = True  # Ensure thread exits when the main program exits
+#     thread.start()
+#     app.run(debug=True)
+
+
+
+
 # Initialize scheduler
 scheduler = BackgroundScheduler()
 # scheduler.add_job(func=check_queries, trigger="interval", seconds=5)  # Run every 5 seconds
 scheduler.add_job(func=check_queries, trigger="interval", seconds=5, max_instances=2)
-# 
+
 scheduler.start()
 
-# Run the checking in a separate thread when the Flask app starts
-# @app.before_first_request
+###Run the checking in a separate thread when the Flask app starts
+@app.before_first_request
 if __name__ == '__main__':
-    # thread = threading.Thread(target=check_queries)
-    # thread.daemon = True  # Ensure thread exits when the main program exits
-    # thread.start()
-    # app.run(debug=True)
 
     try:
         app.run(debug=True)
