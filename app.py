@@ -2599,7 +2599,6 @@ scheduler.add_job(func=check_queries, trigger="interval", seconds=5, max_instanc
 scheduler.start()
 
 ###Run the checking in a separate thread when the Flask app starts
-@app.before_first_request
 if __name__ == '__main__':
 
     try:
