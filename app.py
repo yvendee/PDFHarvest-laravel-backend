@@ -2289,6 +2289,19 @@ def test_get_queries():
 def test_get_progress():
     # return jsonify({"progress": progress}), 200
     return progress
+
+@app.route('/api/download-logs')
+def download_logs():
+    # Define the path to the file to be downloaded
+    filepath = os.path.join(os.path.dirname(__file__), 'ph.logs')
+
+    # Check if the file exists
+    if os.path.exists(filepath):
+        return send_file(filepath, as_attachment=True)
+    else:
+        # Return a JSON response if the file is not found
+        return jsonify({'error': 'File not found'}), 404
+
 # @app.route('/')
 # def home():
 #     return "server is running"
@@ -2590,6 +2603,7 @@ def status_page():
     if not check_authenticated():
         return redirect(url_for('login'))
     return render_template('process/process-page.html', session_id=session_id, backendurl=BACKEND_API_URL)
+
 
 
 
