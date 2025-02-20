@@ -616,6 +616,7 @@
             fetch('/api/query-storage')  // Adjust `backendurl` as needed
                 .then(response => response.json())  // Convert the response to JSON
                 .then(data => {
+                    data.reverse();  // Reversing the data array
                     // Clear the previous contents
                     document.getElementById("main-container").innerHTML = '';
                     // Update the container with new data

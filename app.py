@@ -90,7 +90,7 @@ progress = {}
 #         "num_files": "0 files",
 #         "rate": "0"
 #     },
-# ]
+# # ]
 #     {
 #         "query_label": "Query2",
 #         "query_id": "67890",
@@ -124,6 +124,15 @@ face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_fronta
 # uploaded_pdf_file_list = []
 uploaded_file_list = []
 # new_uploaded_pdf_file_path_list = []
+
+
+# Function to get query_label (as shown above)
+def get_query_label(query_id):
+    for query in query_storage:
+        if query["query_id"] == query_id:
+            return query["query_label"]
+    return None
+
 
 
 def format_duration(duration):
@@ -780,7 +789,11 @@ def summary_generation(total_summary, output_folder, base_name, session_id):
 
         session_csv_folder = os.path.join(app.config['GENERATE_CSV_FOLDER'] , session_id)
         # csv_path = f'output_csv/{session_id}.csv'
-        save_csv(os.path.join(session_csv_folder, f"{session_id}.csv"), matches_list, values_array)
+        # save_csv(os.path.join(session_csv_folder, f"{session_id}.csv"), matches_list, values_array)
+
+        query_label = get_query_label(session_id)
+        save_csv(os.path.join(session_csv_folder, f"{query_label}.csv"), matches_list, values_array)
+
 
     with open(os.path.join(output_folder, f'{session_id}-summary.txt'), "a", encoding="utf-8") as text_file:
         text_file.write(f"[start]{base_name}[/start]\n")
@@ -986,36 +999,22 @@ def extract_images_with_faces(pdf_path, session_id, image_fullpath_with_face_lis
                 image_pil = resize_image_if_needed(image_pil0)
 
                 if len(faces) > 0 and not face_found:
+                    # If a face is detected and no face has been found yet on the first page
+                    face_found = True
+                    
+                    image_with_face_filename = f"{pdf_basename}_with_face.jpg"  # Naming based on PDF base name
+                    image_with_face_fullpath = os.path.join(main_folder, image_with_face_filename)
 
-                     # Calculate the width-to-height ratio
-                    if img_height != 0:  # Check to avoid division by zero
-                        ratio = img_width / img_height
-                        print(f"Width-to-Height Ratio (w/h): {ratio:.2f}")  # Print the ratio ## commonly is 7 for banner
+                    # Save the image 
+                    image_pil.save(image_with_face_fullpath, "JPEG")
+                    extracted_images.append(image_pil)
+                    image_fullpath_with_face_list.append(image_with_face_fullpath)  
 
-                        # Determine if it's a banner or a photo
-                        if ratio > 5:
-                            print("It's a banner.")
-                            print("skipping..")
-                        else:
-                            print("It's a photo.")
-                             # If a face is detected and no face has been found yet on the first page
-                            face_found = True
-                            
-                            image_with_face_filename = f"{pdf_basename}_with_face.jpg"  # Naming based on PDF base name
-                            image_with_face_fullpath = os.path.join(main_folder, image_with_face_filename)
-
-                            # Save the image 
-                            image_pil.save(image_with_face_fullpath, "JPEG")
-                            extracted_images.append(image_pil)
-                            image_fullpath_with_face_list.append(image_with_face_fullpath)
-                            break 
-                    else:
-                        print("Height cannot be zero.")
+                    break  # Stop processing further images on the first page once a face is found
 
         print(f"Processed {pdf_path}: {len(extracted_images)} images extracted with faces")
 
         if not face_found:
-            print(f"Processed {pdf_path} --> no-picture-found")
             image_fullpath_with_face_list.append("no-picture-found")
 
     except Exception as e:
@@ -1401,6 +1400,7 @@ def upload_files(session_id):
     if not check_authenticated():
         return jsonify({'error': 'Unauthorized access'}), 401
 
+
     print(f"Session ID: {session_id}")  # Log the session ID
     # progress[session_id] = {'current': 0, 'total': len(files)}  # Initialize progres
 
@@ -1435,7 +1435,7 @@ def upload_files(session_id):
         uploaded_files.append(file.filename)
         # uploaded_file_list.append(file_path)
 
-    
+
     return jsonify({
         'message': 'Files uploaded successfully',
         'session_id': session_id,
@@ -1453,13 +1453,13 @@ def run_process_files(session_id):
 
     def mock_processing(session_id):
 
-        current_time = datetime.now()
+        # current_time = datetime.now()
 
-        # Format the current time to match "ddMMMyyyy:HH:MM" format
-        formatted_time = current_time.strftime("%d%b%Y:%H:%M")
+        # # Format the current time to match "ddMMMyyyy:HH:MM" format
+        # formatted_time = current_time.strftime("%d%b%Y:%H:%M")
 
-        # Prepare the query string with rate and formatted date
-        update_query_storage_date_entry(session_id, f"{formatted_time}")
+        # # Prepare the query string with rate and formatted date
+        # update_query_storage_date_entry(session_id, f"{formatted_time}")
 
         image_fullpath_with_face_list = []
         maid_status_id_value = get_maid_status(session_id)
@@ -1476,6 +1476,7 @@ def run_process_files(session_id):
             print(f"INFO: Processing started for session: {session_id}")
             new_pdf_list = []
             maidrefcode_list = []
+
             try:
                 session_folder = os.path.join(app.config['UPLOAD_FOLDER'], session_id)
                 uploaded_files = os.listdir(session_folder)
@@ -1737,8 +1738,10 @@ def download_zip_files(session_id):
         if session_id not in progress or progress[session_id]['current'] < progress[session_id]['total']:
             return jsonify({'error': 'Files are still being processed or invalid session ID'}), 400
 
+        query_label = get_query_label(session_id)
+        zip_filename = f"{query_label}.zip"
 
-        zip_filename = f"{session_id}.zip"
+        # zip_filename = f"{session_id}.zip"
         session_folder = os.path.join(app.config['EXTRACTED_PROFILE_PICTURE_FOLDER'], session_id)
         zip_filepath = os.path.join(session_folder, zip_filename)
         print(f"zip path: {zip_filepath}")
@@ -1761,9 +1764,13 @@ def download_zip_files(session_id):
 def download_output_csv(session_id):
     if not check_authenticated():
         return jsonify({'error': 'Unauthorized access'}), 401
+
+    query_label = get_query_label(session_id)
     
     session_folder = os.path.join(app.config['GENERATE_CSV_FOLDER'], session_id)
-    csv_filepath = os.path.join(session_folder, f'{session_id}.csv')
+    # csv_filepath = os.path.join(session_folder, f'{session_id}.csv')
+
+    csv_filepath = os.path.join(session_folder, f'{query_label}.csv')
 
     if os.path.exists(csv_filepath):
         return send_file(csv_filepath, as_attachment=True)
@@ -2119,13 +2126,18 @@ def add_query_to_query_storage():
         for query in query_storage:
             if query['query_label'] == query_label or query['query_id'] == query_id:
                 return jsonify({"error": "Query with the same label or ID already exists"}), 400
+
+        current_time = datetime.now()
+
+        # Format the current time to match "ddMMMyyyy:HH:MM" format
+        formatted_time = current_time.strftime("%d%b%Y:%H:%M")
         
         # Create a new query item with the parameters
         new_query = {
             'query_label': query_label,
             'query_id': query_id,
             'status': 'waiting',  # Set status as 'inprogress'
-            'datetime_entry': '-',
+            'datetime_entry': formatted_time,
             'up_time': '-',  # Placeholder for up_time, can be updated later
             'num_files': '-',  # Placeholder for num_files, can be updated later
             'rate': '-',  # Placeholder for rate, can be updated later
@@ -2226,6 +2238,25 @@ def download_zip_upload_folder():
         print(f"Error during download_files: {e}")
         return jsonify({'error': 'An error occurred while zipping the files'}), 500
 
+@app.route('/api/get-query-label', methods=['GET'])
+def get_query_label_route():
+    # Extract the 'query_id' from the request arguments
+    query_id = request.args.get('query_id')
+
+    if query_id is None:
+        return jsonify({"error": "query_id is required"}), 400
+    
+    # Get the query label for the provided query_id
+    query_label = get_query_label(query_id)
+    
+    if query_label is None:
+        return jsonify({"error": "query_id not found"}), 404
+
+    # Return the query_label as JSON
+    # return jsonify({"query_id": query_id, "query_label": query_label})
+    return query_label
+    
+
 # http://127.0.0.1:5000/add_query?query_label=Query%205&query_id=55555&status=waiting&up_time=15%20minutes&num_files=8%20files&rate=60%20KB/s
 # http://127.0.0.1:5000/add_query?query_label=Query5&query_id=55555&status=waiting&up_time=15%20minutes&num_files=8%20files&rate=60%20KB/s
 
@@ -2289,19 +2320,6 @@ def test_get_queries():
 def test_get_progress():
     # return jsonify({"progress": progress}), 200
     return progress
-
-@app.route('/api/download-logs')
-def download_logs():
-    # Define the path to the file to be downloaded
-    filepath = os.path.join(os.path.dirname(__file__), 'ph.logs')
-
-    # Check if the file exists
-    if os.path.exists(filepath):
-        return send_file(filepath, as_attachment=True)
-    else:
-        # Return a JSON response if the file is not found
-        return jsonify({'error': 'File not found'}), 404
-
 # @app.route('/')
 # def home():
 #     return "server is running"
@@ -2603,7 +2621,6 @@ def status_page():
     if not check_authenticated():
         return redirect(url_for('login'))
     return render_template('process/process-page.html', session_id=session_id, backendurl=BACKEND_API_URL)
-
 
 
 
