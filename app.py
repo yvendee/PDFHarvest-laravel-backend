@@ -377,6 +377,50 @@ def rename_files(image_fullpath_with_face_list, maid_refcode_list): ## rename ex
     # Return the updated image_fullpath_with_face_list
     return image_fullpath_with_face_list
 
+
+def rename_files_with_prefix(image_fullpath_with_face_list, maid_refcode_list): ## rename extracted images with maid ref code
+    
+    try:
+        # Iterate through both lists simultaneously
+        for i in range(len(image_fullpath_with_face_list)):
+
+            if(image_fullpath_with_face_list[i] == "no-picture-found"):
+                print("no picture found!")
+            else:
+            #     print("with picture found!")
+            
+                original_path = image_fullpath_with_face_list[i]
+                maidrefcode = maid_refcode_list[i]
+
+                # Extract filename and extension
+                filename, extension = os.path.splitext(original_path)
+
+                # Check if maidrefcode is not empty
+                if maidrefcode:
+                    # Form new filename with maidrefcode and original extension
+                    # new_filename = f"{maidrefcode}{extension}"
+
+                    # Create numbered prefix (i + 1) for the file
+                    new_filename = f"{i + 1}_{maidrefcode}{extension}"
+
+                    # Construct new full path
+                    new_fullpath = os.path.join(os.path.dirname(original_path), new_filename)
+
+                    try:
+                        # Rename the file
+                        os.rename(original_path, new_fullpath)
+
+                        # Update image_fullpath_with_face_list with new path
+                        image_fullpath_with_face_list[i] = new_fullpath
+
+                    except OSError as e:
+                        print(f"Error renaming {original_path} to {new_fullpath}: {e}")
+    except:
+        pass
+
+    # Return the updated image_fullpath_with_face_list
+    return image_fullpath_with_face_list
+
 def rename_files2(pdf_file_list, maid_refcode_list):  ## rename input pdf's with maid ref code
     # Iterate through both lists simultaneously
     for i in range(len(pdf_file_list)):
@@ -406,6 +450,41 @@ def rename_files2(pdf_file_list, maid_refcode_list):  ## rename input pdf's with
 
     # Return the updated pdf_file_list
     return pdf_file_list
+
+
+def rename_files_with_prefix2(pdf_file_list, maid_refcode_list):  ## rename input pdf's with maid ref code
+    # Iterate through both lists simultaneously
+    for i in range(len(pdf_file_list)):
+        original_path = pdf_file_list[i]
+        maidrefcode = maid_refcode_list[i]
+
+        # Extract filename and extension
+        filename, extension = os.path.splitext(original_path)
+
+        # Check if maidrefcode is not empty
+        if maidrefcode:
+            # Form new filename with maidrefcode and original extension
+            # new_filename = f"{maidrefcode}{extension}"
+
+            # Create numbered prefix (i + 1) for the file
+            new_filename = f"{i + 1}_{maidrefcode}{extension}"
+
+            # Construct new full path
+            new_fullpath = os.path.join(os.path.dirname(original_path), new_filename)
+
+            try:
+                # Rename the file
+                os.rename(original_path, new_fullpath)
+
+                # Update pdf_file_list with new path
+                pdf_file_list[i] = new_fullpath
+
+            except OSError as e:
+                print(f"Error renaming {original_path} to {new_fullpath}: {e}")
+
+    # Return the updated pdf_file_list
+    return pdf_file_list
+
 
 def summary_generation(total_summary, output_folder, base_name, session_id):
 
@@ -1548,8 +1627,10 @@ def run_process_files(session_id):
                     print(f"new-pdf-list-path: {new_pdf_list}")
 
                 #     # rename_files(image_fullpath_with_face_list, maidrefcode_list) ## renaming extracted images
-                    rename_files(image_with_face_list, maidrefcode_list) ## renaming extracted images
-                    rename_files2(new_pdf_list, maidrefcode_list) ## renaming input pdf
+                    # rename_files(image_with_face_list, maidrefcode_list) ## renaming extracted images
+                    # rename_files2(new_pdf_list, maidrefcode_list) ## renaming input pdf
+                    rename_files_with_prefix(image_with_face_list, maidrefcode_list) ## renaming extracted images
+                    rename_files_with_prefix2(new_pdf_list, maidrefcode_list) ## renaming input pdf
                     session_folder = os.path.join(app.config['EXTRACTED_PAGE_IMAGES_FOLDER'], session_id)
                     save_log(os.path.join(session_folder, "logs.txt"),f"Processed Completed. Ready to download!")
                 
