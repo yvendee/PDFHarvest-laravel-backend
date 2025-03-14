@@ -1506,6 +1506,9 @@ def upload_files(session_id):
 
     progress[session_id] = {'current': 0, 'total': len(files)}  # Initialize progress
 
+    # Sort the files alphabetically by filename
+    files.sort(key=lambda file: file.filename.lower())  # Sort filenames in alphabetical order (A to Z)
+
     # For each file uploaded, save it and then notify Laravel app asynchronously
     for index, file in enumerate(files):
         print(f"Uploading: {file.filename}")  # Log the file names
@@ -1626,11 +1629,11 @@ def run_process_files(session_id):
                     print(f"image-path-with-face-path: {image_with_face_list}")
                     print(f"new-pdf-list-path: {new_pdf_list}")
 
-                #     # rename_files(image_fullpath_with_face_list, maidrefcode_list) ## renaming extracted images
-                    # rename_files(image_with_face_list, maidrefcode_list) ## renaming extracted images
+                    # rename_files(image_fullpath_with_face_list, maidrefcode_list) ## renaming extracted images
+                    rename_files(image_with_face_list, maidrefcode_list) ## renaming extracted images
                     # rename_files2(new_pdf_list, maidrefcode_list) ## renaming input pdf
                     rename_files_with_prefix(image_with_face_list, maidrefcode_list) ## renaming extracted images
-                    rename_files_with_prefix2(new_pdf_list, maidrefcode_list) ## renaming input pdf
+                    # rename_files_with_prefix2(new_pdf_list, maidrefcode_list) ## renaming input pdf
                     session_folder = os.path.join(app.config['EXTRACTED_PAGE_IMAGES_FOLDER'], session_id)
                     save_log(os.path.join(session_folder, "logs.txt"),f"Processed Completed. Ready to download!")
                 
