@@ -1631,8 +1631,8 @@ def run_process_files(session_id):
 
                     # rename_files(image_fullpath_with_face_list, maidrefcode_list) ## renaming extracted images
                     rename_files(image_with_face_list, maidrefcode_list) ## renaming extracted images
-                    # rename_files2(new_pdf_list, maidrefcode_list) ## renaming input pdf
-                    rename_files_with_prefix(image_with_face_list, maidrefcode_list) ## renaming extracted images
+                    rename_files2(new_pdf_list, maidrefcode_list) ## renaming input pdf
+                    # rename_files_with_prefix(image_with_face_list, maidrefcode_list) ## renaming extracted images
                     # rename_files_with_prefix2(new_pdf_list, maidrefcode_list) ## renaming input pdf
                     session_folder = os.path.join(app.config['EXTRACTED_PAGE_IMAGES_FOLDER'], session_id)
                     save_log(os.path.join(session_folder, "logs.txt"),f"Processed Completed. Ready to download!")
