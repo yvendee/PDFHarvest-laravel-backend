@@ -571,6 +571,23 @@ def summary_generation(total_summary, output_folder, base_name, session_id):
 
         ##=========== Special Case Here For Initial Setting of Key Values ================##
 
+        # try:
+        #     maid_name_value = summary_dict.get("maid name", "")
+
+        #     # Define a regular expression pattern to match unwanted characters
+        #     pattern = re.compile(r'[^a-zA-Z ]')
+
+        #     # Replace unwanted characters with an empty string
+        #     maid_name_value_cleaned = re.sub(pattern, '', maid_name_value)
+        #     maid_name_value_cleaned = maid_name_value_cleaned.replace('"',"")
+        #     maid_name_value_cleaned = maid_name_value_cleaned.strip()
+        #     summary_dict["maid name"] = maid_name_value_cleaned
+
+        # except Exception as e:
+        #     print(f"Error occurred: {e}")
+        
+
+        ## maid name
         try:
             maid_name_value = summary_dict.get("maid name", "")
 
@@ -584,8 +601,7 @@ def summary_generation(total_summary, output_folder, base_name, session_id):
             summary_dict["maid name"] = maid_name_value_cleaned
 
         except Exception as e:
-            print(f"Error occurred: {e}")
-            
+            print(f"Error occurred: {e}")         
 
         Is_incorrect_birth_date = "no"
 
@@ -758,6 +774,29 @@ def summary_generation(total_summary, output_folder, base_name, session_id):
             summary_dict["maid ref code"] = maid_ref_code_value
 
 
+        # if maid_status_global == "None":
+
+        #     try:
+        #         # Getting the value corresponding to the key "maid type"" then stored
+        #         maid_type_option_id_value = summary_dict.get("maid type", "")
+        #         maid_type_option_id_value = maid_type_option_id_value.strip().lower()
+        #         if maid_type_option_id_value in ["ex maid", "transfer maid", "ex-sg maid"]:
+        #             if maid_type_option_id_value == "ex-sg maid":
+        #                 summary_dict["maid type"] = "Ex-SG Maid"
+        #             else:
+        #                 summary_dict["maid type"] = maid_type_option_id_value
+        #         else:
+        #             summary_dict["maid type"] = "New Maid"
+        #     except Exception as e:
+        #         print(f"Error occurred: {e}")
+        # else:
+
+        #     try:
+        #         summary_dict["maid type"] = maid_status_global
+        #     except Exception as e:
+        #         print(f"Error occurred: {e}")
+        
+        ## maid status
         if maid_status_global == "None":
 
             try:
@@ -780,40 +819,144 @@ def summary_generation(total_summary, output_folder, base_name, session_id):
             except Exception as e:
                 print(f"Error occurred: {e}")
 
+        # try:
+        #     education_id_value = summary_dict.get("education", "")
+        #     # - Others
+        #     # - Diploma/Degree (>=13 yrs)
+        #     # - High School (11-12 yrs)
+        #     # - Secondary Level (7-10 yrs)
+        #     # - Primary Level (1-6 yrs)
+        #     if education_id_value.strip().lower() in ["diploma/degree (>=13 yrs)", "high school (11-12 yrs)", "secondary level (7-10 yrs)", "primary level (1-6 yrs)"]:
+        #         summary_dict["education"] = education_id_value.strip().lower()
+        #     else:
+        #         summary_dict["education"] = "Others"
+        # except Exception as e:
+        #     print(f"Error occurred: {e}")
 
+        # Education mapping logic
         try:
+            # Getting the value corresponding to the key "education"
             education_id_value = summary_dict.get("education", "")
-            # - Others
-            # - Diploma/Degree (>=13 yrs)
-            # - High School (11-12 yrs)
-            # - Secondary Level (7-10 yrs)
-            # - Primary Level (1-6 yrs)
-            if education_id_value.strip().lower() in ["diploma/degree (>=13 yrs)", "high school (11-12 yrs)", "secondary level (7-10 yrs)", "primary level (1-6 yrs)"]:
-                summary_dict["education"] = education_id_value.strip().lower()
+            print(f"Education input: '{education_id_value}'")
+
+            # Define valid education options
+            valid_education_options = [
+                "diploma/degree (>=13 yrs)", 
+                "high school (11-12 yrs)", 
+                "secondary level (7-10 yrs)", 
+                "primary level (1-6 yrs)",
+                "others"
+            ]
+
+            # Clean the value: allow letters, numbers, (), /, -, <>, =
+            cleaned_value = re.sub(r'[^a-zA-Z0-9 ()/<>=-]', '', education_id_value.strip().lower())
+            print(f"Cleaned education: '{cleaned_value}'")
+
+            # Map input values to the desired output
+            if cleaned_value in ["high school (10~12 yrs)","highschool(10~12yrs)","highschool (10~12yrs)","highschool (10~12 yrs)","senior high school","high school (11-12yrs)","highschool (11-12yrs)","highschool (11-12 yrs)"]:
+                summary_dict["education"] = "high school (11-12 yrs)"
+            # elif cleaned_value == "junior high school":
+            #     summary_dict["education"] = "secondary level (7-10 yrs)"
+            elif cleaned_value in ["junior high school","secondary level (7-10yrs)","secondarylevel (7-10 yrs)","secondarylevel (7-10yrs)"]:
+                summary_dict["education"] = "secondary level (7-10 yrs)"
+            # Here we ensure any variation with "secondary" gets mapped correctly
+            elif "secondary" in cleaned_value:
+                summary_dict["education"] = "secondary level (7-10 yrs)"
+            elif cleaned_value in valid_education_options:
+                summary_dict["education"] = cleaned_value
             else:
-                summary_dict["education"] = "Others"
+                summary_dict["education"] = "others"
+
         except Exception as e:
             print(f"Error occurred: {e}")
 
 
+        # try:
+        #     religion_id_value = summary_dict.get("religion", "")
+        #     #Buddhist|Catholic|Christian|Free Thinker|Hindu|Muslim|Sikh|Others
+        #     if religion_id_value.strip().lower() in ["buddhist", "catholic", "christian", "free thinker","hindu", "muslim", "sikh"]:
+        #         summary_dict["religion"] = religion_id_value.strip().lower()
+        #     else:
+        #         summary_dict["religion id"] = "Others"
+        # except Exception as e:
+        #     print(f"Error occurred: {e}")
+
+        ## religion
         try:
+            # Getting the value corresponding to the key "religion"
             religion_id_value = summary_dict.get("religion", "")
-            #Buddhist|Catholic|Christian|Free Thinker|Hindu|Muslim|Sikh|Others
-            if religion_id_value.strip().lower() in ["buddhist", "catholic", "christian", "free thinker","hindu", "muslim", "sikh"]:
-                summary_dict["religion"] = religion_id_value.strip().lower()
+            print(f"Religion input: '{religion_id_value}'")
+
+            # Define valid religion options
+            valid_religions = [
+                "buddhist", 
+                "catholic", 
+                "christian", 
+                "free thinker", 
+                "hindu", 
+                "muslim", 
+                "sikh", 
+                "others"
+            ]
+
+            # Clean the value: keep only letters (case insensitive)
+            cleaned_value = re.sub(r'[^a-zA-Z ]', '', religion_id_value.strip().lower())
+            print(f"Cleaned religion: '{cleaned_value}'")
+
+            if cleaned_value in valid_religions:
+                summary_dict["religion"] = cleaned_value
             else:
-                summary_dict["religion id"] = "Others"
+                summary_dict["religion"] = "Others"
+
         except Exception as e:
             print(f"Error occurred: {e}")
+
+        # try:
+        #     maid_preferred_rest_day_id_value = summary_dict.get("maid preferred rest day", "")
+        #     if "all sun" in maid_preferred_rest_day_id_value.strip().lower():
+        #         summary_dict["maid preferred rest day"] = "4 rest days per month"
+        #     elif maid_preferred_rest_day_id_value.strip().lower() in ["1 rest days per month", "2 rest days per month", "3 rest days per month", "4 rest days per month"]:
+        #         summary_dict["maid preferred rest day"] = maid_preferred_rest_day_id_value.strip().lower()
+        #     else:
+        #         summary_dict["maid preferred rest day"] = "1 rest days per month"
+        # except Exception as e:
+        #     print(f"Error occurred: {e}")
+
+        # Maid preferred rest day
+        valid_rest_days = [  # Define valid rest days as a list
+            "1 rest day per month", 
+            "2 rest days per month", 
+            "3 rest days per month", 
+            "4 rest days per month"
+        ]
 
         try:
             maid_preferred_rest_day_id_value = summary_dict.get("maid preferred rest day", "")
+            print(f"maid preferred rest day: '{maid_preferred_rest_day_id_value}'")
+
             if "all sun" in maid_preferred_rest_day_id_value.strip().lower():
                 summary_dict["maid preferred rest day"] = "4 rest days per month"
-            elif maid_preferred_rest_day_id_value.strip().lower() in ["1 rest days per month", "2 rest days per month", "3 rest days per month", "4 rest days per month"]:
-                summary_dict["maid preferred rest day"] = maid_preferred_rest_day_id_value.strip().lower()
             else:
-                summary_dict["maid preferred rest day"] = "1 rest days per month"
+                # Clean the value: keep only letters, numbers, spaces, and ()
+                cleaned_value = re.sub(r'[^a-zA-Z0-9 ()]', '', maid_preferred_rest_day_id_value.strip().lower())
+                print(f"Cleaned value: '{cleaned_value}'")
+
+                # Use a for loop to check if cleaned_value is in valid_rest_days
+                is_valid = False
+                for day in valid_rest_days:
+                    if cleaned_value == day.lower():  # Compare with lowercase
+                        is_valid = True
+                        # print("Match found")
+                        break  # Exit the loop if a match is found
+
+                if is_valid:
+                    summary_dict["maid preferred rest day"] = cleaned_value
+                else:
+                    summary_dict["maid preferred rest day"] = "1 rest day per month"
+
+                value = summary_dict["maid preferred rest day"]
+                # print(f"verifying maid preferred rest day: {value}")
+
         except Exception as e:
             print(f"Error occurred: {e}")
 
@@ -836,14 +979,55 @@ def summary_generation(total_summary, output_folder, base_name, session_id):
         except Exception as e:
             print(f"Error occurred: {e}")
 
+        ## employment history
         try:
-            # Getting the value corresponding to the key "marital status" then stored
+            # Define the marker strings before and after employment history
+            start_marker = '[employment history]:'
+            end_marker = '\n['
+
+            # Find the start and end positions of the employment history section
+            start_pos = summary_text.find(start_marker)
+            end_pos = summary_text.find(end_marker, start_pos)
+
+            # Extract the maid introduction section
+            if start_pos != -1 and end_pos != -1:
+                employment_history = summary_text[start_pos + len(start_marker):end_pos].strip()
+                # print(employment_history)
+                summary_dict["employment history"] = employment_history
+            else:
+                print("No employment history found in the input.")
+        except Exception as e:
+            print(f"Error occurred: {e}")
+
+        # try:
+        #     # Getting the value corresponding to the key "marital status" then stored
+        #     marital_status_option_id_value = summary_dict.get("marital status", "")
+        #     # Single|Married|Widowed|Divorced|Separated
+        #     if marital_status_option_id_value.strip().lower() in ["single", "married", "widowed", "divorced", "separated"]:
+        #         summary_dict["marital status"] = marital_status_option_id_value.strip().lower()
+        #     else:
+        #         summary_dict["marital status"] = "single"
+        # except Exception as e:
+        #     print(f"Error occurred: {e}")
+
+        ## marital status
+        try:
+            # Getting the value corresponding to the key "marital status"
             marital_status_option_id_value = summary_dict.get("marital status", "")
-            # Single|Married|Widowed|Divorced|Separated
-            if marital_status_option_id_value.strip().lower() in ["single", "married", "widowed", "divorced", "separated"]:
-                summary_dict["marital status"] = marital_status_option_id_value.strip().lower()
+            print(f"marital status: '{marital_status_option_id_value}'")
+
+            # Define valid marital status options
+            valid_marital_statuses = ["single", "married", "widowed", "divorced", "separated"]
+
+            # Clean the value: keep only letters
+            cleaned_value = re.sub(r'[^a-zA-Z]', '', marital_status_option_id_value.strip().lower())
+            print(f"Cleaned marital status: '{cleaned_value}'")
+
+            if cleaned_value in valid_marital_statuses:
+                summary_dict["marital status"] = cleaned_value
             else:
                 summary_dict["marital status"] = "single"
+
         except Exception as e:
             print(f"Error occurred: {e}")
 
