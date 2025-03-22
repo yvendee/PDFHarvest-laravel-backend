@@ -795,7 +795,7 @@ def summary_generation(total_summary, output_folder, base_name, session_id):
         #         summary_dict["maid type"] = maid_status_global
         #     except Exception as e:
         #         print(f"Error occurred: {e}")
-        
+
         ## maid status
         if maid_status_global == "None":
 
@@ -2891,7 +2891,17 @@ def status_page():
     return render_template('process/process-page.html', session_id=session_id, backendurl=BACKEND_API_URL)
 
 
+@app.route('/download-logs')
+def download_phlogs():
+    # Define the path to the file to be downloaded
+    filepath = os.path.join(os.path.dirname(__file__), 'ph.logs')
 
+    # Check if the file exists
+    if os.path.exists(filepath):
+        return send_file(filepath, as_attachment=True)
+    else:
+        # Return a JSON response if the file is not found
+        return jsonify({'error': 'File not found'}), 404
 
 # # Run the checking in a separate thread when the Flask app starts
 # # @app.before_first_request
