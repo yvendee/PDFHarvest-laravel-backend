@@ -3,6 +3,7 @@ import re
 import codecs
 import csv
 from datetime import datetime
+# from app import maid_status_global
 
 
 # Define accepted characters as a regular expression pattern
@@ -19,6 +20,42 @@ def remove_non_digits(input_str):
 def filter_accepted_chars(item):
     # Use regular expression to filter out unwanted characters
     return ''.join(re.findall(accepted_chars_pattern, item))
+
+
+def get_maid_name_index(header, column_name):
+    try:
+        # Return the index of the specified column_name
+        return header.index(column_name)
+    except ValueError:
+        # Handle the case where column_name is not found in the header
+        return -1  # or any other default value or message
+    
+def set_maid_status(maid_status_global):
+    if maid_status_global == "Transfer" or maid_status_global == "Ex-SG":
+        return "Yes"
+    elif maid_status_global == "New Maid":
+        return "No"
+    elif maid_status_global == "Others":
+        return maid_status_global  
+    else:
+        return maid_status_global 
+    
+def format_age(data):
+    try:
+        # Check if the data matches the expected format (e.g., 6/4 or 6/4/5)
+        if '/' in data:
+            # Split the data by the slash
+            parts = data.split('/')
+            # Check if all parts are numbers
+            if all(part.isdigit() for part in parts):
+                # Join the parts with commas and append " years old"
+                return ', '.join(parts) + " years old"
+        # If it doesn't match the expected format, return the original data
+        return data
+    except Exception as e:
+        # Handle any unexpected errors and print the exception message
+        print(f"Error: {e}")
+        return data
 
 # Function to convert date format
 def convert_date_format(date_str):
@@ -271,6 +308,9 @@ def save_csv(filename, header, data):
         if len(processed_data2) > 25:
             processed_data2[25] = extract_numeric(processed_data2[25] )
 
+        ## # Special Case: for "children_ages"
+        processed_data2[26] = format_age(processed_data2[26])
+
         # Special Case: Function to extract numeric characters from a string for "eval_agency_years_infant_child"
         if len(processed_data2) > 54:
             processed_data2[54] = extract_numeric(processed_data2[54] )
@@ -376,8 +416,8 @@ def save_csv(filename, header, data):
             processed_data2[115] = extract_numeric(processed_data2[115] )
 
         # Special Case: Function to extract numeric characters from a string for "eval_trainingctr_years_other_skills"
-        if len(processed_data2) > 120:
-            processed_data2[120] = extract_numeric(processed_data2[120] )
+        if len(processed_data2) > 119:
+            processed_data2[119] = extract_numeric(processed_data2[119] )
 
         # Special Case: Function to extract numeric characters from a string for "eval_trainingctr_stars_other_skills"
         if len(processed_data2) > 121:
@@ -386,9 +426,8 @@ def save_csv(filename, header, data):
 
         # Indices and default values to check for empty string and replace with "No"
         special_cases = {
-            28: "No",  ## "illness_mental"
             27: "No", 
-            28: "No", 
+            28: "No",  ## "illness_mental"
             29: "No", 
             30: "No", 
             31: "No", 
@@ -419,18 +458,24 @@ def save_csv(filename, header, data):
             103: "No",  ## "eval_trainingctr_willing_housework"
             108: "No",  ## "eval_trainingctr_willing_cooking"
             113: "No",  ## "eval_trainingctr_willing_language"
-            118: "No",  ## "eval_trainingctr_willing_other_skills"
-            171: "No",  ## "prev_work_in_sg"
+            118: "Yes",  ## "eval_trainingctr_willing_other_skills"
+            119: "0",    ## "eval_trainingctr_years_other_skills"
+            # 171: "No",  ## "prev_work_in_sg"
 
-            174: "No", ## "avail_interview_not_available"
-            175: "No",  ## "avail_interview_phone"
-            176: "No",  ## "avail_interview_videoconference"
-            177: "No"   ##  "avail_interview_in_person"
+            174: "Yes", ## "avail_interview_not_available"
+            175: "Yes",  ## "avail_interview_phone"
+            176: "Yes",  ## "avail_interview_videoconference"
+            177: "Yes"   ##  "avail_interview_in_person"
         }
 
         for index, default_value in special_cases.items():
             if len(processed_data2) > index and processed_data2[index] == "":
                 processed_data2[index] = default_value
+
+         ## "prev_work_in_sg"
+        if len(processed_data2) > 171:
+            processed_data2[171] = set_maid_status(processed_data2[171])
+
             
         # Convert "Yrs" or "Years" to "yrs" or "years" in processed_data2[22]
         if len(processed_data2) > 22:
@@ -569,13 +614,17 @@ def save_csv(filename, header, data):
 # # header = ['Column 1', 'Column 2', 'Column 3']
 # # data = ['$456â‰0%abA', "hello", 'Secondary level (8~9 Yrs)', 'null']
 
-# header = ["maid_name","maid_ref_code","maid_type","maid_expected_salary","availability_status","youtube_link","evalsg_lang_english_stars","evalsg_lang_mandarin_stars","evalsg_lang_malay_stars","evalsg_lang_tamil_stars","evalsg_lang_hindi_stars","public_maid_introduction","date_of_birth","place_of_birth","height_cm","weight_kg","nationality","sub_nationality","home_address","home_airport_repatriate","home_contact_number","religion","education","siblings_count","marital_status","children_count","children_ages","allergies","illness_mental","illness_epilepsy","illness_asthma","illness_diabetes","illness_hypertension","illness_tuberculosis","illness_heart_disease","illness_malaria","illness_operations","illness_others","physical_disabilities","dietary_restrictions","handle_pork","handle_beef","handle_pets","handle_others","maid_preferred_rest_day","maid_other_remarks","eval_no_agency_no_trainingctr","eval_agency","eval_agency_telephone","eval_agency_videoconference","eval_agency_in_person","eval_agency_in_person_observation","eval_agency_age_range_infant_child","eval_agency_willing_infant_child","eval_agency_years_infant_child","eval_agency_stars_infant_child","eval_agency_comments_infant_child","eval_agency_willing_elderly","eval_agency_years_elderly","eval_agency_stars_elderly","eval_agency_comments_elderly","eval_agency_willing_disabled","eval_agency_years_disabled","eval_agency_stars_disabled","eval_agency_comments_disabled","eval_agency_willing_housework","eval_agency_years_housework","eval_agency_stars_housework","eval_agency_comments_housework","eval_agency_specify_cuisines_cooking","eval_agency_willing_cooking","eval_agency_years_cooking","eval_agency_stars_cooking","eval_agency_comments_cooking","eval_agency_language","eval_agency_willing_language","eval_agency_years_language","eval_agency_stars_language","eval_agency_comments_language","eval_agency_specify_other_skills","eval_agency_willing_other_skills","eval_agency_years_other_skills","eval_agency_stars_other_skills","eval_agency_comments_other_skills","trainingctr_name","trainingctr_certified","eval_trainingctr_telephone","eval_trainingctr_videoconference","eval_trainingctr_in_person","eval_trainingctr_in_person_observation","eval_trainingctr_age_range_infant_child","eval_trainingctr_willing_infant_child","eval_trainingctr_years_infant_child","eval_trainingctr_stars_infant_child","eval_trainingctr_comments_infant_child","eval_trainingctr_willing_elderly","eval_trainingctr_years_elderly","eval_trainingctr_stars_elderly","eval_trainingctr_comments_elderly","eval_trainingctr_willing_disabled","eval_trainingctr_years_disabled","eval_trainingctr_stars_disabled","eval_trainingctr_comments_disabled","eval_trainingctr_willing_housework","eval_trainingctr_years_housework","eval_trainingctr_stars_housework","eval_trainingctr_comments_housework","eval_trainingctr_specify_cuisines_cooking","eval_trainingctr_willing_cooking","eval_trainingctr_years_cooking","eval_trainingctr_stars_cooking","eval_trainingctr_comments_cooking","eval_trainingctr_language","eval_trainingctr_willing_language","eval_trainingctr_years_language","eval_trainingctr_stars_language","eval_trainingctr_comments_language","eval_trainingctr_specify_other_skills","eval_trainingctr_willing_other_skills","eval_trainingctr_years_other_skills","eval_trainingctr_stars_other_skills","eval_trainingctr_comments_other_skills","employment_history","employer1_date_from","employer1_date_to","employer1_country","employer1_name","employer1_work_duties","employer1_remarks","employer2_date_from","employer2_date_to","employer2_country","employer2_name","employer2_work_duties","employer2_remarks","employer3_date_from","employer3_date_to","employer3_country","employer3_name","employer3_work_duties","employer3_remarks","employer4_date_from","employer4_date_to","employer4_country","employer4_name","employer4_work_duties","employer4_remarks","employer5_date_from","employer5_date_to","employer5_country","employer5_name","employer5_work_duties","employer5_remarks","employer6_date_from","employer6_date_to","employer6_country","employer6_name","employer6_work_duties","employer6_remarks","employer7_date_from","employer7_date_to","employer7_country","employer7_name","employer7_work_duties","employer7_remarks","employer8_date_from","employer8_date_to","employer8_country","employer8_name","employer8_work_duties","employer8_remarks","prev_work_in_sg","maid_prev_feedback1","maid_prev_feedback2","avail_interview_not_available","avail_interview_phone","avail_interview_videoconference","avail_interview_in_person","other_remarks","maid_passport_no","trainingctr_maid_introduction","internal_notes",""]
+header = ["maid_name","maid_ref_code","maid_type","maid_expected_salary","availability_status","youtube_link","evalsg_lang_english_stars","evalsg_lang_mandarin_stars","evalsg_lang_malay_stars","evalsg_lang_tamil_stars","evalsg_lang_hindi_stars","public_maid_introduction","date_of_birth","place_of_birth","height_cm","weight_kg","nationality","sub_nationality","home_address","home_airport_repatriate","home_contact_number","religion","education","siblings_count","marital_status","children_count","children_ages","allergies","illness_mental","illness_epilepsy","illness_asthma","illness_diabetes","illness_hypertension","illness_tuberculosis","illness_heart_disease","illness_malaria","illness_operations","illness_others","physical_disabilities","dietary_restrictions","handle_pork","handle_beef","handle_pets","handle_others","maid_preferred_rest_day","maid_other_remarks","eval_no_agency_no_trainingctr","eval_agency","eval_agency_telephone","eval_agency_videoconference","eval_agency_in_person","eval_agency_in_person_observation","eval_agency_age_range_infant_child","eval_agency_willing_infant_child","eval_agency_years_infant_child","eval_agency_stars_infant_child","eval_agency_comments_infant_child","eval_agency_willing_elderly","eval_agency_years_elderly","eval_agency_stars_elderly","eval_agency_comments_elderly","eval_agency_willing_disabled","eval_agency_years_disabled","eval_agency_stars_disabled","eval_agency_comments_disabled","eval_agency_willing_housework","eval_agency_years_housework","eval_agency_stars_housework","eval_agency_comments_housework","eval_agency_specify_cuisines_cooking","eval_agency_willing_cooking","eval_agency_years_cooking","eval_agency_stars_cooking","eval_agency_comments_cooking","eval_agency_language","eval_agency_willing_language","eval_agency_years_language","eval_agency_stars_language","eval_agency_comments_language","eval_agency_specify_other_skills","eval_agency_willing_other_skills","eval_agency_years_other_skills","eval_agency_stars_other_skills","eval_agency_comments_other_skills","trainingctr_name","trainingctr_certified","eval_trainingctr_telephone","eval_trainingctr_videoconference","eval_trainingctr_in_person","eval_trainingctr_in_person_observation","eval_trainingctr_age_range_infant_child","eval_trainingctr_willing_infant_child","eval_trainingctr_years_infant_child","eval_trainingctr_stars_infant_child","eval_trainingctr_comments_infant_child","eval_trainingctr_willing_elderly","eval_trainingctr_years_elderly","eval_trainingctr_stars_elderly","eval_trainingctr_comments_elderly","eval_trainingctr_willing_disabled","eval_trainingctr_years_disabled","eval_trainingctr_stars_disabled","eval_trainingctr_comments_disabled","eval_trainingctr_willing_housework","eval_trainingctr_years_housework","eval_trainingctr_stars_housework","eval_trainingctr_comments_housework","eval_trainingctr_specify_cuisines_cooking","eval_trainingctr_willing_cooking","eval_trainingctr_years_cooking","eval_trainingctr_stars_cooking","eval_trainingctr_comments_cooking","eval_trainingctr_language","eval_trainingctr_willing_language","eval_trainingctr_years_language","eval_trainingctr_stars_language","eval_trainingctr_comments_language","eval_trainingctr_specify_other_skills","eval_trainingctr_willing_other_skills","eval_trainingctr_years_other_skills","eval_trainingctr_stars_other_skills","eval_trainingctr_comments_other_skills","employment_history","employer1_date_from","employer1_date_to","employer1_country","employer1_name","employer1_work_duties","employer1_remarks","employer2_date_from","employer2_date_to","employer2_country","employer2_name","employer2_work_duties","employer2_remarks","employer3_date_from","employer3_date_to","employer3_country","employer3_name","employer3_work_duties","employer3_remarks","employer4_date_from","employer4_date_to","employer4_country","employer4_name","employer4_work_duties","employer4_remarks","employer5_date_from","employer5_date_to","employer5_country","employer5_name","employer5_work_duties","employer5_remarks","employer6_date_from","employer6_date_to","employer6_country","employer6_name","employer6_work_duties","employer6_remarks","employer7_date_from","employer7_date_to","employer7_country","employer7_name","employer7_work_duties","employer7_remarks","employer8_date_from","employer8_date_to","employer8_country","employer8_name","employer8_work_duties","employer8_remarks","prev_work_in_sg","maid_prev_feedback1","maid_prev_feedback2","avail_interview_not_available","avail_interview_phone","avail_interview_videoconference","avail_interview_in_person","other_remarks","maid_passport_no","trainingctr_maid_introduction","internal_notes",""]
 # data = ["Nur Arisa","DS0318","Ex-sg Maid","","Other","","3yeasrs",
 # "3years","9years","9years","9years",
 # "She Has Experience As A Housemaid In Singapore For 10 Years. She Is Good At Taking Care Of Children And Elderly. She Is Good Patient And Obedient Girl. She Can Speak Good English And Mandarin Also Can Cook Chinese Food. She Is Highly Recommended To Work In Singapore With Family Who Have New Born Baby Children And Elderly.","04/03/1987","Banyuwangi / East Java","161cm","89lbs","Indonesian","","Dusun Sumbersuko Rt. 001/002 Desa Kesilir Kec. Siliragung Kab. Banyuwangi East Java","Jakarta","62","Muslim",
 # "High School (11-12 yrs)","6siblings","Married","1","11 Y.o-boy","Nil","","Yes","No","No","No","No","No","No","No","No","Nil","Nil","Yes","Yes","Yes","","1 Rest Days Per Month","","","Overseas Training Centre/ea","No","No","No","Yes","NBB-BOY","Yes","4","3","","Yes","4","4","","Yes","","3","","Yes","10","4","","Soup Fried Vegetables Porridge Steam Fish Etc.","Yes","10","3","","English","Yes","10","3","English Is Good With 10 Years Of Experience.","Handle Pets","Yes","2","3","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","- Date: Sep 2020 - Feb 2024","Sep-20","Feb-24","Singapore","Mr Muhamad Fadil","Cleaning House Making Bed Washing & Ironing Cooking Serve Meal Take Care Ahma 83 Y.o-stroke.","Finish Contract","Jul-20","Sep-20","Singapore","Mr Patrick","Cleaning House Making Bed Washing & Ironing Cooking Serve Meal Take Care Baby 4 Months-boy","2 Months/ Er Back To Vietnam","Dec-19","Jul-20","Singapore","Ms Ling"," Cleaning House Making Bed Washing & Cooking Take Care Akong 89 Y.o-stroke.","7 Months/ Er Pass Away","Mar-15","Feb-19","Singapore","Mr Lee Lay Peng","Cleaning House Making Bed Washing & Ironing Cooking Take Care Nbb-boy.","Finish Contract","Mar-10","Feb-12","Singapore","Mr Wong Sing Kuew","Cleaning House Making Bed Washing & Ironing Cooking Handling 2 Dogs.","Finish Contract","","","","","","","","","","","","","","","","","","","Yes","Wong Sing Kuwe Mr","Lee Lay Peng Ms","","X","X","X","I Have Gone Through The Biodata Of This Fdw And Confirm That I Would Like To Employ Her.","",""]
 
-# print(header[3])
+
+# print(get_maid_name_index(header,"eval_trainingctr_years_other_skills"))
+# print(header[119])
+
+# print(header[26]) ## chilren_ages
 # print(data[3])
 # # print(header[174])
 # # print(data[174])
