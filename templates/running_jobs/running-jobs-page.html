@@ -131,8 +131,6 @@
             height: 50px;
         }
 
-
-
         .back-button{
             background-color: #ff0800;  /* Green background */
             color: white;               /* Text color */
@@ -141,6 +139,7 @@
             border-radius: 5px;         /* Rounded corners */
             display: inline-block;      /* Display as inline block */
             font-size: 16px;            /* Font size */
+            z-index: 1000;  
         }
 
         .add-query-button {
@@ -151,6 +150,11 @@
             border-radius: 5px;         /* Rounded corners */
             display: inline-block;      /* Display as inline block */
             font-size: 16px;            /* Font size */
+
+            position: fixed;            /* Fix to top right */
+            top: 10px;                  /* 10px from the top */
+            right: 10px;                /* 10px from the right */
+            z-index: 1000;  
         }
 
         .back-button:hover, .add-query-button:hover {
@@ -164,16 +168,9 @@
             left: 10px;                 /* 10px from the left */
         }
 
-        /* Add Query button styling - positioned top right */
-        .add-query-button {
-            position: fixed;            /* Fix to top right */
-            top: 10px;                  /* 10px from the top */
-            right: 10px;                /* 10px from the right */
-        }
 
-
-                /* Modal styles */
-                .modal {
+        /* Modal styles */
+        .modal {
             display: none;
             position: fixed;
             top: 0;
