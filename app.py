@@ -972,7 +972,10 @@ def summary_generation(total_summary, output_folder, base_name, session_id):
             # Extract the maid introduction section
             if start_pos != -1 and end_pos != -1:
                 # maid_introduction = summary_text[start_pos + len(start_marker):end_pos].strip()
-                maid_introduction = summary_text[start_pos + len(start_marker):end_pos]
+                # Replace every period with period + linebreak
+                maid_introduction = maid_introduction.replace('.', '.\n')  # handles space after period
+                maid_introduction = maid_introduction.replace('.\n\n', '.\n')  # clean up double breaks if needed
+
                 # print(maid_introduction)
                 summary_dict["public maid introduction"] = maid_introduction
             else:
