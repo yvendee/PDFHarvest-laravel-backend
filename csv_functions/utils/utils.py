@@ -288,6 +288,10 @@ def save_csv(filename, header, data):
         if len(processed_data2) > 10:
             processed_data2[10] = extract_numeric(processed_data2[10] )
 
+        # Special Case: Function to extract numeric characters from a string for "public_introduction"
+        if len(processed_data2) > 10:
+            processed_data2[11] = processed_data2[11].replace('. ', '.\n') # handles space after period
+ 
         # Special Case: Function to extract numeric characters from a string for "height_cm"
         if len(processed_data2) > 14:
             processed_data2[14] = extract_numeric(processed_data2[14] )
