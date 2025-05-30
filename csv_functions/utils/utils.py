@@ -57,6 +57,25 @@ def format_age(data):
         print(f"Error: {e}")
         return data
 
+def format_age2(data):
+    try:
+        # Check if the data matches the expected format (e.g., 6/4 or 6/4/5 or 6-4-5 or 6-4)
+        if '/' in data or '-' in data:
+            # Normalize the separator to '/' for consistent processing
+            separator = '/' if '/' in data else '-'
+            # Split the data by the separator
+            parts = data.split(separator)
+            # Check if all parts are numbers
+            if all(part.isdigit() for part in parts):
+                # Join the parts with commas and append " years old"
+                return ', '.join(parts) + " years old"
+        # If it doesn't match the expected format, return the original data
+        return data
+    except Exception as e:
+        # Handle any unexpected errors and print the exception message
+        print(f"Error: {e}")
+        return data
+
 # Function to convert date format
 def convert_date_format(date_str):
     try:
@@ -371,6 +390,9 @@ def save_csv(filename, header, data):
         if len(processed_data2) > 82:
             processed_data2[82] = extract_numeric(processed_data2[82] )
 
+        ## # Special Case: for "eval_agency_age_range_infant_child"
+        processed_data2[90] = format_age2(processed_data2[90])
+
         # Special Case: Function to extract numeric characters from a string for "eval_trainingctr_years_infant_child"
         if len(processed_data2) > 92:
             processed_data2[92] = extract_numeric(processed_data2[92] )
@@ -440,9 +462,11 @@ def save_csv(filename, header, data):
             34: "No", 
             35: "No", 
             36: "No",  ## "illness_operations"
+            37: "No",  ## "illness_others"
             40: "No",  ## "handle_pork"
             41: "No",  ## "handle_beef"
             42: "No",  ## "handle_pets"
+            44: "No",  ## "0 Rest Day Per Month"
             46: "No",  ## "eval_no_agency_no_trainingctr"
             51: "No",  ## "eval_agency_in_person_observation"
             53: "No",  ## "eval_agency_willing_infant_child"
@@ -456,12 +480,18 @@ def save_csv(filename, header, data):
             87: "No",
             88: "No",
             89: "No",  ## "eval_trainingctr_in_person_observation"
-            91: "No",  ## "eval_trainingctr_willing_infant_child"
-            95: "No",  ## "eval_trainingctr_willing_elderly"
-            99: "No",  ## "eval_trainingctr_willing_disabled"
+            91: "Yes",  ## "eval_trainingctr_willing_infant_child"
+            92: "0",  ## "eval_trainingctr_years_infant_child"
+            95: "Yes",  ## "eval_trainingctr_willing_elderly"
+            96: "0",  ## "eval_trainingctr_years_elderly"
+            99: "Yes",  ## "eval_trainingctr_willing_disabled"
+            100: "0",  ## "eval_trainingctr_years_disabled"
             103: "No",  ## "eval_trainingctr_willing_housework"
-            108: "No",  ## "eval_trainingctr_willing_cooking"
-            113: "No",  ## "eval_trainingctr_willing_language"
+            104: "0",  ## "eval_trainingctr_years_housework"
+            108: "Yes",  ## "eval_trainingctr_willing_cooking"
+            109: "0",  ## "eval_trainingctr_years_cooking"
+            113: "Yes",  ## "eval_trainingctr_willing_language"
+            114: "0",  ## "eval_trainingctr_years_language"
             118: "Yes",  ## "eval_trainingctr_willing_other_skills"
             119: "0",    ## "eval_trainingctr_years_other_skills"
             # 171: "No",  ## "prev_work_in_sg"
