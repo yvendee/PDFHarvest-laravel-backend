@@ -255,6 +255,11 @@ def save_csv(filename, header, data):
         return ' '.join(processed_words)
 
     def extract_numeric(data):
+
+        # Return empty string if data contains "null"
+        if "null" in data:
+            return ""
+
         # Regex pattern to extract the initial numeric value before any non-numeric characters
         match = re.match(r'(\d+\.\d+|\d+)', data)
         if match:
