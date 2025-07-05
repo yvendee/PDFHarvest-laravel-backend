@@ -1210,7 +1210,7 @@ def extract_images_with_faces(pdf_path, session_id, image_fullpath_with_face_lis
         face_found = False  # Flag to track if a face has been found on the first page
         page_width = page.rect.width
         page_height = page.rect.height
-        # print(f"page-width: {page_width} page-height: {page_height}")
+        print(f"page-width: {page_width} page-height: {page_height}")
         # print(f"image list: {len(image_list)} for {pdf_basename}")
 
         for img in image_list:
@@ -1225,6 +1225,7 @@ def extract_images_with_faces(pdf_path, session_id, image_fullpath_with_face_lis
 
             if page_width > img_width and page_height > img_height:
                 print("Page size is larger than the extracted image size.")
+            
             if img_width > 3 * page_width and img_height > 3 * page_height:
                 print("The image size is more than triple the size of the page size.")
 
@@ -1267,22 +1268,49 @@ def extract_images_with_faces(pdf_path, session_id, image_fullpath_with_face_lis
                 image_pil = resize_image_if_needed(image_pil0)
 
                 if len(faces) > 0 and not face_found:
-                    # If a face is detected and no face has been found yet on the first page
-                    face_found = True
                     
-                    image_with_face_filename = f"{pdf_basename}_with_face.jpg"  # Naming based on PDF base name
-                    image_with_face_fullpath = os.path.join(main_folder, image_with_face_filename)
+                    # # If a face is detected and no face has been found yet on the first page
+                    # face_found = True
+                    
+                    # image_with_face_filename = f"{pdf_basename}_with_face.jpg"  # Naming based on PDF base name
+                    # image_with_face_fullpath = os.path.join(main_folder, image_with_face_filename)
 
-                    # Save the image 
-                    image_pil.save(image_with_face_fullpath, "JPEG")
-                    extracted_images.append(image_pil)
-                    image_fullpath_with_face_list.append(image_with_face_fullpath)  
+                    # # Save the image 
+                    # image_pil.save(image_with_face_fullpath, "JPEG")
+                    # extracted_images.append(image_pil)
+                    # image_fullpath_with_face_list.append(image_with_face_fullpath)  
 
-                    break  # Stop processing further images on the first page once a face is found
+                    # break  # Stop processing further images on the first page once a face is found
+
+                    # Calculate the width-to-height ratio
+                    if img_height != 0:  # Check to avoid division by zero
+                        ratio = img_width / img_height
+                        print(f"Width-to-Height Ratio (w/h): {ratio:.2f}")  # Print the ratio ## commonly is 7 for banner
+
+                        # Determine if it's a banner or a photo
+                        if ratio > 2:  ## change from 5 to 2
+                            print("It's a banner.")
+                            print("skipping..")
+                        else:
+                            print("It's a photo.")
+                             # If a face is detected and no face has been found yet on the first page
+                            face_found = True
+                            
+                            image_with_face_filename = f"{pdf_basename}_with_face.jpg"  # Naming based on PDF base name
+                            image_with_face_fullpath = os.path.join(main_folder, image_with_face_filename)
+
+                            # Save the image 
+                            image_pil.save(image_with_face_fullpath, "JPEG")
+                            extracted_images.append(image_pil)
+                            image_fullpath_with_face_list.append(image_with_face_fullpath)
+                            break 
+                    else:
+                        print("Height cannot be zero.")
 
         print(f"Processed {pdf_path}: {len(extracted_images)} images extracted with faces")
 
         if not face_found:
+            print(f"Processed {pdf_path} --> no-picture-found")
             image_fullpath_with_face_list.append("no-picture-found")
 
     except Exception as e:
