@@ -313,12 +313,20 @@ def save_csv(filename, header, data):
             processed_data2[10] = extract_numeric(processed_data2[10] )
 
         # Special Case: Function to extract numeric characters from a string for "public_introduction"
+        # if len(processed_data2) > 10:
+        #     # processed_data2[11] = processed_data2[11].replace('. ', '.\n') # handles space after period
+        #     text = processed_data2[11]
+        #     sentences = re.split(r'\.\s*', text.strip())  # split on period followed by optional space(s)
+        #     sentences = [s.strip() for s in sentences if s]  # remove empty strings and strip whitespace
+        #     processed_data2[11] = ' '.join(f'<p>{s}.</p>' for s in sentences)
         if len(processed_data2) > 10:
-            # processed_data2[11] = processed_data2[11].replace('. ', '.\n') # handles space after period
-            text = processed_data2[11]
-            sentences = re.split(r'\.\s*', text.strip())  # split on period followed by optional space(s)
-            sentences = [s.strip() for s in sentences if s]  # remove empty strings and strip whitespace
-            processed_data2[11] = ' '.join(f'<p>{s}.</p>' for s in sentences)
+            text = processed_data2[11].strip()
+            # Split only on periods followed by a space and a letter (not part of URLs)
+            sentences = re.split(r'(?<!https?):\/\/[^\s]+|(?<=\.)\s+(?=[A-Za-z])', text)
+            sentences = re.split(r'\.\s+(?=[A-Za-z])', text)
+            sentences = [s.strip() for s in sentences if s]
+            processed_data2[11] = '\n'.join(f'<p>{s.strip()}{"." if not s.endswith(".") else ""}</p>' for s in sentences)
+
             
         # Special Case: Function to extract numeric characters from a string for "height_cm"
         if len(processed_data2) > 14:
