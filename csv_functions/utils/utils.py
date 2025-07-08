@@ -319,14 +319,32 @@ def save_csv(filename, header, data):
         #     sentences = re.split(r'\.\s*', text.strip())  # split on period followed by optional space(s)
         #     sentences = [s.strip() for s in sentences if s]  # remove empty strings and strip whitespace
         #     processed_data2[11] = ' '.join(f'<p>{s}.</p>' for s in sentences)
+
         if len(processed_data2) > 10:
             text = processed_data2[11].strip()
 
-            # Matches sentences ending with a period, avoiding breaking URLs
-            sentences = re.findall(r'https?://\S+|[^.?!]+[.?!]', text)
-            sentences = [s.strip() for s in sentences if s]
+            # Step 1: Extract all URLs first
+            url_pattern = r'https?://[^\s]+'
+            urls = re.findall(url_pattern, text)
 
-            processed_data2[11] = '\n'.join(f'<p>{s}</p>' for s in sentences)
+            # Step 2: Temporarily replace URLs with placeholders to avoid breaking them
+            for idx, url in enumerate(urls):
+                placeholder = f"__URL_{idx}__"
+                text = text.replace(url, placeholder)
+
+            # Step 3: Split into sentences, including ones not ending with punctuation
+            fragments = re.findall(r'[^.?!]+[.?!]|\S+', text)
+
+            # Step 4: Restore URLs
+            for i, frag in enumerate(fragments):
+                for idx, url in enumerate(urls):
+                    placeholder = f"__URL_{idx}__"
+                    if placeholder in frag:
+                        fragments[i] = frag.replace(placeholder, url)
+
+            # Step 5: Wrap in <p> tags
+            processed_data2[11] = '\n'.join(f'<p>{frag.strip()}</p>' for frag in fragments if frag.strip())
+
 
             
         # Special Case: Function to extract numeric characters from a string for "height_cm"
@@ -682,3 +700,36 @@ header = ["maid_name","maid_ref_code","maid_type","maid_expected_salary","availa
 # # print(data[174])
 # # save_csv(filename, header, data)
 # print("Done")
+
+
+# test = "Khaing Zar Wai Is 24 Years Old Ex Singapore Mdw Form Myanmar She Has 2 Siblings And She Is No.1 She Is Single From 2024 To 2024 She Works In Singapore And Has Experience Working There For 9 Months It Is A 3-storey House. She Serves 5 People. Her Job Involves Cooking Doing General Housework Such As Sweeping Mopping Ironing Cleaning The Bedrooms And Bathrooms And Washing The Car Regularly To Maintain Cleanliness And Order In The Household. From 2021 To 2023 She Works In Myanmar And Has Experience Working There For 2 Years Her Job Involves Taking Care Of A 3-year-old Child. She Helps With Feeding Playing And Supervising The Childs Activities. She Makes Sure The Child Is Safe Happy And Well Looked After. In General Her Household Duties Include Sweeping Mopping Vacuuming Cleaning The Bathrooms Dusting Washing Dishes Ironing Clothes Doing Laundry And Cooking. She Can Cook Myanmar Food. She Is Eager To Learn More Local Recipes And Can Easily Follow Recipes From Youtube Or Written Instructions. She Can Speak Simple English. She Is Willing To Care For The Elderly Babies Children And Individuals With Disabilities As Well. Video & Telephone Interviews Are Available. https://drive.google.com/drive/folders/1LnkI5ODW7aTQJtDaV0slZ1fUEVGAhtcN https://web.whatsapp.com/"
+
+
+
+
+# text = test.strip()
+
+# # Step 1: Extract all URLs first
+# url_pattern = r'https?://[^\s]+'
+# urls = re.findall(url_pattern, text)
+
+# # Step 2: Temporarily replace URLs with placeholders to avoid breaking them
+# for idx, url in enumerate(urls):
+#     placeholder = f"__URL_{idx}__"
+#     text = text.replace(url, placeholder)
+
+# # Step 3: Split into sentences, including ones not ending with punctuation
+# fragments = re.findall(r'[^.?!]+[.?!]|\S+', text)
+
+# # Step 4: Restore URLs
+# for i, frag in enumerate(fragments):
+#     for idx, url in enumerate(urls):
+#         placeholder = f"__URL_{idx}__"
+#         if placeholder in frag:
+#             fragments[i] = frag.replace(placeholder, url)
+
+# # Step 5: Wrap in <p> tags
+# out = '\n'.join(f'<p>{frag.strip()}</p>' for frag in fragments if frag.strip())
+
+
+# print(out)
