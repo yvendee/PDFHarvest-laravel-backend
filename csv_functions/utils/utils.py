@@ -321,11 +321,12 @@ def save_csv(filename, header, data):
         #     processed_data2[11] = ' '.join(f'<p>{s}.</p>' for s in sentences)
         if len(processed_data2) > 10:
             text = processed_data2[11].strip()
-            # Split only on periods followed by a space and a letter (not part of URLs)
-            sentences = re.split(r'(?<!https?):\/\/[^\s]+|(?<=\.)\s+(?=[A-Za-z])', text)
-            sentences = re.split(r'\.\s+(?=[A-Za-z])', text)
+
+            # Matches sentences ending with a period, avoiding breaking URLs
+            sentences = re.findall(r'https?://\S+|[^.?!]+[.?!]', text)
             sentences = [s.strip() for s in sentences if s]
-            processed_data2[11] = '\n'.join(f'<p>{s.strip()}{"." if not s.endswith(".") else ""}</p>' for s in sentences)
+
+            processed_data2[11] = '\n'.join(f'<p>{s}</p>' for s in sentences)
 
             
         # Special Case: Function to extract numeric characters from a string for "height_cm"
