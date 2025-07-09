@@ -1556,12 +1556,32 @@ def upload_file(session_id):
     uploaded_files = []
     total_files = len(files)  # Total files to be uploaded
 
+    # # For each file uploaded, save it and then notify Laravel app asynchronously
+    # for index, file in enumerate(files):
+    #     print(f"Uploading: {file.filename}")  # Log the file names
+    #     file_path = os.path.join(session_folder, file.filename)
+    #     file.save(file_path)
+    #     uploaded_files.append(file.filename)
+
     # For each file uploaded, save it and then notify Laravel app asynchronously
-    for index, file in enumerate(files):
+    for file in files:
+
         print(f"Uploading: {file.filename}")  # Log the file names
-        file_path = os.path.join(session_folder, file.filename)
-        file.save(file_path)
-        uploaded_files.append(file.filename)
+
+        if file and file.filename:
+            filename = file.filename
+            file_ext = os.path.splitext(filename)[1].lower()
+
+            # Rename the file: remove special chars, lowercase, keep alphanum, replace space with "_"
+            base_filename = os.path.splitext(filename)[0]
+            clean_name = re.sub(r'[^a-zA-Z0-9 ]', '', base_filename)  # remove special characters
+            clean_name = clean_name.lower().replace(' ', '_')  # lowercase and replace spaces
+            new_filename = f"{clean_name}{file_ext}"
+
+            file_path = os.path.join(session_folder, new_filename)
+            file.save(file_path)
+            uploaded_files.append(new_filename)
+
 
     # After all files are uploaded, trigger the cache increment task in a separate thread
     threading.Thread(target=increment_cache, args=(session_id,)).start()
