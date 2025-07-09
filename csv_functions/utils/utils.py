@@ -322,29 +322,27 @@ def save_csv(filename, header, data):
 
         if len(processed_data2) > 10:
             text = processed_data2[11].strip()
-
-            # Step 1: Extract all URLs first
+            # Step 1: Extract URLs
             url_pattern = r'https?://[^\s]+'
             urls = re.findall(url_pattern, text)
 
-            # Step 2: Temporarily replace URLs with placeholders to avoid breaking them
+            # Step 2: Replace URLs with placeholders
             for idx, url in enumerate(urls):
                 placeholder = f"__URL_{idx}__"
                 text = text.replace(url, placeholder)
 
-            # Step 3: Split into sentences, including ones not ending with punctuation
-            fragments = re.findall(r'[^.?!]+[.?!]|\S+', text)
+            # Step 3: Split text by newlines and sentence endings
+            lines = re.split(r'(?<=[.?!])\s+|\n+', text)
 
             # Step 4: Restore URLs
-            for i, frag in enumerate(fragments):
+            for i, line in enumerate(lines):
                 for idx, url in enumerate(urls):
                     placeholder = f"__URL_{idx}__"
-                    if placeholder in frag:
-                        fragments[i] = frag.replace(placeholder, url)
+                    if placeholder in line:
+                        lines[i] = line.replace(placeholder, url)
 
-            # Step 5: Wrap in <p> tags
-            processed_data2[11] = '\n'.join(f'<p>{frag.strip()}</p>' for frag in fragments if frag.strip())
-
+            # Step 5: Wrap each non-empty line in <p> tags
+            processed_data2[11] = '\n'.join(f'<p>{line.strip()}</p>' for line in lines if line.strip())
 
             
         # Special Case: Function to extract numeric characters from a string for "height_cm"
