@@ -1,0 +1,31 @@
+# swagger\swagger_docs\pdfharvest\v1-add-query-to-query-storage.yaml
+/api/v1/add-query-to-query-storage:
+  get:
+    summary: "Add Query to Query Storage (v1)"
+    description: |
+      Adds a new query to the in-memory query storage based on provided query parameters.  
+      Returns an error if the query label or session ID already exists.
+    tags:
+      - Query
+    parameters:
+      - name: query_label
+        in: query
+        required: true
+        type: string
+        description: The label for the query
+        example: "Invoice Extraction"
+
+      - name: sessionId
+        in: query
+        required: true
+        type: string
+        description: The unique session ID
+        example: "abc123"
+
+      - name: maidStatus
+        in: query
+        required: false
+        type: string
+        description: The maid status ID (optional)
+        default: "None"
+        example: "None"

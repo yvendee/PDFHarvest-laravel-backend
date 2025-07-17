@@ -1,0 +1,54 @@
+# swagger\swagger_docs\pdfharvest\v1-download-a-file.yaml
+/api/v1/storage/{session_id}/{filename}:
+  get:
+    summary: "Download Specific File from Session (v1)"
+    description: |
+      Downloads a specific file from the extracted profile picture folder for a given session ID.  
+      If the session is still processing or the file is not ready, an appropriate status message is returned.
+    tags: ["Storage"]
+    parameters:
+      - name: session_id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: The unique identifier for the session
+        example: "abc123"
+      - name: filename
+        in: path
+        required: true
+        schema:
+          type: string
+        description: The exact filename to download
+        example: "profile1.jpg"
+    responses:
+      '200':
+        description: "File downloaded successfully"
+        content:
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary
+      '202':
+        description: "File is still being processed or not ready"
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  example: "processing"
+                message:
+                  type: string
+                  example: "File is not yet ready for download, please wait"
+      '404':
+        description: "Session or file not found"
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                error:
+                  type: string
+                  example: "File not found: profile1.jpg"

@@ -1,0 +1,38 @@
+# swagger\swagger_docs\pdfharvest\v1-delete-session-data.yaml
+/api/v1/delete-session-data/{session_id}:
+  delete:
+    summary: "Delete Session Data (v1)"
+    description: |
+      Deletes all data associated with the specified session ID, including files and records in memory.  
+      This includes files from profile pictures, CSV folder, and uploaded files.  
+      Returns a confirmation message on success or an error if something goes wrong.
+    tags: ["Session Management"]
+    parameters:
+      - name: session_id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: The session ID to delete data for
+        example: "abc123"
+    responses:
+      '200':
+        description: "Session data and records deleted successfully"
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: "Session abc123 data and records deleted successfully."
+      '500':
+        description: "Failed to delete session data due to internal error"
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                error:
+                  type: string
+                  example: "Failed to delete session data: [Error Details]"

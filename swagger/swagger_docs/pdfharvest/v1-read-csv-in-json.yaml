@@ -1,0 +1,54 @@
+# swagger\swagger_docs\pdfharvest\v1-read-csv-in-json.yaml
+/api/v1/read-csv/{session_id}:
+  get:
+    summary: "Read Generated CSV File (v1)"
+    description: |
+      Reads the generated CSV file for the provided session ID and returns the content as JSON.  
+      If the session is not ready for download or the file is not found, it returns an appropriate error.
+    tags: ["CSV"]
+    parameters:
+      - name: session_id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: The unique identifier for the session
+        example: "abc123"
+    responses:
+      '200':
+        description: "CSV content returned successfully"
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                additionalProperties: true
+              example:
+                - ColumnA: "Value1"
+                  ColumnB: "Value2"
+                - ColumnA: "Value3"
+                  ColumnB: "Value4"
+      '202':
+        description: "CSV is not ready yet"
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  example: "processing"
+                message:
+                  type: string
+                  example: "CSV file is not yet ready, still processing"
+      '404':
+        description: "Session or CSV file not found"
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                error:
+                  type: string
+                  example: "Session ID not found"

@@ -1,0 +1,72 @@
+# swagger\swagger_docs\pdfharvest\v1-file-upload.yaml
+/api/v1/file-upload/{session_id}:
+  post:
+    summary: "Upload Files (v1)"
+    description: "Uploads one or more files for a given session ID using a file input. Requires authentication."
+    tags: ["File Upload"]
+    consumes:
+      - multipart/form-data
+    parameters:
+      - name: "session_id"
+        in: "path"
+        required: true
+        type: "string"
+        description: "The unique identifier for the session"
+        example: "abc123"
+
+      - name: "files[]"
+        in: "formData"
+        required: true
+        type: "array"
+        description: "Click **Browse** to select one or more files"
+        items:
+          type: "file"
+        collectionFormat: "multi"
+
+    responses:
+      '200':
+        description: "Files uploaded successfully"
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              example: "Files uploaded successfully"
+            session_id:
+              type: string
+              example: "abc123"
+            uploaded_files:
+              type: array
+              items:
+                type: string
+              example: ["file1.txt", "file2.pdf"]
+            total_files:
+              type: integer
+              example: 2
+      '400':
+        description: "Bad Request if no files are uploaded"
+        schema:
+          type: object
+          properties:
+            error:
+              type: string
+              example: "No selected files"
+            session_id:
+              type: string
+              example: "abc123"
+      '401':
+        description: "Unauthorized access"
+        schema:
+          type: object
+          properties:
+            error:
+              type: string
+              example: "Unauthorized access"
+      '500':
+        description: "Internal Server Error"
+        schema:
+          type: object
+          properties:
+            error:
+              type: string
+              example: "Unexpected error while uploading files"

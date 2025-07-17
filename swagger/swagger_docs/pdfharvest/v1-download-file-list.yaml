@@ -1,0 +1,55 @@
+# swagger\swagger_docs\pdfharvest\v1-download-file-list.yaml
+/api/v1/storage/{session_id}/:
+  get:
+    summary: "List Files in Session (v1)"
+    description: |
+      Lists all extracted files for a given session ID from the profile picture folder.  
+      If the session is still processing or files are not yet ready, appropriate messages are returned.
+    tags: ["Storage"]
+    parameters:
+      - name: session_id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: The unique identifier for the session
+        example: "abc123"
+    responses:
+      '200':
+        description: "Files listed successfully"
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                path:
+                  type: string
+                  example: "/api/v1/storage/abc123/"
+                files:
+                  type: array
+                  items:
+                    type: string
+                  example: ["profile1.jpg", "profile2.png"]
+      '202':
+        description: "Files are still being processed"
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  example: "processing"
+                message:
+                  type: string
+                  example: "File list is not yet completed"
+      '404':
+        description: "Session not found"
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                error:
+                  type: string
+                  example: "Session ID not found"

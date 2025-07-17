@@ -1,0 +1,24 @@
+# swagger\swagger_docs\pdfharvest\v1-query-storage.yaml
+/api/v1/query-storage:
+  get:
+    summary: "Get Query Storage (v1)"
+    description: "Retrieves the current state of query storage. Authentication is not required."
+    tags: ["Query"]
+    responses:
+      '200':
+        description: "Query storage data retrieved successfully"
+        content:
+          application/json:
+            schema:
+              type: "object"
+              additionalProperties: true
+      '500':
+        description: "Internal Server Error if there is an issue retrieving the data"
+        content:
+          application/json:
+            schema:
+              type: "object"
+              properties:
+                error:
+                  type: "string"
+                  example: "Unexpected server error while retrieving query storage"

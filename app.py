@@ -2,6 +2,7 @@ import logging
 from flask import Flask, request, Blueprint, render_template, jsonify, session, redirect, url_for, send_file
 from flask_cors import CORS
 from functools import wraps
+from swagger.swaggerui import setup_swagger
 
 from apscheduler.schedulers.background import BackgroundScheduler
 
@@ -10,6 +11,7 @@ import shutil
 import requests
 import threading
 import time 
+import json
 
 import shutil
 import zipfile
@@ -36,6 +38,9 @@ from log_functions.utils.utils import save_log
 from tesseract.utils.utils import extract_text_from_image
 import subprocess
 
+import csv
+
+
 # Disable all warnings and lower-level logs from APScheduler
 logging.getLogger('apscheduler').setLevel(logging.CRITICAL)
 
@@ -44,6 +49,9 @@ app = Flask(__name__, template_folder='templates', static_folder='static', stati
 CORS(app)  # This will enable CORS for all routes
 app.secret_key = 'your_secret_key'  # Needed for session management
 last_upload_time = None
+
+# Set up Swagger
+setup_swagger(app)
 
 # Hardcoded username and password (for demo purposes)
 USERNAME = "searchmaid"
@@ -80,6 +88,7 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # Limit file size to 16 MB
 
 query_storage = []
 progress = {}
+
 
 # query_storage = [
 #     {
@@ -126,11 +135,19 @@ uploaded_file_list = []
 # new_uploaded_pdf_file_path_list = []
 
 
-# Function to get query_label (as shown above)
+# Function to get query_label 
 def get_query_label(query_id):
     for query in query_storage:
         if query["query_id"] == query_id:
             return query["query_label"]
+    return None
+
+
+# Function to get query_status
+def get_query_status(query_id):
+    for query in query_storage:
+        if query["query_id"] == query_id:
+            return query["status"]
     return None
 
 
@@ -1488,7 +1505,6 @@ def zip_files(session_folder, zip_file_path):
                 zipf.write(file_path, os.path.relpath(file_path, session_folder))
         print(f"[INFO] Zipped {len(files)} file(s) into {zip_file_path}")
 
-
 def get_maid_status(query_id):
     # Search for the item with the given query_id
     for query in query_storage:
@@ -1744,10 +1760,8 @@ def upload_files(session_id):
 
     global last_upload_time
 
-
     if not check_authenticated():
         return jsonify({'error': 'Unauthorized access'}), 401
-
 
     print(f"Session ID: {session_id}")  # Log the session ID
     # progress[session_id] = {'current': 0, 'total': len(files)}  # Initialize progres
@@ -1779,12 +1793,107 @@ def upload_files(session_id):
     files.sort(key=lambda file: file.filename.lower())  # Sort filenames in alphabetical order (A to Z)
 
     # For each file uploaded, save it and then notify Laravel app asynchronously
-    for index, file in enumerate(files):
+    # for index, file in enumerate(files):
+    #     print(f"Uploading: {file.filename}")  # Log the file names
+    #     file_path = os.path.join(session_folder, file.filename)
+    #     file.save(file_path)
+    #     uploaded_files.append(file.filename)
+    #     # uploaded_file_list.append(file_path)
+
+    # For each file uploaded, save it and then notify Laravel app asynchronously
+    for file in files:
+
         print(f"Uploading: {file.filename}")  # Log the file names
-        file_path = os.path.join(session_folder, file.filename)
-        file.save(file_path)
-        uploaded_files.append(file.filename)
-        # uploaded_file_list.append(file_path)
+
+        if file and file.filename:
+            filename = file.filename
+            file_ext = os.path.splitext(filename)[1].lower()
+
+            # Rename the file: remove special chars, lowercase, keep alphanum, replace space with "_"
+            base_filename = os.path.splitext(filename)[0]
+            clean_name = re.sub(r'[^a-zA-Z0-9 ]', '', base_filename)  # remove special characters
+            clean_name = clean_name.lower().replace(' ', '_')  # lowercase and replace spaces
+            new_filename = f"{clean_name}{file_ext}"
+
+            file_path = os.path.join(session_folder, new_filename)
+            file.save(file_path)
+            uploaded_files.append(new_filename)
+
+
+    return jsonify({
+        'message': 'Files uploaded successfully',
+        'session_id': session_id,
+        'uploaded_files': uploaded_files,
+        'total_files': total_files
+    }), 200
+
+
+@app.route('/api/v1/file-upload/<session_id>', methods=['POST'])
+def v1_upload_files(session_id):
+
+    # global last_upload_time, uploaded_pdf_file_list, uploaded_file_list, new_uploaded_pdf_file_path_list
+
+    global last_upload_time
+
+    if not check_authenticated():
+        return jsonify({'error': 'Unauthorized access'}), 401
+
+    print(f"Session ID: {session_id}")  # Log the session ID
+    # progress[session_id] = {'current': 0, 'total': len(files)}  # Initialize progres
+
+    session_folder = os.path.join(app.config['UPLOAD_FOLDER'], session_id)
+    os.makedirs(session_folder, exist_ok=True)  # Create session-specific folder
+
+    if 'files[]' not in request.files:
+        print("No file part")
+        return jsonify({'error': 'No file part', 'session_id': session_id}), 400
+
+    files = request.files.getlist('files[]')
+    if not files or all(file.filename == '' for file in files):
+        print("No selected files")
+        return jsonify({'error': 'No selected files', 'session_id': session_id}), 400
+
+   
+    total_files = len(files)  # Total files to be uploaded
+
+    last_upload_time = datetime.now()
+    uploaded_files = []
+    # uploaded_file_list = []
+    # uploaded_pdf_file_list = []
+    # new_uploaded_pdf_file_path_list = []
+
+    progress[session_id] = {'current': 0, 'total': len(files)}  # Initialize progress
+
+    # Sort the files alphabetically by filename
+    files.sort(key=lambda file: file.filename.lower())  # Sort filenames in alphabetical order (A to Z)
+
+    # For each file uploaded, save it and then notify Laravel app asynchronously
+    # for index, file in enumerate(files):
+    #     print(f"Uploading: {file.filename}")  # Log the file names
+    #     file_path = os.path.join(session_folder, file.filename)
+    #     file.save(file_path)
+    #     uploaded_files.append(file.filename)
+    #     # uploaded_file_list.append(file_path)
+
+
+    # For each file uploaded, save it and then notify Laravel app asynchronously
+    for file in files:
+
+        print(f"Uploading: {file.filename}")  # Log the file names
+
+        if file and file.filename:
+            filename = file.filename
+            file_ext = os.path.splitext(filename)[1].lower()
+
+            # Rename the file: remove special chars, lowercase, keep alphanum, replace space with "_"
+            base_filename = os.path.splitext(filename)[0]
+            clean_name = re.sub(r'[^a-zA-Z0-9 ]', '', base_filename)  # remove special characters
+            clean_name = clean_name.lower().replace(' ', '_')  # lowercase and replace spaces
+            new_filename = f"{clean_name}{file_ext}"
+
+            file_path = os.path.join(session_folder, new_filename)
+            file.save(file_path)
+            uploaded_files.append(new_filename)
 
 
     return jsonify({
@@ -1956,7 +2065,6 @@ def run_process_files(session_id):
         update_query_storage_status(session_id,"failed")
 
 
-
 @app.route('/api/ocr-file-upload/<session_id>', methods=['POST'])
 @login_required
 def upload_ocrfile(session_id):
@@ -1995,8 +2103,6 @@ def upload_ocrfile(session_id):
         return jsonify(response), 200  
     else:
         return jsonify({'success': False, 'message': 'Invalid file type. Only .txt files are allowed.'}), 400
-
-
 
 @app.route('/api/progress/<session_id>')
 def progress_status(session_id):
@@ -2045,7 +2151,6 @@ def custom_prompt():
     # Return the content as a JSON response
     return jsonify({'content': default_content})
 
-
 # Route to update the content of custom_prompt.txt
 @app.route('/api/custom-prompt', methods=['POST'])
 def update_custom_prompt():
@@ -2061,7 +2166,6 @@ def update_custom_prompt():
         return jsonify({'message': 'Content updated successfully'}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-
 
 # @app.route('/api/download/<session_id>', methods=['GET'])
 # def download_file(session_id):
@@ -2080,6 +2184,79 @@ def update_custom_prompt():
 #     except Exception as e:
 #         print(f"Error during download_file: {e}")
 #         return jsonify({'error': 'An error occurred while trying to download the file.'}), 500
+
+
+@app.route('/api/export-query-storage', methods=['GET'])
+@login_required
+def export_query_storage():
+    if not check_authenticated():
+        return jsonify({'error': 'Unauthorized access'}), 401
+
+    try:
+        filepath = os.path.join(app.root_path, 'query_storage.txt')
+
+        # Write query_storage to file in pretty JSON format
+        with open(filepath, 'w', encoding='utf-8') as f:
+            json.dump(query_storage, f, indent=4)
+
+        return send_file(filepath, as_attachment=True)
+
+    except Exception as e:
+        return jsonify({'error': f'Failed to export query_storage: {str(e)}'}), 500
+
+
+@app.route('/import-query-storage', methods=['GET'])
+@login_required
+def import_query_storage_form():
+    return '''
+    <!doctype html>
+    <html lang="en">
+      <head>
+        <title>Import query_storage</title>
+      </head>
+      <body>
+        <h2>Import query_storage.txt</h2>
+        <form method="POST" action="/api/import-query-storage" enctype="multipart/form-data">
+          <input type="file" name="file" accept=".txt,.json" required>
+          <button type="submit">Upload</button>
+        </form>
+      </body>
+    </html>
+    '''
+
+@app.route('/api/import-query-storage', methods=['POST'])
+@login_required
+def import_query_storage():
+    if not check_authenticated():
+        return jsonify({'error': 'Unauthorized access'}), 401
+
+    file = request.files.get('file')
+
+    if not file:
+        return jsonify({'error': 'No file uploaded'}), 400
+
+    try:
+        data = json.load(file)
+
+        # Basic validation
+        if not isinstance(data, list):
+            raise ValueError("File must contain a list of query objects")
+
+        required_keys = {"query_label", "query_id", "status", "up_time", "num_files", "rate"}
+        for item in data:
+            if not isinstance(item, dict):
+                raise ValueError("Each item must be a dictionary")
+            if not required_keys.issubset(item.keys()):
+                raise ValueError(f"Missing keys in item: {item}")
+
+        # Replace global query_storage
+        global query_storage
+        query_storage = data
+
+        return jsonify({'message': 'query_storage imported successfully', 'total_records': len(query_storage)}), 200
+
+    except Exception as e:
+        return jsonify({'error': f'Failed to import query_storage: {str(e)}'}), 400
 
 
 @app.route('/api/download/<session_id>')
@@ -2112,6 +2289,63 @@ def download_zip_files(session_id):
     except Exception as e:
         print(f"Error during download_files: {e}")
 
+
+
+@app.route('/api/v1/storage/<session_id>/')
+def list_files_in_session(session_id):
+
+    # Check if session exists in query_storage
+    session_info = next((q for q in query_storage if q["query_id"] == session_id), None)
+    if not session_info:
+        return jsonify({'error': 'Session ID not found'}), 404
+
+    session_folder = os.path.join(app.config['EXTRACTED_PROFILE_PICTURE_FOLDER'], session_id)
+
+    # Check if folder exists and contains any files
+    if not os.path.exists(session_folder) or not os.listdir(session_folder):
+        return jsonify({'message': 'Still processing, please wait'}), 202
+
+    # Check if status is 'download'
+    if session_info["status"] != "download":
+        return jsonify({'status': session_info["status"], 'message': 'File list is not yet completed'}), 202
+
+    # List files
+    files = [f for f in os.listdir(session_folder) if os.path.isfile(os.path.join(session_folder, f))]
+
+    return jsonify({
+        "path": f"/api/v1/storage/{session_id}/",
+        "files": files
+    })
+
+
+@app.route('/api/v1/storage/<session_id>/<path:filename>')
+def download_specific_file(session_id, filename):
+
+    # Check if session exists in query_storage
+    session_info = next((q for q in query_storage if q["query_id"] == session_id), None)
+    if not session_info:
+        return jsonify({'error': 'Session ID not found'}), 404
+
+    # Path to session folder
+    session_folder = os.path.join(app.config['EXTRACTED_PROFILE_PICTURE_FOLDER'], session_id)
+    
+    # Check if folder exists and contains any files
+    if not os.path.exists(session_folder) or not os.listdir(session_folder):
+        return jsonify({'message': 'Still processing, please wait'}), 202
+
+    # Check if status is 'download'
+    if session_info["status"] != "download":
+        return jsonify({'status': session_info["status"], 'message': 'File is not yet ready for download, please wait'}), 202
+
+    # Full file path
+    file_path = os.path.join(session_folder, filename)
+    
+    if not os.path.isfile(file_path):
+        return jsonify({'error': f'File not found: {filename}'}), 404
+
+    return send_file(file_path, as_attachment=True)
+
+
 @app.route('/api/download-csv/<session_id>')
 @login_required
 def download_output_csv(session_id):
@@ -2129,6 +2363,60 @@ def download_output_csv(session_id):
         return send_file(csv_filepath, as_attachment=True)
     else:
         return jsonify({'error': 'output.csv not found'}), 404
+
+
+@app.route('/api/v1/read-csv/<session_id>')
+def read_output_csv(session_id):
+
+    # Lookup session status
+    session_info = next((q for q in query_storage if q["query_id"] == session_id), None)
+    if not session_info:
+        return jsonify({'error': 'Session ID not found'}), 404
+
+    if session_info["status"] != "download":
+        return jsonify({'status': session_info["status"], 'message': 'CSV file is not yet ready, still processing'}), 202
+
+    query_label = session_info["query_label"]
+    session_folder = os.path.join(app.config['GENERATE_CSV_FOLDER'], session_id)
+    csv_filepath = os.path.join(session_folder, f'{query_label}.csv')
+
+    if not os.path.exists(csv_filepath):
+        return jsonify({'error': 'CSV file not found'}), 404
+
+    rows = []
+    with open(csv_filepath, mode='r', encoding='utf-8-sig', newline='') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            cleaned_row = {k.strip(): v.strip() if isinstance(v, str) else v for k, v in row.items()}
+            rows.append(cleaned_row)
+
+    return jsonify(rows)
+
+
+@app.route('/api/v1/delete-session-data/<session_id>', methods=['DELETE'])
+def delete_session_data(session_id):
+    try:
+        # Paths to delete
+        paths_to_delete = [ 
+            os.path.join(app.config['EXTRACTED_PAGE_IMAGES_FOLDER'], session_id),
+            os.path.join(app.config['EXTRACTED_PROFILE_PICTURE_FOLDER'], session_id),
+            os.path.join(app.config['GENERATE_CSV_FOLDER'], session_id),
+            os.path.join('uploads', session_id)
+        ]
+
+        # Delete directories if they exist
+        for path in paths_to_delete:
+            if os.path.exists(path):
+                shutil.rmtree(path)
+
+        # Remove session record from query_storage
+        global query_storage
+        query_storage = [q for q in query_storage if q.get('query_id') != session_id]
+
+        return jsonify({'message': f'Session {session_id} data and records deleted successfully.'}), 200
+
+    except Exception as e:
+        return jsonify({'error': f'Failed to delete session data: {str(e)}'}), 500
 
 
 @app.route('/api/download-gpt/<session_id>')
@@ -2155,7 +2443,6 @@ def download_ocr(session_id):
         return send_file(filepath, as_attachment=True)
     else:
         return jsonify({'error': 'File not found'})
-
 
 @app.route('/api/clear-output-files', methods=['GET'])
 def clear_output_files():
@@ -2211,7 +2498,6 @@ def clear_upload_files():
         print(f"Error while clearing upload files: {e}")
         return jsonify({'error': 'An error occurred while clearing the uploads folder.'}), 500
 
-
 @app.route('/api/clear-multiple-folders', methods=['GET'])
 def clear_multiple_folders():
     folders_to_clear = [
@@ -2251,7 +2537,6 @@ def clear_multiple_folders():
             'timestamp': datetime.utcnow().isoformat()
         }), 500
 
-
 # Route to fetch logs content
 @app.route('/api/fetch-logs/<session_id>')
 def fetch_logs(session_id):
@@ -2267,7 +2552,6 @@ def fetch_logs(session_id):
     except Exception as e:
         # Return error message and HTTP status code 500 for server error
         return "Waiting for the log file to be available", 500
-
 
 @app.route('/api/delete-upload-files', methods=['GET'])
 def delete_upload_files():
@@ -2467,8 +2751,51 @@ def save_content():
 def get_query_storage():
     return jsonify(query_storage)
 
+
+@app.route('/api/v1/query-storage', methods=['GET'])
+def v1_get_query_storage():
+    return jsonify(query_storage)
+
+
 @app.route('/api/add-query-to-query-storage', methods=['GET'])
 def add_query_to_query_storage():
+    # Get query parameters from the URL
+    query_label = request.args.get('query')  # Get 'query' parameter
+    query_id = request.args.get('sessionId')  # Get 'sessionId' parameter
+    maid_status_id = request.args.get('maidStatus')  # Get 'maidStatus' parameter
+    
+    if query_label and query_id:
+        # Check if query_label or query_id already exists in query_storage
+        for query in query_storage:
+            if query['query_label'] == query_label or query['query_id'] == query_id:
+                return jsonify({"error": "Query with the same label or ID already exists"}), 400
+
+        current_time = datetime.now()
+
+        # Format the current time to match "ddMMMyyyy:HH:MM" format
+        formatted_time = current_time.strftime("%d%b%Y:%H:%M")
+        
+        # Create a new query item with the parameters
+        new_query = {
+            'query_label': query_label,
+            'query_id': query_id,
+            'status': 'waiting',  # Set status as 'inprogress'
+            'datetime_entry': formatted_time,
+            'up_time': '-',  # Placeholder for up_time, can be updated later
+            'num_files': '-',  # Placeholder for num_files, can be updated later
+            'rate': '-',  # Placeholder for rate, can be updated later
+            'maid_status_id': maid_status_id
+        }
+        
+        # Add the new query to query_storage
+        query_storage.append(new_query)
+        
+        return jsonify({"message": "Query added successfully", "data": new_query}), 200
+    else:
+        return jsonify({"error": "Missing required parameters (sessionId, query)"}), 400
+
+@app.route('/api/v1/add-query-to-query-storage', methods=['GET'])
+def v1_add_query_to_query_storage():
     # Get query parameters from the URL
     query_label = request.args.get('query')  # Get 'query' parameter
     query_id = request.args.get('sessionId')  # Get 'sessionId' parameter
@@ -2609,6 +2936,25 @@ def get_query_label_route():
     # return jsonify({"query_id": query_id, "query_label": query_label})
     return query_label
     
+@app.route('/api/v1/get-query-status', methods=['GET'])
+def v1_get_query_status_route():
+    # Extract the 'query_status' from the request arguments
+    query_id = request.args.get('query_')
+
+    if query_id is None:
+        return jsonify({"error": "query_id is required"}), 400
+    
+    # Get the query status for the provided query_id
+    query_status = get_query_status(query_id) 
+
+    if query_status is None:
+        return jsonify({"error": "query_id not found"}), 404
+
+    # Return the query_status as JSON
+    return jsonify({
+        "query_id": query_id,
+        "query_status": query_status
+    }), 200
 
 # http://127.0.0.1:5000/add_query?query_label=Query%205&query_id=55555&status=waiting&up_time=15%20minutes&num_files=8%20files&rate=60%20KB/s
 # http://127.0.0.1:5000/add_query?query_label=Query5&query_id=55555&status=waiting&up_time=15%20minutes&num_files=8%20files&rate=60%20KB/s

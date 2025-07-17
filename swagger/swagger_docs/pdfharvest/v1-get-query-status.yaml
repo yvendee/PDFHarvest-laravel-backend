@@ -1,0 +1,44 @@
+# swagger\swagger_docs\pdfharvest\v1_get_query_status.yaml
+/api/v1/get-query-status:
+  get:
+    summary: "Get Query Status (v1)"
+    description: |
+      Retrieves the current status of a query by its `query_id`.
+    tags:
+      - Query
+    parameters:
+      - name: query_id
+        in: query
+        required: true
+        type: string
+        description: The ID of the query to retrieve the status for
+        example: "abc123"
+    responses:
+      '200':
+        description: "Query status retrieved successfully"
+        schema:
+          type: object
+          properties:
+            query_id:
+              type: string
+              example: "abc123"
+            query_status:
+              type: string
+              example: "waiting"
+      '400':
+        description: "Bad Request - query_id is required"
+        schema:
+          type: object
+          properties:
+            error:
+              type: string
+              example: "query_id is required"
+      '404':
+        description: "Not Found - query_id does not exist"
+        schema:
+          type: object
+          properties:
+            error:
+              type: string
+              example: "query_id not found"
+

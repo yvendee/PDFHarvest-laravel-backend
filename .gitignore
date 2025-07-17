@@ -1,2 +1,7 @@
 *.pyc
 env/
+uploads/
+output_csv/
+extracted_images/
+output_extracted_page_image/
+output_extracted_profile_image/
