@@ -2938,23 +2938,23 @@ def get_query_label_route():
     
 @app.route('/api/v1/get-query-status', methods=['GET'])
 def v1_get_query_status_route():
-    # Extract the 'query_status' from the request arguments
-    query_id = request.args.get('query_')
+    # Extract 'query_id' from query parameters
+    query_id = request.args.get('query_id')  # Fixed typo
 
     if query_id is None:
         return jsonify({"error": "query_id is required"}), 400
-    
-    # Get the query status for the provided query_id
-    query_status = get_query_status(query_id) 
 
-    if query_status is None:
+    # Get the query status from query_storage
+    query_info = next((q for q in query_storage if q.get("query_id") == query_id), None)
+
+    if not query_info:
         return jsonify({"error": "query_id not found"}), 404
 
-    # Return the query_status as JSON
     return jsonify({
         "query_id": query_id,
-        "query_status": query_status
+        "query_status": query_info.get("status")
     }), 200
+
 
 # http://127.0.0.1:5000/add_query?query_label=Query%205&query_id=55555&status=waiting&up_time=15%20minutes&num_files=8%20files&rate=60%20KB/s
 # http://127.0.0.1:5000/add_query?query_label=Query5&query_id=55555&status=waiting&up_time=15%20minutes&num_files=8%20files&rate=60%20KB/s
