@@ -2137,6 +2137,10 @@ def clear_session(session_id):
     else:
         return jsonify({'error': 'Session not found', 'session_id': session_id}), 404
 
+@app.route('/api/v1/clear-query-storage', methods=['POST'])
+def clear_query_storage():
+    query_storage.clear()
+    return jsonify({"message": "query_storage has been cleared", "current_size": len(query_storage)}), 200
 
 @app.route('/api/custom-prompt', methods=['GET'])
 def custom_prompt():
