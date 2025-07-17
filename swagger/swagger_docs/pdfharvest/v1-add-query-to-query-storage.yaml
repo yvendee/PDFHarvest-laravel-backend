@@ -1,4 +1,4 @@
-# swagger\swagger_docs\pdfharvest\v1-add-query-to-query-storage.yaml
+# swagger/swagger_docs/pdfharvest/v1-add-query-to-query-storage.yaml
 /api/v1/add-query-to-query-storage:
   get:
     summary: "Add Query to Query Storage (v1)"
@@ -8,7 +8,7 @@
     tags:
       - Query
     parameters:
-      - name: query_label
+      - name: query
         in: query
         required: true
         type: string
@@ -29,3 +29,65 @@
         description: The maid status ID (optional)
         default: "None"
         example: "None"
+
+    responses:
+      '200':
+        description: "Query added successfully"
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: "Query added successfully"
+                data:
+                  type: object
+                  properties:
+                    query_label:
+                      type: string
+                      example: "Invoice Extraction"
+                    query_id:
+                      type: string
+                      example: "abc123"
+                    status:
+                      type: string
+                      example: "waiting"
+                    datetime_entry:
+                      type: string
+                      example: "16Jul2025:14:25"
+                    up_time:
+                      type: string
+                      example: "-"
+                    num_files:
+                      type: string
+                      example: "-"
+                    rate:
+                      type: string
+                      example: "-"
+                    maid_status_id:
+                      type: string
+                      example: "None"
+
+      '400':
+        description: "Missing required parameters or query already exists"
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                error:
+                  type: string
+                  example: "Query with the same label or ID already exists"
+
+      '500':
+        description: "Internal Server Error"
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                error:
+                  type: string
+                  example: "Unexpected error occurred while adding query"
+
