@@ -2797,7 +2797,7 @@ def add_query_to_query_storage():
 @app.route('/api/v1/add-query-to-query-storage', methods=['GET'])
 def v1_add_query_to_query_storage():
     # Get query parameters from the URL
-    query_label = request.args.get('query')  # Get 'query' parameter
+    query_label = request.args.get('query_label')  # Get 'query' parameter
     query_id = request.args.get('sessionId')  # Get 'sessionId' parameter
     maid_status_id = request.args.get('maidStatus')  # Get 'maidStatus' parameter
     
