@@ -1060,6 +1060,17 @@ def summary_generation(total_summary, output_folder, base_name, session_id):
             print(f"Error occurred: {e}")
 
 
+        ## nationality
+        try:
+            nationality_value = summary_dict.get("nationality", "")
+
+            # Replace "Myanmarese" with "Myanmar"
+            nationality_value_cleaned = nationality_value.replace("Myanmarese", "Myanmar")
+            summary_dict["nationality"] = nationality_value_cleaned
+
+        except Exception as e:
+            print(f"Error occurred: {e}")
+
         ##================================================================================##
 
         # Creating values_array based on summary_dict
