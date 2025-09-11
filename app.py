@@ -1479,7 +1479,6 @@ def resize_image_if_needed(image_pil):
     
 #     return image_fullpath_with_face_list
 
-
 def extract_images_with_faces(pdf_path, session_id, image_fullpath_with_face_list):
     global face_cascade
 
@@ -1600,6 +1599,7 @@ def extract_images_with_faces(pdf_path, session_id, image_fullpath_with_face_lis
     except Exception as e:
         print(f"❌ Error during extraction: {e}")
         return []
+
 
 # Function to process a specific PDF file in the "uploads" folder
 def process_pdf_extract_image(filename, session_id, image_fullpath_with_face_list):
