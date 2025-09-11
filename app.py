@@ -1480,12 +1480,12 @@ def resize_image_if_needed(image_pil):
 #     return image_fullpath_with_face_list
 
 def extract_images_with_faces(pdf_path, session_id, image_fullpath_with_face_list):
-    global face_cascade
+    # global face_cascade
 
     # Initialize variables
     extracted_images = []
     pdf_basename = os.path.splitext(os.path.basename(pdf_path))[0]
-    main_folder = os.path.join("extracted_images", session_id)
+    main_folder = os.path.join(app.config['EXTRACTED_PROFILE_PICTURE_FOLDER'], session_id)
     
     # Create main folder if it doesn't exist
     if not os.path.exists(main_folder):
