@@ -2547,6 +2547,37 @@ def download_zip_files(session_id):
         print(f"Error during download_files: {e}")
 
 
+@app.route('/api/v1/download/<session_id>')
+@login_required
+def download_zip_files_v1(session_id):
+    try:
+        if not check_authenticated():
+            return jsonify({'error': 'Unauthorized access'}), 401
+        if session_id not in progress or progress[session_id]['current'] < progress[session_id]['total']:
+            return jsonify({'error': 'Files are still being processed or invalid session ID'}), 400
+
+        query_label = get_query_label(session_id)
+        zip_filename = f"{query_label}.zip"
+
+        # zip_filename = f"{session_id}.zip"
+        session_folder = os.path.join(app.config['EXTRACTED_PROFILE_PICTURE_FOLDER'], session_id)
+        zip_filepath = os.path.join(session_folder, zip_filename)
+        print(f"zip path: {zip_filepath}")
+
+        with zipfile.ZipFile(zip_filepath, 'w') as zipf:
+            for root, dirs, files in os.walk(session_folder):
+                for file in files:
+                    file_path = os.path.join(root, file)
+                    # Exclude the zip file itself from being added
+                    if file_path != zip_filepath:
+                        arcname = os.path.relpath(file_path, session_folder)
+                        zipf.write(file_path, arcname)
+
+        return send_file(zip_filepath, as_attachment=True)
+    except Exception as e:
+        print(f"Error during download_files: {e}")
+
+
 
 @app.route('/api/v1/storage/<session_id>/')
 def list_files_in_session(session_id):
@@ -2606,6 +2637,24 @@ def download_specific_file(session_id, filename):
 @app.route('/api/download-csv/<session_id>')
 @login_required
 def download_output_csv(session_id):
+    if not check_authenticated():
+        return jsonify({'error': 'Unauthorized access'}), 401
+
+    query_label = get_query_label(session_id)
+    
+    session_folder = os.path.join(app.config['GENERATE_CSV_FOLDER'], session_id)
+    # csv_filepath = os.path.join(session_folder, f'{session_id}.csv')
+
+    csv_filepath = os.path.join(session_folder, f'{query_label}.csv')
+
+    if os.path.exists(csv_filepath):
+        return send_file(csv_filepath, as_attachment=True)
+    else:
+        return jsonify({'error': 'output.csv not found'}), 404
+
+@app.route('/api/v1/download-csv/<session_id>')
+@login_required
+def download_output_csv_v1(session_id):
     if not check_authenticated():
         return jsonify({'error': 'Unauthorized access'}), 401
 
@@ -3193,6 +3242,25 @@ def get_query_label_route():
     # return jsonify({"query_id": query_id, "query_label": query_label})
     return query_label
     
+# @app.route('/api/v1/get-query-status', methods=['GET'])
+# def v1_get_query_status_route():
+#     # Extract 'query_id' from query parameters
+#     query_id = request.args.get('query_id')  # Fixed typo
+
+#     if query_id is None:
+#         return jsonify({"error": "query_id is required"}), 400
+
+#     # Get the query status from query_storage
+#     query_info = next((q for q in query_storage if q.get("query_id") == query_id), None)
+
+#     if not query_info:
+#         return jsonify({"error": "query_id not found"}), 404
+
+#     return jsonify({
+#         "query_id": query_id,
+#         "query_status": query_info.get("status")
+#     }), 200
+
 @app.route('/api/v1/get-query-status', methods=['GET'])
 def v1_get_query_status_route():
     # Extract 'query_id' from query parameters
@@ -3209,7 +3277,8 @@ def v1_get_query_status_route():
 
     return jsonify({
         "query_id": query_id,
-        "query_status": query_info.get("status")
+        "query_status": query_info.get("status"),
+        "rate": query_info.get("rate")  # Added rate to response
     }), 200
 
 

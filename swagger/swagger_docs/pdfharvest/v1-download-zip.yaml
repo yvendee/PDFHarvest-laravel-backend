@@ -1,0 +1,54 @@
+# swagger\swagger_docs\pdfharvest\v1-download-zip.yaml
+/api/v1/download/{session_id}:
+  get:
+    summary: "Download All Extracted Files as ZIP (v1)"
+    description: |
+      Downloads a ZIP archive containing all extracted files for the given session ID.  
+      If the session is still processing or invalid, an appropriate error is returned.
+    tags: ["Download"]
+    parameters:
+      - name: session_id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: The unique identifier for the session
+        example: "abc123"
+    responses:
+      '200':
+        description: "ZIP file downloaded successfully"
+        content:
+          application/zip:
+            schema:
+              type: string
+              format: binary
+      '400':
+        description: "Files are still being processed or session ID is invalid"
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                error:
+                  type: string
+                  example: "Files are still being processed or invalid session ID"
+      '401':
+        description: "Unauthorized access"
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                error:
+                  type: string
+                  example: "Unauthorized access"
+      '500':
+        description: "Internal server error"
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                error:
+                  type: string
+                  example: "An unexpected error occurred during ZIP download"

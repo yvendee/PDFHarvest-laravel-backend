@@ -1,0 +1,44 @@
+# swagger/swagger_docs/pdfharvest/v1-download-csv.yaml
+/api/v1/download-csv/{session_id}:
+  get:
+    summary: "Download Output CSV File (v1)"
+    description: |
+      Downloads the output CSV file for a given session ID.  
+      If the session is unauthorized or the file does not exist, an appropriate error is returned.
+    tags: ["Download"]
+    parameters:
+      - name: session_id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: The unique identifier for the session
+        example: "abc123"
+    responses:
+      '200':
+        description: "CSV file downloaded successfully"
+        content:
+          text/csv:
+            schema:
+              type: string
+              format: binary
+      '401':
+        description: "Unauthorized access"
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                error:
+                  type: string
+                  example: "Unauthorized access"
+      '404':
+        description: "CSV file not found"
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                error:
+                  type: string
+                  example: "output.csv not found"
