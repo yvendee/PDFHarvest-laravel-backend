@@ -2548,7 +2548,6 @@ def download_zip_files(session_id):
 
 
 @app.route('/api/v1/download/<session_id>')
-@login_required
 def download_zip_files_v1(session_id):
     try:
         if not check_authenticated():
@@ -2576,7 +2575,6 @@ def download_zip_files_v1(session_id):
         return send_file(zip_filepath, as_attachment=True)
     except Exception as e:
         print(f"Error during download_files: {e}")
-
 
 
 @app.route('/api/v1/storage/<session_id>/')
@@ -2653,7 +2651,6 @@ def download_output_csv(session_id):
         return jsonify({'error': 'output.csv not found'}), 404
 
 @app.route('/api/v1/download-csv/<session_id>')
-@login_required
 def download_output_csv_v1(session_id):
     if not check_authenticated():
         return jsonify({'error': 'Unauthorized access'}), 401
@@ -3278,7 +3275,8 @@ def v1_get_query_status_route():
     return jsonify({
         "query_id": query_id,
         "query_status": query_info.get("status"),
-        "rate": query_info.get("rate")  # Added rate to response
+        "rate": query_info.get("rate"),  # Added rate to response
+        "elapse_time" : query_info.get("up_time")
     }), 200
 
 
