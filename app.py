@@ -2550,10 +2550,10 @@ def download_zip_files(session_id):
 @app.route('/api/v1/download/<session_id>')
 def download_zip_files_v1(session_id):
     try:
-        if not check_authenticated():
-            return jsonify({'error': 'Unauthorized access'}), 401
-        if session_id not in progress or progress[session_id]['current'] < progress[session_id]['total']:
-            return jsonify({'error': 'Files are still being processed or invalid session ID'}), 400
+        # if not check_authenticated():
+        #     return jsonify({'error': 'Unauthorized access'}), 401
+        # if session_id not in progress or progress[session_id]['current'] < progress[session_id]['total']:
+        #     return jsonify({'error': 'Files are still being processed or invalid session ID'}), 400
 
         query_label = get_query_label(session_id)
         zip_filename = f"{query_label}.zip"
@@ -2652,8 +2652,8 @@ def download_output_csv(session_id):
 
 @app.route('/api/v1/download-csv/<session_id>')
 def download_output_csv_v1(session_id):
-    if not check_authenticated():
-        return jsonify({'error': 'Unauthorized access'}), 401
+    # if not check_authenticated():
+    #     return jsonify({'error': 'Unauthorized access'}), 401
 
     query_label = get_query_label(session_id)
     
