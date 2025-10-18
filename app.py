@@ -1785,6 +1785,9 @@ def update_query_storage_date_entry(session_id, datetime_entry):
             print(f"Rate updated for session {session_id}: {datetime_entry}")
             break
 
+def natural_key(s):
+    return [int(text) if text.isdigit() else text.lower() for text in re.split(r'(\d+)', s)]
+
 @app.route('/api/upload/<session_id>', methods=['POST'])
 def upload_file(session_id):
     print(f"Session ID: {session_id}")  # Log the session ID
@@ -1830,7 +1833,9 @@ def upload_file(session_id):
             file.save(file_path)
             uploaded_files.append(new_filename)
 
-
+    # Sort uploaded_files using natural sorting
+    uploaded_files.sort(key=natural_key)
+    
     # After all files are uploaded, trigger the cache increment task in a separate thread
     threading.Thread(target=increment_cache, args=(session_id,)).start()
 
