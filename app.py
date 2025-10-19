@@ -85,7 +85,7 @@ os.makedirs(app.config['EXTRACTED_PROFILE_PICTURE_FOLDER'], exist_ok=True)
 os.makedirs(app.config['EXTRACTED_PAGE_IMAGES_FOLDER'], exist_ok=True)
 os.makedirs(app.config['GENERATE_CSV_FOLDER'], exist_ok=True)
 
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # Limit file size to 16 MB
+app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024  # Limit file size to 100 MB
 
 query_storage = []
 progress = {}
