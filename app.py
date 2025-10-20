@@ -1601,7 +1601,6 @@ def resize_image_if_needed(image_pil):
 #         print(f"❌ Error during extraction: {e}")
 #         return []
 
-
 def extract_images_with_faces(pdf_path, session_id, image_fullpath_with_face_list):
     global face_cascade
 
@@ -1907,7 +1906,7 @@ def extract_images_with_faces(pdf_path, session_id, image_fullpath_with_face_lis
                                             bottom_right_x = min(image_cv2.shape[1], center_x + right_width)
 
                                             # Vertical crop (as you have it)
-                                            upper_height = h + 50
+                                            upper_height = h + 200
                                             lower_height = h + 280
                                             top_left_y = max(0, center_y - upper_height)
                                             bottom_right_y = min(image_cv2.shape[0], center_y + lower_height)
@@ -2023,6 +2022,7 @@ def extract_images_with_faces(pdf_path, session_id, image_fullpath_with_face_lis
             pdf_document.close()
         except:
             pass
+
 
 
 # Function to process a specific PDF file in the "uploads" folder
