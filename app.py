@@ -1625,6 +1625,9 @@ def extract_images_with_faces(pdf_path, session_id, image_fullpath_with_face_lis
         page_width = page.rect.width
         page_height = page.rect.height
 
+        # Step 1: Scan all images on the page to check face presence
+        face_images_count = 0  # Count of images with faces
+
         for img in image_list:
             xref = img[0]
             base_image = pdf_document.extract_image(xref)
@@ -2019,7 +2022,6 @@ def extract_images_with_faces(pdf_path, session_id, image_fullpath_with_face_lis
             pdf_document.close()
         except:
             pass
-
 
 # Function to process a specific PDF file in the "uploads" folder
 def process_pdf_extract_image(filename, session_id, image_fullpath_with_face_list):
