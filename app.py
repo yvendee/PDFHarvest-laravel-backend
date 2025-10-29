@@ -2675,9 +2675,30 @@ def run_process_files(session_id):
                 try:
                     # maidrefcode_list = ['SRANML240075','CML','AA']
                     # maidrefcode_list = ['CP760722', 'EI990522', 'aaa','bbb']
-                    print(f"maid-ref-code-list: {maidrefcode_list}")
-                    print(f"image-path-with-face-path: {image_with_face_list}")
-                    print(f"new-pdf-list-path: {new_pdf_list}")
+                    # print(f"maid-ref-code-list: {maidrefcode_list}")
+                    # print(f"image-path-with-face-path: {image_with_face_list}")
+                    # print(f"new-pdf-list-path: {new_pdf_list}")
+
+                    print(f"--------------------------------")
+
+                    print(f"maid-ref-code-list: {session_id}")
+                    for refcode in maidrefcode_list:
+                        print(f"**{refcode}")
+
+                    print(f"--------------------------------")
+
+                    print(f"image-path-with-face-path: {session_id}")
+                    for path in image_with_face_list:
+                        print(f"**{path}")
+
+                    print(f"--------------------------------")
+
+                    print(f"new-pdf-list-path: {session_id}")
+                    for path in new_pdf_list:
+                        print(f"**{path}")
+
+                    print(f"--------------------------------")
+
 
 
                     seen = set()
