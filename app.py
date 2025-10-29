@@ -2475,10 +2475,21 @@ def upload_files(session_id):
             clean_name = re.sub(r'[^a-zA-Z0-9 ]', '', base_filename)  # remove special characters
             clean_name = clean_name.lower().replace(' ', '_')  # lowercase and replace spaces
             new_filename = f"{clean_name}{file_ext}"
-
+            
+            print(f"new filename: {new_filename}", flush=True)
             file_path = os.path.join(session_folder, new_filename)
             file.save(file_path)
             uploaded_files.append(new_filename)
+
+    print(f"--------------------------------")
+
+    print(f"uploaded files for: {session_id}")
+    print("")
+    for file in uploaded_files:
+        print(file)
+
+    print(f"--------------------------------")
+
 
 
     return jsonify({
