@@ -370,7 +370,9 @@ def save_csv(filename, header, data):
 
         # Special Case: Function to extract numeric characters from a string for "eval_agency_years_infant_child"
         if len(processed_data2) > 54:
-            processed_data2[54] = extract_numeric(processed_data2[54] )
+            # processed_data2[54] = extract_numeric(processed_data2[54] )
+            value = extract_numeric(processed_data2[54])
+            processed_data2[54] = value if value not in (None, '') else 0
 
         # Special Case: Function to extract numeric characters from a string for "eval_agency_stars_infant_child"
         if len(processed_data2) > 55:
@@ -378,7 +380,9 @@ def save_csv(filename, header, data):
 
         # Special Case: Function to extract numeric characters from a string for "eval_agency_years_elderly"
         if len(processed_data2) > 58:
-            processed_data2[58] = extract_numeric(processed_data2[58] )
+            # processed_data2[58] = extract_numeric(processed_data2[58] )
+            value = extract_numeric(processed_data2[58])
+            processed_data2[58] = value if value not in (None, '') else 0
 
         # Special Case: Function to extract numeric characters from a string for "eval_agency_stars_elderly"
         if len(processed_data2) > 59:
@@ -386,7 +390,9 @@ def save_csv(filename, header, data):
 
         # Special Case: Function to extract numeric characters from a string for "eval_agency_years_disabled"
         if len(processed_data2) > 62:
-            processed_data2[62] = extract_numeric(processed_data2[62] )
+            # processed_data2[62] = extract_numeric(processed_data2[62] )
+            value = extract_numeric(processed_data2[62])
+            processed_data2[62] = value if value not in (None, '') else 0
 
         # Special Case: Function to extract numeric characters from a string for "eval_agency_stars_disabled"
         if len(processed_data2) > 63:
@@ -394,7 +400,9 @@ def save_csv(filename, header, data):
 
         # Special Case: Function to extract numeric characters from a string for "eval_agency_years_housework"
         if len(processed_data2) > 66:
-            processed_data2[66] = extract_numeric(processed_data2[66] )
+            # processed_data2[66] = extract_numeric(processed_data2[66] )
+            value = extract_numeric(processed_data2[66])
+            processed_data2[66] = value if value not in (None, '') else 0
 
         # Special Case: Function to extract numeric characters from a string for "eval_agency_stars_housework"
         if len(processed_data2) > 67:
@@ -402,7 +410,9 @@ def save_csv(filename, header, data):
 
         # Special Case: Function to extract numeric characters from a string for "eval_agency_years_cooking"
         if len(processed_data2) > 71:
-            processed_data2[71] = extract_numeric(processed_data2[71] )
+            # processed_data2[71] = extract_numeric(processed_data2[71] )
+            value = extract_numeric(processed_data2[71])
+            processed_data2[71] = value if value not in (None, '') else 0
 
         # Special Case: Function to extract numeric characters from a string for "eval_agency_stars_cooking"
         if len(processed_data2) > 72:
@@ -410,7 +420,9 @@ def save_csv(filename, header, data):
 
         # Special Case: Function to extract numeric characters from a string for "eval_agency_years_language"
         if len(processed_data2) > 76:
-            processed_data2[76] = extract_numeric(processed_data2[76] )
+            # processed_data2[76] = extract_numeric(processed_data2[76] )
+            value = extract_numeric(processed_data2[76])
+            processed_data2[76] = value if value not in (None, '') else 0
 
         # Special Case: Function to extract numeric characters from a string for "eval_agency_stars_language"
         if len(processed_data2) > 77:
@@ -418,7 +430,9 @@ def save_csv(filename, header, data):
 
         # Special Case: Function to extract numeric characters from a string for "eval_agency_years_other_skills"
         if len(processed_data2) > 81:
-            processed_data2[81] = extract_numeric(processed_data2[81] )
+            # processed_data2[81] = extract_numeric(processed_data2[81] )
+            value = extract_numeric(processed_data2[81])
+            processed_data2[81] = value if value not in (None, '') else 0
 
         # Special Case: Function to extract numeric characters from a string for "eval_agency_stars_other_skills"
         if len(processed_data2) > 82:
@@ -502,7 +516,10 @@ def save_csv(filename, header, data):
             42: "No",  ## "handle_pets"
             44: "No",  ## "0 Rest Day Per Month"
             46: "No",  ## "eval_no_agency_no_trainingctr"
-            51: "No",  ## "eval_agency_in_person_observation"
+            48: "Yes", ## "eval_agency_telephone"
+            49: "Yes", ## "eval_agency_videoconference"
+            50: "Yes", ## "eval_agency_in_person"
+            51: "Yes",  ## "eval_agency_in_person_observation"
             53: "No",  ## "eval_agency_willing_infant_child"
             57: "No",  ## "eval_agency_willing_elderly"
             61: "No",  ## "eval_agency_willing_disabled"
