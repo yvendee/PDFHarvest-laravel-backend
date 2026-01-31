@@ -3884,6 +3884,96 @@ def home_page():
 
     return render_template('home/home-page.html', backendurl=BACKEND_API_URL, sessionId=sessionID)
 
+
+@app.route('/settings')
+@login_required  # Ensure only authenticated users can access settings
+def settings_page():
+    if not check_authenticated():
+        return redirect(url_for('login'))
+    return render_template('settings/settings-page.html')
+
+# Endpoint to handle toggle OCR settings
+@app.route('/toggle-ocr/<setting>', methods=['POST'])
+@login_required
+def toggle_ocr_setting(setting):
+        return jsonify({'error': 'Invalid OCR setting'}), 400
+
+
+# def toggle_ocr_setting(setting):
+#     global current_ocr  # Access the global variable
+    
+#     if setting in ['gpt4omini','gpt4o', 'tesseract', 'claude']:
+#         # Set the current OCR setting based on the URL parameter
+#         if setting == 'gpt4omini':
+#             current_ocr = "gpt4ominiOCR"
+#         if setting == 'gpt4o':
+#             current_ocr = "gpt4oOCR"
+#         elif setting == 'tesseract':
+#             current_ocr = "tesseractOCR"
+#         elif setting == 'claude':
+#             current_ocr = "claudeOCR"
+        
+#         # Print the current value of current_ocr
+#         print(f"Current OCR setting: {current_ocr}")
+
+#         return jsonify({'message': f'Successfully set {setting} OCR setting'}), 200
+#     else:
+#         return jsonify({'error': 'Invalid OCR setting'}), 400
+
+# Route to retrieve current OCR setting
+@app.route('/current-ocr', methods=['GET'])
+def get_current_ocr():
+    global current_ocr
+    return jsonify({'current_ocr': current_ocr})
+
+# Endpoint to handle toggle Structured Text settings
+@app.route('/toggle-st/<setting>', methods=['POST'])
+@login_required
+def toggle_st_setting(setting):
+    global current_structured_text  # Access the global variable
+    
+    if setting in ['gpt5nano', 'gpt5mini', 'gpt4omini', 'gpt35']:
+        # Set the current Structured Text setting based on the URL parameter
+        if setting == 'gpt5nano':
+            current_structured_text = "gpt5nano"
+        if setting == 'gpt5mini':
+            current_structured_text = "gpt5mini"
+        if setting == 'gpt4omini':
+            current_structured_text = "gpt4omini"
+        elif setting == 'gpt35':
+            current_structured_text = "gpt35"
+        
+        # Print the current value of current_structured_text
+        print(f"Current Structured Text setting: {current_structured_text}")
+
+        return jsonify({'message': f'Successfully set {setting} Structured Text setting'}), 200
+    else:
+        return jsonify({'error': 'Invalid Structured Text setting'}), 400
+
+# def toggle_st_setting(setting):
+#     global current_structured_text  # Access the global variable
+    
+#     if setting in ['gpt4omini', 'gpt35']:
+#         # Set the current Structured Text setting based on the URL parameter
+#         if setting == 'gpt4omini':
+#             current_structured_text = "gpt4omini"
+#         elif setting == 'gpt35':
+#             current_structured_text = "gpt35"
+        
+#         # Print the current value of current_structured_text
+#         print(f"Current Structured Text setting: {current_structured_text}")
+
+#         return jsonify({'message': f'Successfully set {setting} Structured Text setting'}), 200
+#     else:
+#         return jsonify({'error': 'Invalid Structured Text setting'}), 400
+
+# Route to retrieve current structured text setting
+@app.route('/current-st', methods=['GET'])
+def get_current_st():
+    global current_structured_text
+    return jsonify({'current_structured_text': current_structured_text})
+
+
 @app.route('/custom-prompt-editor', methods=['GET', 'POST'])
 @login_required
 def text_editor():
@@ -3901,6 +3991,7 @@ def text_editor():
         default_content = ''
 
     return render_template('custom/custom-prompt-page.html', default_content=default_content, backendurl=BACKEND_API_URL)
+
 
 @app.route('/default-options')
 def edit_default_options():
