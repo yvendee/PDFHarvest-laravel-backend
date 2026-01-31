@@ -1779,6 +1779,13 @@ def extract_images_with_faces(pdf_path, session_id, image_fullpath_with_face_lis
                 cropped_fullpath = os.path.join(main_folder, cropped_filename)
                 cropped_pil.save(cropped_fullpath, "JPEG")
 
+                # GPT face validation
+                if detect_face_gpt5nano(cropped_fullpath) != "yes":
+                    # Replace cropped image with blank image using SAME filename
+                    shutil.copyfile(BLANK_IMAGE_PATH, cropped_fullpath)
+
+
+
                 # # Draw rectangle on original image
                 # bounded_image = original.copy()
                 # cv2.rectangle(bounded_image, (x, y), (x+w, y+h), (0, 255, 0), 3)
@@ -1840,6 +1847,13 @@ def extract_images_with_faces(pdf_path, session_id, image_fullpath_with_face_lis
                         cropped_filename = f"{maidrefcode}.jpg"
                         cropped_fullpath = os.path.join(main_folder, cropped_filename)
                         cropped_pil.save(cropped_fullpath, "JPEG")
+
+                        # GPT face validation
+                        if detect_face_gpt5nano(cropped_fullpath) != "yes":
+                            # Replace cropped image with blank image using SAME filename
+                            shutil.copyfile(BLANK_IMAGE_PATH, cropped_fullpath)
+
+
 
                         # # Draw rectangle on original image
                         # bounded_image = original.copy()
@@ -1922,6 +1936,11 @@ def extract_images_with_faces(pdf_path, session_id, image_fullpath_with_face_lis
                             cropped_face_filename = f"{maidrefcode}.jpg"
                             cropped_face_fullpath = os.path.join(main_folder, cropped_face_filename)
                             cropped_face_pil.save(cropped_face_fullpath, "JPEG")
+                            # GPT face validation
+                            if detect_face_gpt5nano(cropped_face_fullpath) != "yes":
+                                # Replace cropped image with blank image using SAME filename
+                                shutil.copyfile(BLANK_IMAGE_PATH, cropped_face_fullpath)
+
                             extracted_images.append(cropped_face_pil)
                             image_fullpath_with_face_list.append(cropped_face_fullpath)  
 
@@ -1989,6 +2008,10 @@ def extract_images_with_faces(pdf_path, session_id, image_fullpath_with_face_lis
                                             cropped_face_filename = f"{maidrefcode}.jpg"
                                             cropped_face_fullpath = os.path.join(main_folder, cropped_face_filename)
                                             cropped_face_pil.save(cropped_face_fullpath, "JPEG")
+                                            # GPT face validation
+                                            if detect_face_gpt5nano(cropped_face_fullpath) != "yes":
+                                                # Replace cropped image with blank image using SAME filename
+                                                shutil.copyfile(BLANK_IMAGE_PATH, cropped_face_fullpath)
                                             extracted_images.append(cropped_face_pil)
                                             image_fullpath_with_face_list.append(cropped_face_fullpath)  
                                             break
@@ -2003,6 +2026,10 @@ def extract_images_with_faces(pdf_path, session_id, image_fullpath_with_face_lis
 
                                     # Save the image 
                                     image_pil.save(image_with_face_fullpath, "JPEG")
+                                    # GPT face validation
+                                    if detect_face_gpt5nano(cropped_face_fullpath) != "yes":
+                                        # Replace cropped image with blank image using SAME filename
+                                        shutil.copyfile(BLANK_IMAGE_PATH, cropped_face_fullpath)
                                     extracted_images.append(image_pil)
                                     image_fullpath_with_face_list.append(image_with_face_fullpath)
                                     break 
@@ -2067,6 +2094,10 @@ def extract_images_with_faces(pdf_path, session_id, image_fullpath_with_face_lis
                                     cropped_face_filename = f"{maidrefcode}.jpg"
                                     cropped_face_fullpath = os.path.join(main_folder, cropped_face_filename)
                                     cropped_face_pil.save(cropped_face_fullpath, "JPEG")
+                                    # GPT face validation
+                                    if detect_face_gpt5nano(cropped_face_fullpath) != "yes":
+                                        # Replace cropped image with blank image using SAME filename
+                                        shutil.copyfile(BLANK_IMAGE_PATH, cropped_face_fullpath)
                                     extracted_images.append(cropped_face_pil)
                                     image_fullpath_with_face_list.append(cropped_face_fullpath) 
 
@@ -2074,12 +2105,19 @@ def extract_images_with_faces(pdf_path, session_id, image_fullpath_with_face_lis
                                 break
                             else:
                                 print("No face detected on the first page.")
+                                cropped_face_filename = f"{maidrefcode}.jpg"
+                                cropped_face_fullpath = os.path.join(main_folder, cropped_face_filename)
+                                shutil.copyfile(BLANK_IMAGE_PATH, cropped_face_fullpath)
+                                
 
             print(f"Processed {pdf_path}: {len(extracted_images)} images extracted with faces")
 
             if not face_found:
                 print(f"Processed {pdf_path} --> no-picture-found")
                 image_fullpath_with_face_list.append("no-picture-found")
+                cropped_face_filename = f"{maidrefcode}.jpg"
+                cropped_face_fullpath = os.path.join(main_folder, cropped_face_filename)
+                shutil.copyfile(BLANK_IMAGE_PATH, cropped_face_fullpath)
         
         pdf_document.close()
         return image_fullpath_with_face_list
