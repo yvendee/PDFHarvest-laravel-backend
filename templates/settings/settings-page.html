@@ -91,6 +91,22 @@
 
         <div class="rounded-box">
             <label class="switch">
+                <input type="checkbox" id="gpt5mini_toggle">
+                <span class="slider round"></span>
+            </label>
+            <p>GPT5 mini OCR &nbsp;</p>
+        </div>
+
+        <div class="rounded-box">
+            <label class="switch">
+                <input type="checkbox" id="gpt5nano_toggle">
+                <span class="slider round"></span>
+            </label>
+            <p>GPT5 nano OCR &nbsp;</p>
+        </div>
+
+        <div class="rounded-box">
+            <label class="switch">
                 <input type="checkbox" id="gpt4omini_toggle">
                 <span class="slider round"></span>
             </label>
@@ -122,6 +138,22 @@
         </div>
 
         <h2>Structured Text Settings</h2>
+
+        <div class="rounded-box">
+            <label class="switch">
+                <input type="checkbox" id="st_gpt5mini_toggle">
+                <span class="slider round"></span>
+            </label>
+            <p>GPT5 mini &nbsp;</p>
+        </div>
+
+        <div class="rounded-box">
+            <label class="switch">
+                <input type="checkbox" id="st_gpt5nano_toggle">
+                <span class="slider round"></span>
+            </label>
+            <p>GPT5 nano &nbsp;</p>
+        </div>
 
 
         <div class="rounded-box">
@@ -159,7 +191,27 @@
                     // Update UI based on initial OCR setting
                     switch (currentOCR) {
 
+                        case 'gpt5miniOCR':
+                            document.getElementById('gpt5mini_toggle').checked = true;
+                            document.getElementById('gpt5nano_toggle').checked = false;
+                            document.getElementById('gpt4omini_toggle').checked = false;
+                            document.getElementById('gpt4o_toggle').checked = false;
+                            document.getElementById('tesseract_toggle').checked = false;
+                            document.getElementById('claude_toggle').checked = false;
+                            break;
+
+                        case 'gpt5nanoOCR':
+                            document.getElementById('gpt5mini_toggle').checked = false;
+                            document.getElementById('gpt5nano_toggle').checked = true;
+                            document.getElementById('gpt4omini_toggle').checked = false;
+                            document.getElementById('gpt4o_toggle').checked = false;
+                            document.getElementById('tesseract_toggle').checked = false;
+                            document.getElementById('claude_toggle').checked = false;
+                            break;
+
                         case 'gpt4ominiOCR':
+                            document.getElementById('gpt5mini_toggle').checked = false;
+                            document.getElementById('gpt5nano_toggle').checked = false;
                             document.getElementById('gpt4omini_toggle').checked = true;
                             document.getElementById('gpt4o_toggle').checked = false;
                             document.getElementById('tesseract_toggle').checked = false;
@@ -167,18 +219,24 @@
                             break;
 
                         case 'gpt4oOCR':
+                            document.getElementById('gpt5mini_toggle').checked = false;
+                            document.getElementById('gpt5nano_toggle').checked = false;
                             document.getElementById('gpt4omini_toggle').checked = false;
                             document.getElementById('gpt4o_toggle').checked = true;
                             document.getElementById('tesseract_toggle').checked = false;
                             document.getElementById('claude_toggle').checked = false;
                             break;
                         case 'tesseractOCR':
+                            document.getElementById('gpt5mini_toggle').checked = false;
+                            document.getElementById('gpt5nano_toggle').checked = false;
                             document.getElementById('gpt4omini_toggle').checked = false;
                             document.getElementById('gpt4o_toggle').checked = false;
                             document.getElementById('tesseract_toggle').checked = true;
                             document.getElementById('claude_toggle').checked = false;
                             break;
                         case 'claudeOCR':
+                            document.getElementById('gpt5mini_toggle').checked = false;
+                            document.getElementById('gpt5nano_toggle').checked = false;
                             document.getElementById('gpt4omini_toggle').checked = false;
                             document.getElementById('gpt4o_toggle').checked = false;
                             document.getElementById('tesseract_toggle').checked = false;
@@ -191,9 +249,33 @@
                 .catch(error => console.error('Error fetching current OCR:', error));
         });
 
+        document.getElementById('gpt5nano_toggle').addEventListener('change', function() {
+            if (this.checked) {
+                toggleOCRSetting('gpt5nano', true);
+                document.getElementById('gpt5mini_toggle').checked = false;
+                document.getElementById('gpt4omini_toggle').checked = false;
+                document.getElementById('gpt4o_toggle').checked = false;
+                document.getElementById('tesseract_toggle').checked = false;
+                document.getElementById('claude_toggle').checked = false;
+            }
+        });
+
+        document.getElementById('gpt5mini_toggle').addEventListener('change', function() {
+            if (this.checked) {
+                toggleOCRSetting('gpt5mini', true);
+                document.getElementById('gpt5nano_toggle').checked = false;
+                document.getElementById('gpt4omini_toggle').checked = false;
+                document.getElementById('gpt4o_toggle').checked = false;
+                document.getElementById('tesseract_toggle').checked = false;
+                document.getElementById('claude_toggle').checked = false;
+            }
+        });
+
         document.getElementById('gpt4omini_toggle').addEventListener('change', function() {
             if (this.checked) {
                 toggleOCRSetting('gpt4omini', true);
+                document.getElementById('gpt5mini_toggle').checked = false;
+                document.getElementById('gpt5nano_toggle').checked = false;
                 document.getElementById('gpt4o_toggle').checked = false;
                 document.getElementById('tesseract_toggle').checked = false;
                 document.getElementById('claude_toggle').checked = false;
@@ -203,6 +285,8 @@
         document.getElementById('gpt4o_toggle').addEventListener('change', function() {
             if (this.checked) {
                 toggleOCRSetting('gpt4o', true);
+                document.getElementById('gpt5mini_toggle').checked = false;
+                document.getElementById('gpt5nano_toggle').checked = false;
                 document.getElementById('gpt4omini_toggle').checked = false;
                 document.getElementById('tesseract_toggle').checked = false;
                 document.getElementById('claude_toggle').checked = false;
@@ -212,6 +296,9 @@
         document.getElementById('tesseract_toggle').addEventListener('change', function() {
             if (this.checked) {
                 toggleOCRSetting('tesseract', true);
+                
+                document.getElementById('gpt5mini_toggle').checked = false;
+                document.getElementById('gpt5nano_toggle').checked = false;
                 document.getElementById('gpt4omini_toggle').checked = false;
                 document.getElementById('gpt4o_toggle').checked = false;
                 document.getElementById('claude_toggle').checked = false;
@@ -221,6 +308,9 @@
         document.getElementById('claude_toggle').addEventListener('change', function() {
             if (this.checked) {
                 toggleOCRSetting('claude', true);
+                
+                document.getElementById('gpt5mini_toggle').checked = false;
+                document.getElementById('gpt5nano_toggle').checked = false;
                 document.getElementById('gpt4omini_toggle').checked = false;
                 document.getElementById('gpt4o_toggle').checked = false;
                 document.getElementById('tesseract_toggle').checked = false;
@@ -254,12 +344,30 @@
                     const currentST = data.current_structured_text;
                     // Update UI based on initial Structured Text setting
                     switch (currentST) {
+                        case 'gpt5nano':
+                            document.getElementById('st_gpt5mini_toggle').checked = false;
+                            document.getElementById('st_gpt5nano_toggle').checked = true;
+                            document.getElementById('st_gpt4omini_toggle').checked = false;
+                            document.getElementById('st_gpt35_toggle').checked = false;
+                            break;
+
+                        case 'gpt5mini':
+                            document.getElementById('st_gpt5mini_toggle').checked = true;
+                            document.getElementById('st_gpt5nano_toggle').checked = false;
+                            document.getElementById('st_gpt4omini_toggle').checked = false;
+                            document.getElementById('st_gpt35_toggle').checked = false;
+                            break;
+
                         case 'gpt4omini':
+                            document.getElementById('st_gpt5mini_toggle').checked = false;
+                            document.getElementById('st_gpt5nano_toggle').checked = false;
                             document.getElementById('st_gpt4omini_toggle').checked = true;
                             document.getElementById('st_gpt35_toggle').checked = false;
                             // document.getElementById('claude_toggle').checked = false;
                             break;
                         case 'gpt35':
+                            document.getElementById('st_gpt5mini_toggle').checked = false;
+                            document.getElementById('st_gpt5nano_toggle').checked = false;
                             document.getElementById('st_gpt4omini_toggle').checked = false;
                             document.getElementById('st_gpt35_toggle').checked = true;
                             // document.getElementById('claude_toggle').checked = false;
@@ -271,9 +379,31 @@
                 .catch(error => console.error('Error fetching current Structured Text:', error));
         });
 
+        document.getElementById('st_gpt5mini_toggle').addEventListener('change', function() {
+            if (this.checked) {
+                toggleSTSetting('gpt5mini', true);
+                document.getElementById('st_gpt5nano_toggle').checked = false;
+                document.getElementById('st_gpt4omini_toggle').checked = false;
+                document.getElementById('st_gpt35_toggle').checked = false;
+                // document.getElementById('claude_toggle').checked = false;
+            }
+        });
+
+        document.getElementById('st_gpt5nano_toggle').addEventListener('change', function() {
+            if (this.checked) {
+                toggleSTSetting('gpt5nano', true);
+                document.getElementById('st_gpt5mini_toggle').checked = false;
+                document.getElementById('st_gpt4omini_toggle').checked = false;
+                document.getElementById('st_gpt35_toggle').checked = false;
+                // document.getElementById('claude_toggle').checked = false;
+            }
+        });
+
         document.getElementById('st_gpt4omini_toggle').addEventListener('change', function() {
             if (this.checked) {
                 toggleSTSetting('gpt4omini', true);
+                document.getElementById('st_gpt5nano_toggle').checked = false;
+                document.getElementById('st_gpt5mini_toggle').checked = false;
                 document.getElementById('st_gpt35_toggle').checked = false;
                 // document.getElementById('claude_toggle').checked = false;
             }
@@ -282,6 +412,8 @@
         document.getElementById('st_gpt35_toggle').addEventListener('change', function() {
             if (this.checked) {
                 toggleSTSetting('gpt35', true);
+                document.getElementById('st_gpt5nano_toggle').checked = false;
+                document.getElementById('st_gpt5mini_toggle').checked = false;
                 document.getElementById('st_gpt4omini_toggle').checked = false;
                 // document.getElementById('claude_toggle').checked = false;
             }
