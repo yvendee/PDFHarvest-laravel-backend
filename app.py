@@ -543,46 +543,91 @@ def summary_generation(total_summary, output_folder, base_name, session_id):
 
         total_summary += custom_prompt + "\n"
 
-        if current_structured_text == 'gpt35':
+        # if current_structured_text == 'gpt35':
+
+        #     # Count words in the input string
+        #     word_count = count_words(total_summary)
+
+        #     print(f"word count: {word_count}")
+
+        #     # save_log(os.path.join(output_folder, "logs.txt"),f"word count: {word_count} , gpt3.5 words limit is 3000")
+
+        #     session_folder = os.path.join(app.config['EXTRACTED_PAGE_IMAGES_FOLDER'], session_id)
+        #     save_log(os.path.join(session_folder, "logs.txt"),f"word count: {word_count} , gpt3.5 words limit is 3000")
+
+            
+        #     # Check word count and print appropriate message
+        #     if word_count <= 2900:
+        #         print("Sending text to OpenAI  GPT3.5...")
+        #         # save_log(os.path.join(output_folder, "logs.txt"),"Sending text to OpenAI GPT3.5...")
+        #         session_folder = os.path.join(app.config['EXTRACTED_PAGE_IMAGES_FOLDER'], session_id)
+        #         save_log(os.path.join(session_folder, "logs.txt"),"Sending text to OpenAI GPT3.5...")
+        #         summary_text = get_summary_from_text(total_summary, session_id) ## summary text from gpt3.5
+        #     else:
+        #         # save_log(os.path.join(output_folder, "logs.txt"),"Words limit exceeds..switching to GPT4o")
+        #         # save_log(os.path.join(output_folder, "logs.txt"),"Sending text to OpenAI GPT4o...")
+
+        #         session_folder = os.path.join(app.config['EXTRACTED_PAGE_IMAGES_FOLDER'], session_id)
+        #         save_log(os.path.join(session_folder, "logs.txt"),"Words limit exceeds..switching to GPT4o")
+        #         save_log(os.path.join(session_folder, "logs.txt"),"Sending text to OpenAI GPT4o...")
+
+        #         summary_text = get_summary_from_text_gpt4o(total_summary, session_id) ## summary text from gpt4o
+        # else:  ## gpt4omini
+
+        #     # Count words in the input string
+        #     word_count = count_words(total_summary)
+
+        #     print("Sending text to OpenAI  GPT4omini...")
+        #     # save_log(os.path.join(output_folder, "logs.txt"),"Sending text to OpenAI GPT4omini...")
+        #     session_folder = os.path.join(app.config['EXTRACTED_PAGE_IMAGES_FOLDER'], session_id)
+        #     save_log(os.path.join(session_folder, "logs.txt"),"Sending text to OpenAI GPT4omini...")
+        #     summary_text = get_summary_from_text_gpt4omini(total_summary, session_id) ## summary text from gpt4omini
+
+    if custom_prompt not in ["Not Found", "Read Error"]:
+
+        # total_summary += custom_prompt + "\n"
+
+        if current_structured_text == 'gpt5mini':
+
+            print("Sending text to OpenAI  GPT 5 Mini...")
+            save_log(os.path.join(output_folder, "logs.txt"),"Sending text to OpenAI GPT5...")
+            summary_text = get_summary_from_text_gpt5mini(custom_prompt, total_summary) ## summary text from gpt3.5
+
+        elif current_structured_text == 'gpt5nano':
+
+            print("Sending text to OpenAI  GPT 5 Nano...")
+            save_log(os.path.join(output_folder, "logs.txt"),"Sending text to OpenAI GPT5...")
+            summary_text = get_summary_from_text_gpt5nano(custom_prompt, total_summary) ## summary text from gpt3.5
+
+        elif current_structured_text == 'gpt35':
 
             # Count words in the input string
             word_count = count_words(total_summary)
 
             print(f"word count: {word_count}")
-
-            # save_log(os.path.join(output_folder, "logs.txt"),f"word count: {word_count} , gpt3.5 words limit is 3000")
-
-            session_folder = os.path.join(app.config['EXTRACTED_PAGE_IMAGES_FOLDER'], session_id)
-            save_log(os.path.join(session_folder, "logs.txt"),f"word count: {word_count} , gpt3.5 words limit is 3000")
-
+            save_log(os.path.join(output_folder, "logs.txt"),f"word count: {word_count} , gpt3.5 words limit is 3000")
             
             # Check word count and print appropriate message
             if word_count <= 2900:
                 print("Sending text to OpenAI  GPT3.5...")
-                # save_log(os.path.join(output_folder, "logs.txt"),"Sending text to OpenAI GPT3.5...")
-                session_folder = os.path.join(app.config['EXTRACTED_PAGE_IMAGES_FOLDER'], session_id)
-                save_log(os.path.join(session_folder, "logs.txt"),"Sending text to OpenAI GPT3.5...")
-                summary_text = get_summary_from_text(total_summary, session_id) ## summary text from gpt3.5
+                save_log(os.path.join(output_folder, "logs.txt"),"Sending text to OpenAI GPT3.5...")
+                summary_text = get_summary_from_text(custom_prompt, total_summary) ## summary text from gpt3.5
             else:
-                # save_log(os.path.join(output_folder, "logs.txt"),"Words limit exceeds..switching to GPT4o")
-                # save_log(os.path.join(output_folder, "logs.txt"),"Sending text to OpenAI GPT4o...")
-
-                session_folder = os.path.join(app.config['EXTRACTED_PAGE_IMAGES_FOLDER'], session_id)
-                save_log(os.path.join(session_folder, "logs.txt"),"Words limit exceeds..switching to GPT4o")
-                save_log(os.path.join(session_folder, "logs.txt"),"Sending text to OpenAI GPT4o...")
-
-                summary_text = get_summary_from_text_gpt4o(total_summary, session_id) ## summary text from gpt4o
+                save_log(os.path.join(output_folder, "logs.txt"),"Words limit exceeds..switching to GPT4o")
+                save_log(os.path.join(output_folder, "logs.txt"),"Sending text to OpenAI GPT4o...")
+                summary_text = get_summary_from_text_gpt4o(custom_prompt, total_summary) ## summary text from gpt4o
+        
         else:  ## gpt4omini
 
             # Count words in the input string
             word_count = count_words(total_summary)
 
             print("Sending text to OpenAI  GPT4omini...")
-            # save_log(os.path.join(output_folder, "logs.txt"),"Sending text to OpenAI GPT4omini...")
-            session_folder = os.path.join(app.config['EXTRACTED_PAGE_IMAGES_FOLDER'], session_id)
-            save_log(os.path.join(session_folder, "logs.txt"),"Sending text to OpenAI GPT4omini...")
-            summary_text = get_summary_from_text_gpt4omini(total_summary, session_id) ## summary text from gpt4omini
+            save_log(os.path.join(output_folder, "logs.txt"),"Sending text to OpenAI GPT4omini...")
+            summary_text = get_summary_from_text_gpt4omini(custom_prompt, total_summary) ## summary text from gpt4omini
 
+
+        
         ## test
         # summary_text = get_summary_from_text_test(total_summary, session_id)
 
@@ -1166,16 +1211,32 @@ def pdf_to_jpg(pdf_file, output_folder, session_id, zoom=2):
         save_log(os.path.join(session_folder, "logs.txt"),f"Page {page_num + 1} of {pdf_file} extracted")
         save_log(os.path.join(session_folder, "logs.txt"),f"Current OCR used is {current_ocr}")
 
-        if current_ocr == 'gpt4oOCR':
-            summary = get_summary_from_image(image_filename, session_id) ## summary text from gpt4o OCR
+        # if current_ocr == 'gpt4oOCR':
+        #     summary = get_summary_from_image(image_filename, session_id) ## summary text from gpt4o OCR
+        # elif current_ocr == 'tesseractOCR':
+        #     summary = extract_text_from_image(image_filename, session_id) ## extracted text from local tesseract OCR
+        # elif current_ocr == 'claudeOCR':
+        #     summary = get_summary_from_image_using_claude(image_filename, session_id) ## summary text from claude Haiku OCR
+        # elif current_ocr == 'gpt4ominiOCR':
+        #     summary = get_summary_from_image_gpt4omini(image_filename, session_id) ## summary text from gpt4omini OCR
+        # else:
+        #     summary = get_summary_from_image_gpt4omini(image_filename, session_id) ## summary text from gpt4omini OCR
+
+
+        if current_ocr == 'gpt5nanoOCR':
+            summary = get_summary_from_image_gpt5nano(image_filename) ## summary text from gpt5nano OCR
+        elif current_ocr == 'gpt5miniOCR':
+            summary = get_summary_from_image_gpt5mini(image_filename) ## summary text from gp5mini OCR
+        elif current_ocr == 'gpt4oOCR':
+            summary = get_summary_from_image(image_filename) ## summary text from gpt4o OCR
         elif current_ocr == 'tesseractOCR':
-            summary = extract_text_from_image(image_filename, session_id) ## extracted text from local tesseract OCR
+            summary = extract_text_from_image(image_filename) ## extracted text from local tesseract OCR
         elif current_ocr == 'claudeOCR':
-            summary = get_summary_from_image_using_claude(image_filename, session_id) ## summary text from claude Haiku OCR
+            summary = get_summary_from_image_using_claude(image_filename) ## summary text from claude Haiku OCR
         elif current_ocr == 'gpt4ominiOCR':
-            summary = get_summary_from_image_gpt4omini(image_filename, session_id) ## summary text from gpt4omini OCR
+            summary = get_summary_from_image_gpt4omini(image_filename) ## summary text from gpt4omini OCR
         else:
-            summary = get_summary_from_image_gpt4omini(image_filename, session_id) ## summary text from gpt4omini OCR
+            summary = get_summary_from_image_gpt4omini(image_filename) ## summary text from gpt4omini OCR
 
         ## this is a test code
         # summary = "summary_from_page"
