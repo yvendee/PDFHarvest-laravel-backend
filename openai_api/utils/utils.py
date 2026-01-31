@@ -11,6 +11,7 @@ from log_functions.utils.utils import save_log
 
 app = Flask(__name__)
 app.config['EXTRACTED_PAGE_IMAGES_FOLDER'] = 'output_extracted_page_image/'
+LOGPATH = 'output_extracted_page_image'
 
 def detect_face_gpt5nano(image_path):
     try:
