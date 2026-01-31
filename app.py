@@ -30,7 +30,8 @@ import cv2
 import numpy as np
 from PIL import Image
 # from flask_cors import CORS
-from openai_api.utils.utils import ( get_summary_from_image, get_summary_from_text, get_summary_from_text_gpt4o, get_summary_from_text_test, get_summary_from_text_gpt4omini, get_summary_from_image_gpt4omini)
+from openai_api.utils.utils import ( get_summary_from_image, get_summary_from_text, get_summary_from_text_gpt4o, get_summary_from_text_test, get_summary_from_text_gpt4omini, get_summary_from_image_gpt4omini, detect_face_gpt4omini, get_summary_from_text_gpt5mini, get_summary_from_text_gpt5nano, get_summary_from_image_gpt5nano, get_summary_from_image_gpt5mini, detect_face_gpt5nano)
+
 from anthropic_api.utils.utils import ( get_summary_from_image_using_claude )
 
 from custom_prompt.utils.utils import read_custom_prompt
@@ -57,11 +58,12 @@ setup_swagger(app)
 # Hardcoded username and password (for demo purposes)
 USERNAME = "searchmaid"
 PASSWORD = "maidasia"
-current_ocr = "gpt4ominiOCR" # Global variable to store current OCR setting
-
+# current_ocr = "gpt4ominiOCR" # Global variable to store current OCR setting
+current_ocr = "gpt5nanoOCR"
 # Global variable to store structured text setting
 # current_structured_text = "gpt4omini"
-current_structured_text = "gpt4omini"
+# current_structured_text = "gpt4omini"
+current_structured_text = "gpt5mini"
 maid_status_global = "None"
 
 
@@ -70,6 +72,8 @@ BACKEND_API_URL = os.environ.get('BACKEND_API_URL', 'http://localhost:5000')  # 
 
 GENERATE_CSV_FOLDER = 'output_csv'
 DOWNLOAD_OCR_FILE_PATH = 'uploads/OCR.txt'
+
+BLANK_IMAGE_PATH = os.path.join("static", "img", "blank.jpg")
 
 app.config['GENERATE_CSV_FOLDER'] = 'output_csv'
 
@@ -81,6 +85,7 @@ app.config['GENERATE_CSV_FOLDER'] = 'output_csv'
 
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 os.makedirs(app.config['OUTPUT_FOLDER'], exist_ok=True)
+
 os.makedirs(app.config['EXTRACTED_PROFILE_PICTURE_FOLDER'], exist_ok=True)
 os.makedirs(app.config['EXTRACTED_PAGE_IMAGES_FOLDER'], exist_ok=True)
 os.makedirs(app.config['GENERATE_CSV_FOLDER'], exist_ok=True)
