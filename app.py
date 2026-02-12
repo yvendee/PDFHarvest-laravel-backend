@@ -2353,17 +2353,44 @@ def upload_file(session_id):
 
         print(f"Uploading: {file.filename}")  # Log the file names
 
+        # if file and file.filename:
+        #     filename = file.filename
+        #     file_ext = os.path.splitext(filename)[1].lower()
+
+        #     # Rename the file: remove special chars, lowercase, keep alphanum, replace space with "_"
+        #     base_filename = os.path.splitext(filename)[0]
+        #     clean_name = re.sub(r'[^a-zA-Z0-9 ]', '', base_filename)  # remove special characters
+        #     clean_name = clean_name.lower().replace(' ', '_')  # lowercase and replace spaces
+        #     new_filename = f"{clean_name}{file_ext}"
+
+        #     file_path = os.path.join(session_folder, new_filename)
+        #     file.save(file_path)
+        #     uploaded_files.append(new_filename)
+
         if file and file.filename:
-            filename = file.filename
-            file_ext = os.path.splitext(filename)[1].lower()
-
-            # Rename the file: remove special chars, lowercase, keep alphanum, replace space with "_"
-            base_filename = os.path.splitext(filename)[0]
-            clean_name = re.sub(r'[^a-zA-Z0-9 ]', '', base_filename)  # remove special characters
-            clean_name = clean_name.lower().replace(' ', '_')  # lowercase and replace spaces
+            original_filename = file.filename
+            file_ext = os.path.splitext(original_filename)[1].lower()
+    
+            # Clean filename
+            base_filename = os.path.splitext(original_filename)[0]
+            clean_name = re.sub(r'[^a-zA-Z0-9 ]', '', base_filename)
+            clean_name = clean_name.lower().replace(' ', '_')
+    
+            # 🔹 Truncate to 20 characters
+            clean_name = clean_name[:20]
+    
             new_filename = f"{clean_name}{file_ext}"
-
             file_path = os.path.join(session_folder, new_filename)
+    
+            # 🔹 Handle duplicate filenames
+            counter = 1
+            while os.path.exists(file_path):
+                # leave space for suffix like _1, _2, etc.
+                truncated_name = clean_name[:20 - len(f"_{counter}")]
+                new_filename = f"{truncated_name}_{counter}{file_ext}"
+                file_path = os.path.join(session_folder, new_filename)
+                counter += 1
+    
             file.save(file_path)
             uploaded_files.append(new_filename)
 
